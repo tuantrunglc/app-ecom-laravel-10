@@ -9,8 +9,8 @@
          </div>
      </div>
     <div class="card-header py-3">
-      <h6 class="m-0 font-weight-bold text-primary float-left">Product Lists</h6>
-      <a href="{{route('product.create')}}" class="btn btn-primary btn-sm float-right" data-toggle="tooltip" data-placement="bottom" title="Add User"><i class="fas fa-plus"></i> Add Product</a>
+      <h6 class="m-0 font-weight-bold text-primary float-left">Danh Sách Sản Phẩm</h6>
+      <a href="{{route('product.create')}}" class="btn btn-primary btn-sm float-right" data-toggle="tooltip" data-placement="bottom" title="Thêm Sản Phẩm"><i class="fas fa-plus"></i> Thêm Sản Phẩm</a>
     </div>
     <div class="card-body">
       <div class="table-responsive">
@@ -18,36 +18,36 @@
         <table class="table table-bordered" id="product-dataTable" width="100%" cellspacing="0">
           <thead>
             <tr>
-              <th>S.N.</th>
-              <th>Title</th>
-              <th>Category</th>
-              <th>Is Featured</th>
-              <th>Price</th>
-              <th>Discount</th>
-              <th>Size</th>
-              <th>Condition</th>
-              <th>Brand</th>
-              <th>Stock</th>
-              <th>Photo</th>
-              <th>Status</th>
-              <th>Action</th>
+              <th>STT</th>
+              <th>Tiêu Đề</th>
+              <th>Danh Mục</th>
+              <th>Nổi Bật</th>
+              <th>Giá</th>
+              <th>Giảm Giá</th>
+              <th>Kích Thước</th>
+              <th>Tình Trạng</th>
+              <th>Thương Hiệu</th>
+              <th>Tồn Kho</th>
+              <th>Hình Ảnh</th>
+              <th>Trạng Thái</th>
+              <th>Hành Động</th>
             </tr>
           </thead>
           <tfoot>
             <tr>
-              <th>S.N.</th>
-              <th>Title</th>
-              <th>Category</th>
-              <th>Is Featured</th>
-              <th>Price</th>
-              <th>Discount</th>
-              <th>Size</th>
-              <th>Condition</th>
-              <th>Brand</th>
-              <th>Stock</th>
-              <th>Photo</th>
-              <th>Status</th>
-              <th>Action</th>
+              <th>STT</th>
+              <th>Tiêu Đề</th>
+              <th>Danh Mục</th>
+              <th>Nổi Bật</th>
+              <th>Giá</th>
+              <th>Giảm Giá</th>
+              <th>Kích Thước</th>
+              <th>Tình Trạng</th>
+              <th>Thương Hiệu</th>
+              <th>Tồn Kho</th>
+              <th>Hình Ảnh</th>
+              <th>Trạng Thái</th>
+              <th>Hành Động</th>
             </tr>
           </tfoot>
           <tbody>
@@ -66,9 +66,9 @@
                           {{$product->sub_cat_info->title ?? ''}}
                       </sub>
                     </td>
-                    <td>{{(($product->is_featured==1)? 'Yes': 'No')}}</td>
-                    <td>Rs. {{$product->price}} /-</td>
-                    <td>  {{$product->discount}}% OFF</td>
+                    <td>{{(($product->is_featured==1)? 'Có': 'Không')}}</td>
+                    <td>${{$product->price}}</td>
+                    <td>  {{$product->discount}}% GIẢM</td>
                     <td>{{$product->size}}</td>
                     <td>{{$product->condition}}</td>
                     <td> {{ucfirst($product->brand->title)}}</td>
@@ -87,7 +87,7 @@
                             @endphp
                             <img src="{{$photo[0]}}" class="img-fluid zoom" style="max-width:80px" alt="{{$product->photo}}">
                         @else
-                            <img src="{{asset('backend/img/thumbnail-default.jpg')}}" class="img-fluid" style="max-width:80px" alt="avatar.png">
+                            <img src="https://demoeshop.online/public/backend/img/thumbnail-default.jpg" class="img-fluid" style="max-width:80px" alt="avatar.png">
                         @endif
                     </td>
                     <td>
@@ -111,7 +111,7 @@
         </table>
         <span style="float:right">{{$products->links()}}</span>
         @else
-          <h6 class="text-center">No Products found!!! Please create Product</h6>
+          <h6 class="text-center">Không tìm thấy sản phẩm nào!!! Vui lòng tạo sản phẩm</h6>
         @endif
       </div>
     </div>
@@ -119,7 +119,7 @@
 @endsection
 
 @push('styles')
-  <link href="{{asset('backend/vendor/datatables/dataTables.bootstrap4.min.css')}}" rel="stylesheet">
+  <link href="https://demoeshop.online/public/backend/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css" />
   <style>
       div.dataTables_wrapper div.dataTables_paginate{
@@ -138,12 +138,12 @@
 @push('scripts')
 
   <!-- Page level plugins -->
-  <script src="{{asset('backend/vendor/datatables/jquery.dataTables.min.js')}}"></script>
-  <script src="{{asset('backend/vendor/datatables/dataTables.bootstrap4.min.js')}}"></script>
+  <script src="https://demoeshop.online/public/backend/vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="https://demoeshop.online/public/backend/vendor/datatables/dataTables.bootstrap4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
 
   <!-- Page level custom scripts -->
-  <script src="{{asset('backend/js/demo/datatables-demo.js')}}"></script>
+  <script src="https://demoeshop.online/public/backend/js/demo/datatables-demo.js"></script>
   <script>
 
       $('#product-dataTable').DataTable( {
@@ -175,8 +175,8 @@
               // alert(dataID);
               e.preventDefault();
               swal({
-                    title: "Are you sure?",
-                    text: "Once deleted, you will not be able to recover this data!",
+                    title: "Bạn có chắc chắn?",
+                    text: "Sau khi xóa, bạn sẽ không thể khôi phục dữ liệu này!",
                     icon: "warning",
                     buttons: true,
                     dangerMode: true,
@@ -185,7 +185,7 @@
                     if (willDelete) {
                        form.submit();
                     } else {
-                        swal("Your data is safe!");
+                        swal("Dữ liệu của bạn an toàn!");
                     }
                 });
           })

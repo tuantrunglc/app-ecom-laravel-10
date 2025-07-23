@@ -9,22 +9,22 @@
          </div>
      </div>
     <div class="card-header py-3">
-      <h6 class="m-0 font-weight-bold text-primary float-left">Users List</h6>
-      <a href="{{route('users.create')}}" class="btn btn-primary btn-sm float-right" data-toggle="tooltip" data-placement="bottom" title="Add User"><i class="fas fa-plus"></i> Add User</a>
+      <h6 class="m-0 font-weight-bold text-primary float-left">Danh Sách Người Dùng</h6>
+      <a href="{{route('users.create')}}" class="btn btn-primary btn-sm float-right" data-toggle="tooltip" data-placement="bottom" title="Thêm Người Dùng"><i class="fas fa-plus"></i> Thêm Người Dùng</a>
     </div>
     <div class="card-body">
       <div class="table-responsive">
         <table class="table table-bordered" id="user-dataTable" width="100%" cellspacing="0">
           <thead>
             <tr>
-              <th>S.N.</th>
-              <th>Name</th>
+              <th>STT</th>
+              <th>Tên</th>
               <th>Email</th>
-              <th>Photo</th>
-              <th>Join Date</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Action</th>
+              <th>Hình Ảnh</th>
+              <th>Ngày Tham Gia</th>
+              <th>Vai Trò</th>
+              <th>Trạng Thái</th>
+              <th>Hành Động</th>
             </tr>
           </thead>
           <tfoot>

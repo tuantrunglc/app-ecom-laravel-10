@@ -1,0 +1,59 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Redirect root requests to public folder
+    RewriteCond %{THE_REQUEST} /public/([^\s?]*) [NC]
+    RewriteRule ^ /%1 [R=301,L]
+    
+    # Internal rewrite to public folder
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ public/$1 [L]
+    
+    # If file exists in public, serve it
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{DOCUMENT_ROOT}/public/$1 -f
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Security: Hide sensitive files and directories
+<FilesMatch "^(\.env|\.git|composer\.json|composer\.lock|artisan|package\.json|webpack\.mix\.js)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Hide Laravel directories from direct access
+<DirectoryMatch "^.*(app|bootstrap|config|database|resources|routes|storage|tests|vendor).*">
+    Order allow,deny  
+    Deny from all
+</DirectoryMatch>
+
+# Allow public directory
+<Directory "public">
+    Order allow,deny
+    Allow from all
+    
+    # Laravel's .htaccess rules for public folder
+    <IfModule mod_rewrite.c>
+        <IfModule mod_negotiation.c>
+            Options -MultiViews -Indexes
+        </IfModule>
+
+        RewriteEngine On
+
+        # Handle Authorization Header
+        RewriteCond %{HTTP:Authorization} .
+        RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+        # Redirect Trailing Slashes If Not A Folder...
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteCond %{REQUEST_URI} (.+)/$
+        RewriteRule ^ %1 [L,R=301]
+
+        # Send Requests To Front Controller...
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteRule ^ index.php [L]
+    </IfModule>
+</Directory>
