@@ -193,8 +193,18 @@
                                             <li class="{{Request::path()=='about-us' ? 'active' : ''}}"><a href="{{route('about-us')}}">About Us</a></li>
                                             <li class="@if(Request::path()=='product-grids'||Request::path()=='product-lists')  active  @endif"><a href="{{route('product-grids')}}">Products</a><span class="new">New</span></li>												
                                                 {{Helper::getHeaderCategory()}}
-                                            <li class="{{Request::path()=='blog' ? 'active' : ''}}"><a href="{{route('blog')}}">Blog</a></li>									
-                                               
+                                            <li class="{{Request::path()=='blog' ? 'active' : ''}}"><a href="{{route('blog')}}">Blog</a></li>
+                                            <li class="@if(str_contains(Request::path(), 'lucky-wheel')) active @endif">
+                                                <a href="{{route('lucky-wheel.index')}}">
+                                                     LUCKY WHEEL
+                                                    @auth
+                                                        @if(Helper::getUserRemainingSpins() > 0)
+                                                            <span class="badge badge-success" style="background: #28a745; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 5px;">{{Helper::getUserRemainingSpins()}}</span>
+                                                        @endif
+                                                    @endauth
+                                                </a>
+                                                <span class="new">Hot</span>
+                                            </li>									
                                             <li class="{{Request::path()=='contact' ? 'active' : ''}}"><a href="{{route('contact')}}">Contact Us</a></li>
                                         </ul>
                                     </div>

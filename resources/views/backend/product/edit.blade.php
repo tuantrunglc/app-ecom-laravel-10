@@ -77,6 +77,14 @@
           <span class="text-danger">{{$message}}</span>
           @enderror
         </div>
+
+        <div class="form-group">
+          <label for="commission" class="col-form-label">Commission(%)</label>
+          <input id="commission" type="number" name="commission" min="0" max="100" step="0.01" placeholder="Enter commission percentage"  value="{{$product->commission ?? 0}}" class="form-control">
+          @error('commission')
+          <span class="text-danger">{{$message}}</span>
+          @enderror
+        </div>
         <div class="form-group">
           <label for="size">Size</label>
           <select name="size[]" class="form-control selectpicker"  multiple data-live-search="true">

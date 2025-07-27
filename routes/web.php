@@ -210,3 +210,53 @@
     Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
         Lfm::routes();
     });
+
+// Lucky Wheel Routes
+use App\Http\Controllers\LuckyWheelController;
+use App\Http\Controllers\Admin\LuckyWheelAdminController;
+
+// Frontend Lucky Wheel Routes
+Route::group(['prefix' => 'lucky-wheel'], function () {
+    Route::get('/', [LuckyWheelController::class, 'index'])->name('lucky-wheel.index');
+    Route::post('/spin', [LuckyWheelController::class, 'spin'])->name('lucky-wheel.spin')->middleware('auth');
+    Route::get('/history', [LuckyWheelController::class, 'history'])->name('lucky-wheel.history')->middleware('auth');
+    
+    // API Routes
+    Route::get('/api/prizes', [LuckyWheelController::class, 'getPrizes'])->name('lucky-wheel.api.prizes');
+    Route::get('/api/user-info', [LuckyWheelController::class, 'getUserInfo'])->name('lucky-wheel.api.user-info');
+});
+
+// Admin Lucky Wheel Routes
+Route::group(['prefix' => '/admin/lucky-wheel', 'middleware' => ['auth', 'admin']], function () {
+    // Dashboard
+    Route::get('/', [LuckyWheelAdminController::class, 'index'])->name('admin.lucky-wheel.index');
+    
+    // Prizes Management
+    Route::get('/prizes', [LuckyWheelAdminController::class, 'prizes'])->name('admin.lucky-wheel.prizes');
+    Route::get('/prizes/create', [LuckyWheelAdminController::class, 'createPrize'])->name('admin.lucky-wheel.prizes.create');
+    Route::post('/prizes', [LuckyWheelAdminController::class, 'storePrize'])->name('admin.lucky-wheel.prizes.store');
+    Route::get('/prizes/{id}/edit', [LuckyWheelAdminController::class, 'editPrize'])->name('admin.lucky-wheel.prizes.edit');
+    Route::put('/prizes/{id}', [LuckyWheelAdminController::class, 'updatePrize'])->name('admin.lucky-wheel.prizes.update');
+    Route::delete('/prizes/{id}', [LuckyWheelAdminController::class, 'deletePrize'])->name('admin.lucky-wheel.prizes.delete');
+    
+    // Settings
+    Route::get('/settings', [LuckyWheelAdminController::class, 'settings'])->name('admin.lucky-wheel.settings');
+    Route::post('/settings', [LuckyWheelAdminController::class, 'updateSettings'])->name('admin.lucky-wheel.settings.update');
+    
+    // Spins History
+    Route::get('/spins', [LuckyWheelAdminController::class, 'spins'])->name('admin.lucky-wheel.spins');
+    
+    // Set Result for User
+    Route::get('/set-result', [LuckyWheelAdminController::class, 'setResult'])->name('admin.lucky-wheel.set-result');
+    Route::post('/set-result', [LuckyWheelAdminController::class, 'storeSetResult'])->name('admin.lucky-wheel.set-result.store');
+    
+    // Admin Sets Management
+    Route::get('/admin-sets', [LuckyWheelAdminController::class, 'adminSets'])->name('admin.lucky-wheel.admin-sets');
+    Route::delete('/admin-sets/{id}', [LuckyWheelAdminController::class, 'deleteAdminSet'])->name('admin.lucky-wheel.admin-sets.delete');
+    
+    // Statistics
+    Route::get('/statistics', [LuckyWheelAdminController::class, 'statistics'])->name('admin.lucky-wheel.statistics');
+    
+    // Cleanup
+    Route::post('/cleanup', [LuckyWheelAdminController::class, 'cleanup'])->name('admin.lucky-wheel.cleanup');
+});

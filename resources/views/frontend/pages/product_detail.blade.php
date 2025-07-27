@@ -85,6 +85,11 @@
                                                     $after_discount=($product_detail->price-(($product_detail->price*$product_detail->discount)/100));
                                                 @endphp
 												<p class="price"><span class="discount">${{number_format($after_discount,2)}}</span><s>${{number_format($product_detail->price,2)}}</s> </p>
+												@if($product_detail->commission && $product_detail->commission > 0)
+													<p class="commission" style="color: #28a745; font-weight: bold; margin: 10px 0;">
+														<i class="fa fa-percent"></i> Commission: {{$product_detail->commission}}%
+													</p>
+												@endif
 												<p class="description">{!!($product_detail->summary)!!}</p>
 											</div>
 											<!--/ End Description -->

@@ -8,6 +8,8 @@ use App\Models\Order;
 use App\Models\Wishlist;
 use App\Models\Shipping;
 use App\Models\Cart;
+use App\Models\LuckyWheelSetting;
+use App\Models\LuckyWheelSpin;
 use Illuminate\Support\Str;
 
 // use Auth;
@@ -65,33 +67,18 @@ class Helper
         }
     }
 
-    public static function productCategoryList($option = 'all')
-    {
-        if ($option = 'all') {
-            return Category::orderBy('id', 'DESC')->get();
-        }
-        return Category::has('products')->orderBy('id', 'DESC')->get();
-    }
-
-    public static function postTagList($option = 'all')
-    {
-        if ($option = 'all') {
-            return PostTag::orderBy('id', 'desc')->get();
-        }
-        return PostTag::has('posts')->orderBy('id', 'desc')->get();
-    }
 
     public static function postCategoryList($option = "all")
     {
-        if ($option = 'all') {
+        if ($option == 'all') {
             return PostCategory::orderBy('id', 'DESC')->get();
         }
         return PostCategory::has('posts')->orderBy('id', 'DESC')->get();
     }
+
     // Cart Count
     public static function cartCount($user_id = '')
     {
-
         if (Auth::check()) {
             if ($user_id == "") $user_id = auth()->user()->id;
             return Cart::where('user_id', $user_id)->where('order_id', null)->sum('quantity');
@@ -99,6 +86,7 @@ class Helper
             return 0;
         }
     }
+
     // relationship cart with product
     public function product()
     {
@@ -114,6 +102,7 @@ class Helper
             return 0;
         }
     }
+
     // Total amount cart
     public static function totalCartPrice($user_id = '')
     {
@@ -124,10 +113,10 @@ class Helper
             return 0;
         }
     }
+
     // Wishlist Count
     public static function wishlistCount($user_id = '')
     {
-
         if (Auth::check()) {
             if ($user_id == "") $user_id = auth()->user()->id;
             return Wishlist::where('user_id', $user_id)->where('cart_id', null)->sum('quantity');
@@ -135,6 +124,7 @@ class Helper
             return 0;
         }
     }
+
     public static function getAllProductFromWishlist($user_id = '')
     {
         if (Auth::check()) {
@@ -144,6 +134,7 @@ class Helper
             return 0;
         }
     }
+
     public static function totalWishlistPrice($user_id = '')
     {
         if (Auth::check()) {
@@ -158,7 +149,7 @@ class Helper
     public static function grandPrice($id, $user_id)
     {
         $order = Order::find($id);
-        dd($id);
+        // dd($id);
         if ($order) {
             $shipping_price = (float)$order->shipping->price;
             $order_price = self::orderPrice($id, $user_id);
@@ -167,7 +158,6 @@ class Helper
             return 0;
         }
     }
-
 
     // Admin home
     public static function earningPerMonth()
@@ -185,9 +175,68 @@ class Helper
     {
         return Shipping::orderBy('id', 'DESC')->get();
     }
+
+    // Lucky Wheel Helper Methods
+    public static function getLuckyWheelSettings()
+    {
+        return LuckyWheelSetting::first();
+    }
+
+    public static function getUserRemainingSpins($userId = null)
+    {
+        if (!$userId) {
+            $userId = auth()->id();
+        }
+
+        if (!$userId) {
+            return 0;
+        }
+
+        $settings = self::getLuckyWheelSettings();
+        $maxSpins = $settings ? $settings->max_spins_per_day : 3;
+
+        $userSpinsToday = LuckyWheelSpin::where('user_id', $userId)
+            ->whereDate('created_at', today())
+            ->count();
+
+        return max(0, $maxSpins - $userSpinsToday);
+    }
+
+    public static function isLuckyWheelEnabled()
+    {
+        $settings = self::getLuckyWheelSettings();
+        return $settings ? $settings->is_enabled : false;
+    }
+
+    public static function getUserTotalSpins($userId = null)
+    {
+        if (!$userId) {
+            $userId = auth()->id();
+        }
+
+        if (!$userId) {
+            return 0;
+        }
+
+        return LuckyWheelSpin::where('user_id', $userId)->count();
+    }
+
+    public static function getUserWinCount($userId = null)
+    {
+        if (!$userId) {
+            $userId = auth()->id();
+        }
+
+        if (!$userId) {
+            return 0;
+        }
+
+        return LuckyWheelSpin::where('user_id', $userId)
+            ->where('is_winner', true)
+            ->count();
+    }  
+
 }
-
-
 
 if (!function_exists('generateUniqueSlug')) {
     /**

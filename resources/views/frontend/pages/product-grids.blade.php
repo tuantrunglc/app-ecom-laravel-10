@@ -194,6 +194,11 @@
                                                 @endphp
                                                 <span>${{number_format($after_discount,2)}}</span>
                                                 <del style="padding-left:4%;">${{number_format($product->price,2)}}</del>
+                                                @if($product->commission && $product->commission > 0)
+                                                    <div class="commission-badge" style="background: #28a745; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-top: 5px; display: inline-block;">
+                                                        <i class="fa fa-percent"></i> {{$product->commission}}Commission
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>

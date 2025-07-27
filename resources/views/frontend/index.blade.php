@@ -147,6 +147,11 @@
                                                 <span>${{number_format($after_discount,2)}}</span>
                                                 <del style="padding-left:4%;">${{number_format($product->price,2)}}</del>
                                             </div>
+                                            @if($product->commission && $product->commission > 0)
+                                                <div class="commission-badge" style="background: #28a745; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-top: 5px; display: inline-block;">
+                                                    <i class="fa fa-percent"></i> {{$product->commission}}Commission
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -241,6 +246,11 @@
                                     @endphp
                                     <span>${{number_format($after_discount,2)}}</span>
                                 </div>
+                                @if($product->commission && $product->commission > 0)
+                                    <div class="commission-badge" style="background: #28a745; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-top: 5px; display: inline-block;">
+                                        <i class="fa fa-percent"></i> {{$product->commission}}Commission
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         <!-- End Single Product -->
@@ -252,6 +262,72 @@
     </div>
 </div>
 <!-- End Most Popular Area -->
+
+<!-- Start Lucky Wheel Banner -->
+<section class="lucky-wheel-banner section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="lucky-wheel-promo">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6 col-md-6 col-12">
+                            <div class="promo-content">
+                                <h2 class="promo-title">
+                                    <i class="fas fa-gift"></i> 
+                                    Vòng Quay May Mắn
+                                </h2>
+                                <p class="promo-description">
+                                    Tham gia vòng quay may mắn để nhận những phần thưởng hấp dẫn! 
+                                    Mỗi ngày bạn có cơ hội quay và trúng những món quà giá trị.
+                                </p>
+                                <div class="promo-features">
+                                    <div class="feature-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Miễn phí tham gia</span>
+                                    </div>
+                                    <div class="feature-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Phần thưởng hấp dẫn</span>
+                                    </div>
+                                    <div class="feature-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Cơ hội trúng mỗi ngày</span>
+                                    </div>
+                                </div>
+                                <div class="promo-actions">
+                                    <a href="{{ route('lucky-wheel.index') }}" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-sync-alt"></i> Quay Ngay
+                                    </a>
+                                    @auth
+                                    <a href="{{ route('lucky-wheel.history') }}" class="btn btn-outline-primary">
+                                        <i class="fas fa-history"></i> Lịch Sử
+                                    </a>
+                                    @endauth
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-12">
+                            <div class="promo-image text-center">
+                                <div class="wheel-preview">
+                                    <div class="wheel-circle">
+                                        <i class="fas fa-gift"></i>
+                                    </div>
+                                    <div class="floating-prizes">
+                                        <div class="prize prize-1">🎁</div>
+                                        <div class="prize prize-2">💎</div>
+                                        <div class="prize prize-3">🏆</div>
+                                        <div class="prize prize-4">💰</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End Lucky Wheel Banner -->
 
 <!-- Start Shop Home List  -->
 <section class="shop-home-list section">
@@ -555,6 +631,195 @@
 
         #Gslider .carousel-indicators {
         bottom: 70px;
+        }
+
+        /* Lucky Wheel Banner Styles */
+        .lucky-wheel-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 60px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lucky-wheel-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .lucky-wheel-promo {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 2;
+        }
+
+        .promo-title {
+            color: #333;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .promo-title i {
+            color: #f39c12;
+            margin-right: 10px;
+        }
+
+        .promo-description {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .promo-features {
+            margin-bottom: 30px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .feature-item i {
+            color: #27ae60;
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+
+        .promo-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .promo-actions .btn {
+            padding: 12px 30px;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .promo-actions .btn-primary {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            border: none;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .promo-actions .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+        }
+
+        .wheel-preview {
+            position: relative;
+            display: inline-block;
+        }
+
+        .wheel-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(243, 156, 18, 0.3);
+            animation: wheelRotate 10s linear infinite;
+            position: relative;
+            z-index: 2;
+        }
+
+        .floating-prizes {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+        }
+
+        .prize {
+            position: absolute;
+            font-size: 2rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .prize-1 {
+            top: 10%;
+            left: 50%;
+            animation-delay: 0s;
+        }
+
+        .prize-2 {
+            top: 50%;
+            right: 10%;
+            animation-delay: 0.5s;
+        }
+
+        .prize-3 {
+            bottom: 10%;
+            left: 50%;
+            animation-delay: 1s;
+        }
+
+        .prize-4 {
+            top: 50%;
+            left: 10%;
+            animation-delay: 1.5s;
+        }
+
+        @keyframes wheelRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .lucky-wheel-banner {
+                padding: 40px 0;
+            }
+            
+            .lucky-wheel-promo {
+                padding: 30px 20px;
+            }
+            
+            .promo-title {
+                font-size: 2rem;
+                text-align: center;
+            }
+            
+            .wheel-circle {
+                width: 150px;
+                height: 150px;
+                font-size: 3rem;
+            }
+            
+            .floating-prizes {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .promo-actions {
+                justify-content: center;
+            }
         }
     </style>
 @endpush

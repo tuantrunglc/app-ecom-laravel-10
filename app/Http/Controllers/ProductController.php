@@ -57,6 +57,7 @@ class ProductController extends Controller
             'condition' => 'required|in:default,new,hot',
             'price' => 'required|numeric',
             'discount' => 'nullable|numeric',
+            'commission' => 'nullable|numeric|min:0|max:100',
         ]);
 
         $slug = generateUniqueSlug($request->title, Product::class);
@@ -134,6 +135,7 @@ class ProductController extends Controller
             'condition' => 'required|in:default,new,hot',
             'price' => 'required|numeric',
             'discount' => 'nullable|numeric',
+            'commission' => 'nullable|numeric|min:0|max:100',
         ]);
 
         $validatedData['is_featured'] = $request->input('is_featured', 0);

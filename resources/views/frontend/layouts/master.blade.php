@@ -23,6 +23,9 @@
 	@yield('main-content')
 	
 	@include('frontend.layouts.footer')
+	
+	<!-- Lucky Wheel Floating Button -->
+	@include('frontend.layouts.lucky-wheel-float')
 
 </body>
 </html>

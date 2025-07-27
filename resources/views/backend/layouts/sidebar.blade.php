@@ -206,6 +206,37 @@
           <i class="fas fa-table"></i>
           <span>Mã Giảm Giá</span></a>
     </li>
+
+    <!-- Lucky Wheel -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#luckyWheelCollapse" aria-expanded="true" aria-controls="luckyWheelCollapse">
+            <i class="fas fa-gift"></i>
+            <span>Vòng Quay May Mắn</span>
+        </a>
+        <div id="luckyWheelCollapse" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản Lý Vòng Quay:</h6>
+                <a class="collapse-item" href="{{route('admin.lucky-wheel.index')}}">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a class="collapse-item" href="{{route('admin.lucky-wheel.prizes')}}">
+                    <i class="fas fa-trophy"></i> Phần Thưởng
+                </a>
+                <a class="collapse-item" href="{{route('admin.lucky-wheel.settings')}}">
+                    <i class="fas fa-cog"></i> Cài Đặt
+                </a>
+                <a class="collapse-item" href="{{route('admin.lucky-wheel.set-result')}}">
+                    <i class="fas fa-magic"></i> Đặt Kết Quả
+                </a>
+                <a class="collapse-item" href="{{route('admin.lucky-wheel.spins')}}">
+                    <i class="fas fa-history"></i> Lịch Sử Quay
+                </a>
+                <a class="collapse-item" href="{{route('admin.lucky-wheel.statistics')}}">
+                    <i class="fas fa-chart-bar"></i> Thống Kê
+                </a>
+            </div>
+        </div>
+    </li>
      <!-- Users -->
      <li class="nav-item">
         <a class="nav-link" href="{{route('users.index')}}">

@@ -24,6 +24,7 @@
               <th>Nổi Bật</th>
               <th>Giá</th>
               <th>Giảm Giá</th>
+              <th>Hoa Hồng</th>
               <th>Kích Thước</th>
               <th>Tình Trạng</th>
               <th>Thương Hiệu</th>
@@ -41,6 +42,7 @@
               <th>Nổi Bật</th>
               <th>Giá</th>
               <th>Giảm Giá</th>
+              <th>Hoa Hồng</th>
               <th>Kích Thước</th>
               <th>Tình Trạng</th>
               <th>Thương Hiệu</th>
@@ -69,6 +71,7 @@
                     <td>{{(($product->is_featured==1)? 'Có': 'Không')}}</td>
                     <td>${{$product->price}}</td>
                     <td>  {{$product->discount}}% GIẢM</td>
+                    <td>{{$product->commission ?? 0}}% HOA HỒNG</td>
                     <td>{{$product->size}}</td>
                     <td>{{$product->condition}}</td>
                     <td> {{ucfirst($product->brand->title)}}</td>

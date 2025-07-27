@@ -219,6 +219,11 @@
 														{{-- <p>{!! html_entity_decode($product->summary) !!}</p> --}}
 														</div>
 														<p class="des pt-2">{!! html_entity_decode($product->summary) !!}</p>
+														@if($product->commission && $product->commission > 0)
+															<div class="commission-badge" style="background: #28a745; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin: 5px 0; display: inline-block;">
+																<i class="fa fa-percent"></i> {{$product->commission}}Commission
+															</div>
+														@endif
 														<a href="javascript:void(0)" class="btn cart" data-id="{{$product->id}}">Buy Now!</a>
 													</div>
 												</div>
