@@ -16,8 +16,11 @@
     use App\Http\Controllers\PayPalController;
     use App\Http\Controllers\NotificationController;
     use App\Http\Controllers\HomeController;
+    use App\Http\Controllers\WalletController;
     use \UniSharp\LaravelFilemanager\Lfm;
     use App\Http\Controllers\Auth\ResetPasswordController;
+    use App\Http\Controllers\LuckyWheelController;
+    use App\Http\Controllers\Admin\LuckyWheelAdminController;
     /*
     |--------------------------------------------------------------------------
     | Web Routes
@@ -114,7 +117,7 @@
 
 // Product Review
     Route::resource('/review', 'ProductReviewController');
-    Route::post('product/{slug}/review', [ProductReviewController::class, 'store'])->name('review.store');
+    Route::post('product/{slug}/review', [ProductReviewController::class, 'store'])->name('product.review.store');
 
 // Post Comment
     Route::post('post/{slug}/comment', [PostCommentController::class, 'store'])->name('post-comment.store');
@@ -212,11 +215,10 @@
     });
 
 // Lucky Wheel Routes
-use App\Http\Controllers\LuckyWheelController;
-use App\Http\Controllers\Admin\LuckyWheelAdminController;
+
 
 // Frontend Lucky Wheel Routes
-Route::group(['prefix' => 'lucky-wheel'], function () {
+Route::group(['prefix' => 'wheel'], function () {
     Route::get('/', [LuckyWheelController::class, 'index'])->name('lucky-wheel.index');
     Route::post('/spin', [LuckyWheelController::class, 'spin'])->name('lucky-wheel.spin')->middleware('auth');
     Route::get('/history', [LuckyWheelController::class, 'history'])->name('lucky-wheel.history')->middleware('auth');
@@ -259,4 +261,27 @@ Route::group(['prefix' => '/admin/lucky-wheel', 'middleware' => ['auth', 'admin'
     
     // Cleanup
     Route::post('/cleanup', [LuckyWheelAdminController::class, 'cleanup'])->name('admin.lucky-wheel.cleanup');
+});
+
+// Frontend Deposit Route (for header button)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/deposit-request', 'WalletController@frontendDepositForm')->name('deposit.request');
+});
+
+// User Wallet Routes
+Route::middleware(['auth'])->prefix('wallet')->name('wallet.')->group(function () {
+    Route::get('/', 'WalletController@index')->name('index');
+    Route::get('/deposit', 'WalletController@depositForm')->name('deposit.form');
+    Route::post('/deposit', 'WalletController@deposit')->name('deposit');
+    Route::get('/withdraw', 'WalletController@withdrawForm')->name('withdraw.form');
+    Route::post('/withdraw', 'WalletController@withdraw')->name('withdraw');
+});
+
+// Admin Wallet Routes
+Route::middleware(['auth', 'admin'])->prefix('admin/wallet')->name('admin.wallet.')->group(function () {
+    Route::get('/deposits', 'Admin\WalletController@deposits')->name('deposits');
+    Route::post('/deposits/{id}/approve', 'Admin\WalletController@approveDeposit')->name('deposits.approve');
+    Route::get('/withdrawals', 'Admin\WalletController@withdrawals')->name('withdrawals');
+    Route::post('/withdrawals/{id}/approve', 'Admin\WalletController@approveWithdrawal')->name('withdrawals.approve');
+    Route::post('/{type}/{id}/reject', 'Admin\WalletController@reject')->name('reject');
 });

@@ -16,7 +16,7 @@
     </div>
 
     <!-- Sound Toggle Button -->
-    <button class="sound-toggle" id="soundToggle" title="Bật/Tắt âm thanh">
+    <button class="sound-toggle" id="soundToggle" title="Toggle Sound">
         <i class="fas fa-volume-up"></i>
     </button>
 
@@ -1198,7 +1198,7 @@ $(document).ready(function() {
             ctx.fillStyle = '#6c757d';
             ctx.font = 'bold 18px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('Chưa có phần thưởng', centerX, centerY);
+            ctx.fillText('No prizes available', centerX, centerY);
             return;
         }
         
@@ -1397,9 +1397,9 @@ $(document).ready(function() {
                         // Update button state
                         if (response.remaining_spins && response.remaining_spins > 0) {
                             spinBtn.classList.remove('disabled');
-                            spinBtnText.textContent = 'QUAY NGAY!';
+                            spinBtnText.textContent = 'SPIN NOW!';
                         } else {
-                            spinBtnText.textContent = 'HẾT LƯỢT QUAY';
+                            spinBtnText.textContent = 'NO SPINS LEFT';
                         }
                         
                         // Update spin count display
@@ -1409,13 +1409,13 @@ $(document).ready(function() {
                 } else {
                     hideLoadingOverlay();
                     resetSpinButton();
-                    showErrorMessage(response.message || 'Có lỗi xảy ra, vui lòng thử lại!');
+                    showErrorMessage(response.message || 'An error occurred, please try again!');
                 }
             },
             error: function() {
                 hideLoadingOverlay();
                 resetSpinButton();
-                showErrorMessage('Có lỗi xảy ra, vui lòng thử lại!');
+                showErrorMessage('An error occurred, please try again!');
             }
         });
     }
@@ -1469,7 +1469,7 @@ $(document).ready(function() {
         isSpinning = false;
         spinBtn.classList.remove('disabled', 'spinning');
         document.querySelector('.wheel-container').classList.remove('spinning');
-        spinBtnText.textContent = 'QUAY NGAY!';
+        spinBtnText.textContent = 'SPIN NOW!';
     }
     
     // Show error message with better styling

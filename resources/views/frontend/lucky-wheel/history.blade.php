@@ -96,10 +96,10 @@
                     @else
                     <div class="text-center py-5">
                         <i class="fas fa-history fa-3x text-muted mb-3"></i>
-                        <h5 class="text-muted">Bạn chưa có lịch sử quay nào</h5>
-                        <p class="text-muted">Hãy tham gia vòng quay để có cơ hội nhận những phần thưởng hấp dẫn!</p>
+                        <h5 class="text-muted">You have no spin history yet</h5>
+                        <p class="text-muted">Join the lucky wheel for a chance to win attractive prizes!</p>
                         <a href="{{ route('lucky-wheel.index') }}" class="btn btn-primary">
-                            <i class="fas fa-sync-alt"></i> Quay ngay
+                            <i class="fas fa-sync-alt"></i> Spin Now
                         </a>
                     </div>
                     @endif

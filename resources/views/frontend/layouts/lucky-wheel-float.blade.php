@@ -1,9 +1,9 @@
 <!-- Lucky Wheel Floating Button -->
 @if(Helper::isLuckyWheelEnabled())
 <div class="lucky-wheel-float">
-    <a href="{{ route('lucky-wheel.index') }}" class="float-btn" title="Vòng Quay May Mắn">
+    <a href="{{ route('lucky-wheel.index') }}" class="float-btn" title="Lucky Wheel">
         <i class="fas fa-gift"></i>
-        <span class="float-text">Quay Ngay!</span>
+        <span class="float-text">Spin Now!</span>
         @auth
             @if(Helper::getUserRemainingSpins() > 0)
                 <span class="float-badge">{{ Helper::getUserRemainingSpins() }}</span>

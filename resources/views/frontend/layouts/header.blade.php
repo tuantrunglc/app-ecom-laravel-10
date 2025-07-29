@@ -88,6 +88,15 @@
                 </div>
                 <div class="col-lg-2 col-md-3 col-12">
                     <div class="right-bar">
+                        <!-- Deposit Request Button -->
+                        @auth
+                        <div class="sinlge-bar">
+                            <a href="{{route('deposit.request')}}" class="single-icon deposit-btn" title="Request Deposit">
+                                <i class="fa fa-plus-circle"></i>
+                                <span class="deposit-text">Deposit</span>
+                            </a>
+                        </div>
+                        @endauth
                         <!-- Search Form -->
                         <div class="sinlge-bar shopping">
                             @php 

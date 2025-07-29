@@ -131,6 +131,21 @@
             <i class="fas fa-comments"></i>
             <span>Đánh Giá</span></a>
     </li>
+
+    <!-- Wallet Management -->
+    <li class="nav-item">
+      <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseWallet" aria-expanded="true" aria-controls="collapseWallet">
+        <i class="fas fa-wallet"></i>
+        <span>Quản Lý Ví</span>
+      </a>
+      <div id="collapseWallet" class="collapse" aria-labelledby="headingWallet" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+          <h6 class="collapse-header">Quản Lý Ví:</h6>
+          <a class="collapse-item" href="{{route('admin.wallet.deposits')}}">Yêu Cầu Nạp Tiền</a>
+          <a class="collapse-item" href="{{route('admin.wallet.withdrawals')}}">Yêu Cầu Rút Tiền</a>
+        </div>
+      </div>
+    </li>
     
 
     <!-- Divider -->
