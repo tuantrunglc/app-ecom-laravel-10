@@ -98,6 +98,52 @@ class CartController extends Controller
         }
         request()->session()->flash('success','Product successfully added to cart.');
         return back();       
+    }
+
+    public function buyNow(Request $request){
+        $request->validate([
+            'slug'      =>  'required',
+            'quant'      =>  'required',
+        ]);
+
+        $product = Product::where('slug', $request->slug)->first();
+        if($product->stock < $request->quant[1]){
+            return back()->with('error','Out of stock, You can add other products.');
+        }
+        if ( ($request->quant[1] < 1) || empty($product) ) {
+            request()->session()->flash('error','Invalid Products');
+            return back();
+        }    
+
+        // Tính giá sau discount
+        $after_discount_price = ($product->price - ($product->price * $product->discount) / 100);
+        
+        // Lưu thông tin Buy Now vào session (không thêm vào cart database)
+        $buyNowItem = [
+            'product_id' => $product->id,
+            'product' => $product,
+            'slug' => $product->slug,
+            'title' => $product->title,
+            'photo' => $product->photo,
+            'price' => $product->price,
+            'discount_price' => $after_discount_price,
+            'discount' => $product->discount,
+            'quantity' => $request->quant[1],
+            'amount' => $after_discount_price * $request->quant[1],
+            'stock' => $product->stock
+        ];
+        
+        // Lưu vào session với key 'buy_now'
+        session(['buy_now' => $buyNowItem]);
+        
+        // Chuyển thẳng đến checkout với flag buy_now
+        request()->session()->flash('success','Proceeding to checkout...');
+        return redirect()->route('checkout', ['buy_now' => 1]);       
+    }
+
+    public function clearBuyNow() {
+        session()->forget('buy_now');
+        return redirect()->route('cart');
     } 
     
     public function cartDelete(Request $request){
@@ -231,25 +277,16 @@ class CartController extends Controller
     // }
 
     public function checkout(Request $request){
-        // $cart=session('cart');
-        // $cart_index=\Str::random(10);
-        // $sub_total=0;
-        // foreach($cart as $cart_item){
-        //     $sub_total+=$cart_item['amount'];
-        //     $data=array(
-        //         'cart_id'=>$cart_index,
-        //         'user_id'=>$request->user()->id,
-        //         'product_id'=>$cart_item['id'],
-        //         'quantity'=>$cart_item['quantity'],
-        //         'amount'=>$cart_item['amount'],
-        //         'status'=>'new',
-        //         'price'=>$cart_item['price'],
-        //     );
-
-        //     $cart=new Cart();
-        //     $cart->fill($data);
-        //     $cart->save();
-        // }
-        return view('frontend.pages.checkout');
+        // Kiểm tra xem có phải Buy Now không
+        $isBuyNow = $request->has('buy_now') || session()->has('buy_now');
+        
+        if($isBuyNow && session()->has('buy_now')){
+            // Nếu là Buy Now, pass data buy_now sang view
+            $buyNowItem = session('buy_now');
+            return view('frontend.pages.checkout', compact('buyNowItem', 'isBuyNow'));
+        }
+        
+        // Nếu không phải Buy Now, checkout bình thường với cart
+        return view('frontend.pages.checkout', ['isBuyNow' => false]);
     }
 }

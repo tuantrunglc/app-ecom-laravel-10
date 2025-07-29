@@ -10,6 +10,9 @@
      </div>
     <div class="card-header py-3">
       <h6 class="m-0 font-weight-bold text-primary float-left">Danh Sách Đơn Hàng</h6>
+      <div class="float-right">
+        <a class="btn btn-primary" href="{{route('order.create')}}" role="button">Tạo Đơn Hàng Mới</a>
+      </div>
     </div>
     <div class="card-body">
       <div class="table-responsive">

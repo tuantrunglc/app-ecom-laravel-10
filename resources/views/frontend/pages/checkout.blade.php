@@ -358,40 +358,97 @@
                             <div class="order-details">
                                 <!-- Order Widget -->
                                 <div class="single-widget">
-                                    <h2>CART  TOTALS</h2>
-                                    <div class="content">
-                                        <ul>
-										    <li class="order_subtotal" data-price="{{Helper::totalCartPrice()}}">Cart Subtotal<span>${{number_format(Helper::totalCartPrice(),2)}}</span></li>
-                                            <li class="shipping">
-                                                Shipping Cost
-                                                @if(count(Helper::shipping())>0 && Helper::cartCount()>0)
-                                                    <select name="shipping" class="nice-select">
-                                                        <option value="">Select your address</option>
-                                                        @foreach(Helper::shipping() as $shipping)
-                                                        <option value="{{$shipping->id}}" class="shippingOption" data-price="{{$shipping->price}}">{{$shipping->type}}: ${{$shipping->price}}</option>
-                                                        @endforeach
-                                                    </select>
-                                                @else 
-                                                    <span>Free</span>
-                                                @endif
-                                            </li>
+                                    @if(isset($isBuyNow) && $isBuyNow && isset($buyNowItem))
+                                        <!-- Buy Now Order Summary -->
+                                        <h2>ORDER SUMMARY</h2>
+                                        <div class="content">
+                                            <!-- Buy Now Product Details -->
+                                            <div class="buy-now-product mb-3 p-3" style="background: #f8f9fa; border-radius: 8px;">
+                                                <div class="row align-items-center">
+                                                    <div class="col-3">
+                                                        @php 
+                                                            $photo = explode(',', $buyNowItem['photo']);
+                                                        @endphp
+                                                        <img src="{{$photo[0]}}" alt="{{$buyNowItem['title']}}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+                                                    </div>
+                                                    <div class="col-9">
+                                                        <h6 class="mb-1">{{$buyNowItem['title']}}</h6>
+                                                        <small class="text-muted">Quantity: {{$buyNowItem['quantity']}}</small><br>
+                                                        <small class="text-muted">Price: ${{number_format($buyNowItem['discount_price'], 2)}}</small>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             
-                                            @if(session('coupon'))
-                                            <li class="coupon_price" data-price="{{session('coupon')['value']}}">You Save<span>${{number_format(session('coupon')['value'],2)}}</span></li>
-                                            @endif
-                                            @php
-                                                $total_amount=Helper::totalCartPrice();
-                                                if(session('coupon')){
-                                                    $total_amount=$total_amount-session('coupon')['value'];
-                                                }
-                                            @endphp
-                                            @if(session('coupon'))
-                                                <li class="last"  id="order_total_price">Total<span>${{number_format($total_amount,2)}}</span></li>
-                                            @else
-                                                <li class="last"  id="order_total_price">Total<span>${{number_format($total_amount,2)}}</span></li>
-                                            @endif
-                                        </ul>
-                                    </div>
+                                            <ul>
+                                                <li class="order_subtotal" data-price="{{$buyNowItem['amount']}}">Subtotal<span>${{number_format($buyNowItem['amount'],2)}}</span></li>
+                                                <li class="shipping">
+                                                    Shipping Cost
+                                                    @if(count(Helper::shipping())>0)
+                                                        <select name="shipping" class="nice-select">
+                                                            <option value="">Select your address</option>
+                                                            @foreach(Helper::shipping() as $shipping)
+                                                            <option value="{{$shipping->id}}" class="shippingOption" data-price="{{$shipping->price}}">{{$shipping->type}}: ${{$shipping->price}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    @else 
+                                                        <span>Free</span>
+                                                    @endif
+                                                </li>
+                                                
+                                                @if(session('coupon'))
+                                                <li class="coupon_price" data-price="{{session('coupon')['value']}}">You Save<span>${{number_format(session('coupon')['value'],2)}}</span></li>
+                                                @endif
+                                                @php
+                                                    $total_amount = $buyNowItem['amount'];
+                                                    if(session('coupon')){
+                                                        $total_amount = $total_amount - session('coupon')['value'];
+                                                    }
+                                                @endphp
+                                                <li class="last" id="order_total_price">Total<span>${{number_format($total_amount,2)}}</span></li>
+                                            </ul>
+                                            <!-- Hidden inputs for Buy Now -->
+                                            <input type="hidden" name="buy_now_mode" value="1">
+                                            <input type="hidden" name="buy_now_product_id" value="{{$buyNowItem['product_id']}}">
+                                            <input type="hidden" name="buy_now_quantity" value="{{$buyNowItem['quantity']}}">
+                                            <input type="hidden" name="buy_now_amount" value="{{$buyNowItem['amount']}}">
+                                        </div>
+                                    @else
+                                        <!-- Regular Cart Summary -->
+                                        <h2>CART TOTALS</h2>
+                                        <div class="content">
+                                            <ul>
+                                                <li class="order_subtotal" data-price="{{Helper::totalCartPrice()}}">Cart Subtotal<span>${{number_format(Helper::totalCartPrice(),2)}}</span></li>
+                                                <li class="shipping">
+                                                    Shipping Cost
+                                                    @if(count(Helper::shipping())>0 && Helper::cartCount()>0)
+                                                        <select name="shipping" class="nice-select">
+                                                            <option value="">Select your address</option>
+                                                            @foreach(Helper::shipping() as $shipping)
+                                                            <option value="{{$shipping->id}}" class="shippingOption" data-price="{{$shipping->price}}">{{$shipping->type}}: ${{$shipping->price}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    @else 
+                                                        <span>Free</span>
+                                                    @endif
+                                                </li>
+                                                
+                                                @if(session('coupon'))
+                                                <li class="coupon_price" data-price="{{session('coupon')['value']}}">You Save<span>${{number_format(session('coupon')['value'],2)}}</span></li>
+                                                @endif
+                                                @php
+                                                    $total_amount=Helper::totalCartPrice();
+                                                    if(session('coupon')){
+                                                        $total_amount=$total_amount-session('coupon')['value'];
+                                                    }
+                                                @endphp
+                                                @if(session('coupon'))
+                                                    <li class="last"  id="order_total_price">Total<span>${{number_format($total_amount,2)}}</span></li>
+                                                @else
+                                                    <li class="last"  id="order_total_price">Total<span>${{number_format($total_amount,2)}}</span></li>
+                                                @endif
+                                            </ul>
+                                        </div>
+                                    @endif
                                 </div>
                                 <!--/ End Order Widget -->
                                 <!-- Order Widget -->

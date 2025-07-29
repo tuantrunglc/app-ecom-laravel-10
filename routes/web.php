@@ -81,6 +81,8 @@
 // Cart section
     Route::get('/add-to-cart/{slug}', [CartController::class, 'addToCart'])->name('add-to-cart')->middleware('user');
     Route::post('/add-to-cart', [CartController::class, 'singleAddToCart'])->name('single-add-to-cart')->middleware('user');
+    Route::post('/buy-now', [CartController::class, 'buyNow'])->name('buy-now')->middleware('user');
+    Route::get('/clear-buy-now', [CartController::class, 'clearBuyNow'])->name('clear-buy-now');
     Route::get('cart-delete/{id}', [CartController::class, 'cartDelete'])->name('cart-delete');
     Route::post('cart-update', [CartController::class, 'cartUpdate'])->name('cart.update');
 
@@ -164,6 +166,7 @@
 
         // Order
         Route::resource('/order', 'OrderController');
+        Route::post('/order/search-user', [OrderController::class, 'searchUser'])->name('order.search-user');
         // Shipping
         Route::resource('/shipping', 'ShippingController');
         // Coupon

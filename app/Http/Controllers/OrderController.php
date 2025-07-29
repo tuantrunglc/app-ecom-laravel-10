@@ -33,7 +33,41 @@ class OrderController extends Controller
      */
     public function create()
     {
-        //
+        return view('backend.order.create');
+    }
+
+    /**
+     * Search for user by ID or email
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function searchUser(Request $request)
+    {
+        $search = $request->search;
+        
+        // Try to find user by ID first, then by email
+        $user = User::where('id', $search)
+                   ->orWhere('email', 'like', '%' . $search . '%')
+                   ->first();
+        
+        if ($user) {
+            return response()->json([
+                'success' => true,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'status' => $user->status,
+                    'wallet_balance' => $user->wallet_balance ?? 0
+                ]
+            ]);
+        }
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'User not found'
+        ]);
     }
 
     /**
@@ -45,18 +79,30 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $this->validate($request,[
+            'user_id'=>'required|exists:users,id',
             'first_name'=>'string|required',
             'last_name'=>'string|required',
             'address1'=>'string|required',
             'address2'=>'string|nullable',
-            'coupon'=>'nullable|numeric',
-            'phone'=>'numeric|required',
+            'country'=>'string|required',
+            'phone'=>'string|required',
             'post_code'=>'string|nullable',
-            'email'=>'string|required'
+            'email'=>'string|required|email',
+            'shipping'=>'required|exists:shippings,id',
+            'payment_method'=>'required|in:cod,paypal',
+            'status'=>'required|in:new,process,delivered,cancel',
+            'sub_total'=>'required|numeric|min:0',
+            'quantity'=>'required|integer|min:1',
+            'total_amount'=>'required|numeric|min:0'
         ]);
-        // return $request->all();
 
-        if(empty(Cart::where('user_id',auth()->user()->id)->where('order_id',null)->first())){
+        // Check if creating order from admin panel (no cart required)
+        $isAdminOrder = $request->has('user_id') && $request->user_id != auth()->id();
+        
+        // Check if this is a Buy Now order
+        $isBuyNow = $request->has('buy_now_mode') && $request->buy_now_mode == 1;
+        
+        if (!$isAdminOrder && !$isBuyNow && empty(Cart::where('user_id',auth()->user()->id)->where('order_id',null)->first())){
             request()->session()->flash('error','Cart is Empty !');
             return back();
         }
@@ -91,64 +137,128 @@ class OrderController extends Controller
         $order=new Order();
         $order_data=$request->all();
         $order_data['order_number']='ORD-'.strtoupper(Str::random(10));
-        $order_data['user_id']=$request->user()->id;
-        $order_data['shipping_id']=$request->shipping;
-        $shipping=Shipping::where('id',$order_data['shipping_id'])->pluck('price');
-        // return session('coupon')['value'];
-        $order_data['sub_total']=Helper::totalCartPrice();
-        $order_data['quantity']=Helper::cartCount();
-        if(session('coupon')){
-            $order_data['coupon']=session('coupon')['value'];
-        }
-        if($request->shipping){
+        
+        // Set user_id based on whether it's admin order, buy now, or regular order
+        if ($isAdminOrder) {
+            $order_data['user_id'] = $request->user_id;
+            // For admin orders, use provided values
+            $order_data['sub_total'] = $request->sub_total;
+            $order_data['quantity'] = $request->quantity;
+            $order_data['total_amount'] = $request->total_amount;
+        } elseif ($isBuyNow) {
+            $order_data['user_id'] = $request->user()->id;
+            // For Buy Now orders, use session data
+            $buyNowItem = session('buy_now');
+            $order_data['sub_total'] = $buyNowItem['amount'];
+            $order_data['quantity'] = $buyNowItem['quantity'];
+            
+            $shipping_cost = 0;
+            if($request->shipping){
+                $shipping = Shipping::where('id', $request->shipping)->pluck('price');
+                $shipping_cost = $shipping[0] ?? 0;
+            }
+            
             if(session('coupon')){
-                $order_data['total_amount']=Helper::totalCartPrice()+$shipping[0]-session('coupon')['value'];
+                $order_data['coupon'] = session('coupon')['value'];
+                $order_data['total_amount'] = $buyNowItem['amount'] + $shipping_cost - session('coupon')['value'];
+            } else {
+                $order_data['total_amount'] = $buyNowItem['amount'] + $shipping_cost;
+            }
+        } else {
+            $order_data['user_id'] = $request->user()->id;
+            // For regular orders, calculate from cart
+            $order_data['sub_total'] = Helper::totalCartPrice();
+            $order_data['quantity'] = Helper::cartCount();
+            
+            $shipping = Shipping::where('id', $request->shipping)->pluck('price');
+            if(session('coupon')){
+                $order_data['coupon'] = session('coupon')['value'];
+            }
+            if($request->shipping){
+                if(session('coupon')){
+                    $order_data['total_amount'] = Helper::totalCartPrice() + $shipping[0] - session('coupon')['value'];
+                }
+                else{
+                    $order_data['total_amount'] = Helper::totalCartPrice() + $shipping[0];
+                }
             }
             else{
-                $order_data['total_amount']=Helper::totalCartPrice()+$shipping[0];
+                if(session('coupon')){
+                    $order_data['total_amount'] = Helper::totalCartPrice() - session('coupon')['value'];
+                }
+                else{
+                    $order_data['total_amount'] = Helper::totalCartPrice();
+                }
             }
         }
-        else{
-            if(session('coupon')){
-                $order_data['total_amount']=Helper::totalCartPrice()-session('coupon')['value'];
-            }
-            else{
-                $order_data['total_amount']=Helper::totalCartPrice();
-            }
-        }
-        // return $order_data['total_amount'];
-        $order_data['status']="new";
-        if(request('payment_method')=='paypal'){
-            $order_data['payment_method']='paypal';
-            $order_data['payment_status']='paid';
-        }
-        else{
-            $order_data['payment_method']='cod';
-            $order_data['payment_status']='Unpaid';
+        
+        $order_data['shipping_id'] = $request->shipping;
+        
+        // Set payment status based on method
+        if($request->payment_method == 'paypal'){
+            $order_data['payment_status'] = 'paid';
+        } else {
+            $order_data['payment_status'] = 'Unpaid';
         }
         $order->fill($order_data);
         $status=$order->save();
-        if($order)
-        // dd($order->id);
-        $users=User::where('role','admin')->first();
-        $details=[
-            'title'=>'New order created',
-            'actionURL'=>route('order.show',$order->id),
-            'fas'=>'fa-file-alt'
-        ];
-        Notification::send($users, new StatusNotification($details));
-        if(request('payment_method')=='paypal'){
-            return redirect()->route('payment')->with(['id'=>$order->id]);
+        
+        if($order) {
+            // Send notification to admin
+            $users=User::where('role','admin')->first();
+            $details=[
+                'title'=>'New order created',
+                'actionURL'=>route('order.show',$order->id),
+                'fas'=>'fa-file-alt'
+            ];
+            Notification::send($users, new StatusNotification($details));
+            
+            if ($isAdminOrder) {
+                // For admin created orders, redirect back to orders list
+                request()->session()->flash('success','Đơn hàng đã được tạo thành công cho user ID: ' . $request->user_id);
+                return redirect()->route('order.index');
+            } elseif ($isBuyNow) {
+                // For Buy Now orders from frontend
+                $buyNowItem = session('buy_now');
+                
+                if(request('payment_method')=='paypal'){
+                    return redirect()->route('payment')->with(['id'=>$order->id]);
+                }
+                else{
+                    // Clear buy now session
+                    session()->forget('buy_now');
+                    session()->forget('coupon');
+                }
+                
+                // Create cart entry for this buy now item linked to the order
+                $cart = new Cart;
+                $cart->user_id = auth()->user()->id;
+                $cart->product_id = $buyNowItem['product_id'];
+                $cart->order_id = $order->id;
+                $cart->quantity = $buyNowItem['quantity'];
+                $cart->price = $buyNowItem['discount_price'];
+                $cart->amount = $buyNowItem['amount'];
+                $cart->save();
+                
+                request()->session()->flash('success','Your product successfully placed in order');
+                return redirect()->route('home');
+            } else {
+                // For regular orders from frontend
+                if(request('payment_method')=='paypal'){
+                    return redirect()->route('payment')->with(['id'=>$order->id]);
+                }
+                else{
+                    session()->forget('cart');
+                    session()->forget('coupon');
+                }
+                Cart::where('user_id', auth()->user()->id)->where('order_id', null)->update(['order_id' => $order->id]);
+                request()->session()->flash('success','Your product successfully placed in order');
+                return redirect()->route('home');
+            }
         }
-        else{
-            session()->forget('cart');
-            session()->forget('coupon');
-        }
-        Cart::where('user_id', auth()->user()->id)->where('order_id', null)->update(['order_id' => $order->id]);
-
-        // dd($users);        
-        request()->session()->flash('success','Your product successfully placed in order');
-        return redirect()->route('home');
+        
+        request()->session()->flash('error','Có lỗi xảy ra khi tạo đơn hàng');
+        return back();
     }
 
     /**
