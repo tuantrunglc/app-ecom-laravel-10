@@ -1,11 +1,17 @@
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
     <!-- Sidebar - Brand -->
-    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{route('admin')}}">
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{auth()->user()->isAdmin() ? route('admin') : route('sub-admin.dashboard')}}">
       <div class="sidebar-brand-icon rotate-n-15">
         <i class="fas fa-laugh-wink"></i>
       </div>
-      <div class="sidebar-brand-text mx-3">Quản Trị</div>
+      <div class="sidebar-brand-text mx-3">
+        @if(auth()->user()->isAdmin())
+          Quản Trị
+        @else
+          Sub Admin
+        @endif
+      </div>
     </a>
 
     <!-- Divider -->
@@ -13,7 +19,7 @@
 
     <!-- Nav Item - Dashboard -->
     <li class="nav-item active">
-      <a class="nav-link" href="{{route('admin')}}">
+      <a class="nav-link" href="{{auth()->user()->isAdmin() ? route('admin') : route('sub-admin.dashboard')}}">
         <i class="fas fa-fw fa-tachometer-alt"></i>
         <span>Bảng Điều Khiển</span></a>
     </li>
@@ -21,6 +27,53 @@
     <!-- Divider -->
     <hr class="sidebar-divider">
 
+    @if(auth()->user()->isSubAdmin())
+    <!-- Sub Admin Menu -->
+    <div class="sidebar-heading">
+        Quản Lý
+    </div>
+
+    <!-- Sub Admin Users -->
+    @if(auth()->user()->subAdminSettings->can_manage_users)
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#subAdminUsersCollapse" aria-expanded="true" aria-controls="subAdminUsersCollapse">
+          <i class="fas fa-users"></i>
+          <span>Quản lý Users</span>
+        </a>
+        <div id="subAdminUsersCollapse" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Users thuộc quyền:</h6>
+            <a class="collapse-item" href="{{route('sub-admin.users')}}">Danh sách Users</a>
+            @if(auth()->user()->subAdminSettings->can_create_users)
+            <a class="collapse-item" href="{{route('sub-admin.users.create')}}">Tạo User mới</a>
+            @endif
+          </div>
+        </div>
+    </li>
+    @endif
+
+    <!-- Sub Admin Orders -->
+    @if(auth()->user()->subAdminSettings->can_manage_orders)
+    <li class="nav-item">
+        <a class="nav-link" href="{{route('sub-admin.orders')}}">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Quản lý Đơn hàng</span>
+        </a>
+    </li>
+    @endif
+
+    <!-- Sub Admin Reports -->
+    @if(auth()->user()->subAdminSettings->can_view_reports)
+    <li class="nav-item">
+        <a class="nav-link" href="{{route('sub-admin.reports')}}">
+            <i class="fas fa-chart-bar"></i>
+            <span>Báo cáo</span>
+        </a>
+    </li>
+    @endif
+
+    @else
+    <!-- Admin Menu -->
     <!-- Heading -->
     <div class="sidebar-heading">
         Banner
@@ -258,7 +311,26 @@
             <i class="fas fa-users"></i>
             <span>Người Dùng</span></a>
     </li>
-     <!-- General settings -->
+
+    @if(auth()->user()->isAdmin())
+    <!-- Sub Admins -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#subAdminCollapse" aria-expanded="true" aria-controls="subAdminCollapse">
+            <i class="fas fa-user-shield"></i>
+            <span>Sub Admin</span>
+        </a>
+        <div id="subAdminCollapse" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản Lý Sub Admin:</h6>
+                <a class="collapse-item" href="{{route('admin.sub-admins.index')}}">Danh Sách Sub Admin</a>
+                <a class="collapse-item" href="{{route('admin.sub-admins.create')}}">Tạo Sub Admin</a>
+            </div>
+        </div>
+    </li>
+    @endif
+    @endif
+
+     <!-- General settings (available for all roles) -->
      <li class="nav-item">
         <a class="nav-link" href="{{route('settings')}}">
             <i class="fas fa-cog"></i>

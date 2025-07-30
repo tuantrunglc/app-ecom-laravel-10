@@ -69,6 +69,16 @@
                                     </div>
                                 </div>
                                 <div class="col-12">
+                                    <div class="form-group">
+                                        <label>Referral Code</label>
+                                        <input type="text" name="sub_admin_code" placeholder="" value="{{old('sub_admin_code')}}">
+                                        @error('sub_admin_code')
+                                            <span class="text-danger">{{$message}}</span>
+                                        @enderror
+                                        <small class="form-text text-muted"></small>
+                                    </div>
+                                </div>
+                                <div class="col-12">
                                     <div class="form-group login-btn">
                                         <button class="btn" type="submit">Register</button>
                                         <a href="{{route('login.form')}}" class="btn">Login</a>

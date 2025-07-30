@@ -66,70 +66,81 @@
     Route::get('login/{provider}/', [LoginController::class, 'redirect'])->name('login.redirect');
     Route::get('login/{provider}/callback/', [LoginController::class, 'Callback'])->name('login.callback');
 
-    Route::get('/', [FrontendController::class, 'home'])->name('home');
+    Route::get('/', [FrontendController::class, 'home'])->name('home')->middleware('block_sub_admin_frontend');
 
 // Frontend Routes
-    Route::get('/home', [FrontendController::class, 'index']);
-    Route::get('/about-us', [FrontendController::class, 'aboutUs'])->name('about-us');
-    Route::get('/contact', [FrontendController::class, 'contact'])->name('contact');
-    Route::post('/contact/message', [MessageController::class, 'store'])->name('contact.store');
-    Route::get('product-detail/{slug}', [FrontendController::class, 'productDetail'])->name('product-detail');
-    Route::post('/product/search', [FrontendController::class, 'productSearch'])->name('product.search');
-    Route::get('/product-cat/{slug}', [FrontendController::class, 'productCat'])->name('product-cat');
-    Route::get('/product-sub-cat/{slug}/{sub_slug}', [FrontendController::class, 'productSubCat'])->name('product-sub-cat');
-    Route::get('/product-brand/{slug}', [FrontendController::class, 'productBrand'])->name('product-brand');
-// Cart section
-    Route::get('/add-to-cart/{slug}', [CartController::class, 'addToCart'])->name('add-to-cart')->middleware('user');
-    Route::post('/add-to-cart', [CartController::class, 'singleAddToCart'])->name('single-add-to-cart')->middleware('user');
-    Route::post('/buy-now', [CartController::class, 'buyNow'])->name('buy-now')->middleware('user');
-    Route::get('/clear-buy-now', [CartController::class, 'clearBuyNow'])->name('clear-buy-now');
-    Route::get('cart-delete/{id}', [CartController::class, 'cartDelete'])->name('cart-delete');
-    Route::post('cart-update', [CartController::class, 'cartUpdate'])->name('cart.update');
+    Route::middleware('block_sub_admin_frontend')->group(function () {
+        Route::get('/home', [FrontendController::class, 'index']);
+        Route::get('/about-us', [FrontendController::class, 'aboutUs'])->name('about-us');
+        Route::get('/contact', [FrontendController::class, 'contact'])->name('contact');
+        Route::post('/contact/message', [MessageController::class, 'store'])->name('contact.store');
+        Route::get('product-detail/{slug}', [FrontendController::class, 'productDetail'])->name('product-detail');
+        Route::post('/product/search', [FrontendController::class, 'productSearch'])->name('product.search');
+        Route::get('/product-cat/{slug}', [FrontendController::class, 'productCat'])->name('product-cat');
+        Route::get('/product-sub-cat/{slug}/{sub_slug}', [FrontendController::class, 'productSubCat'])->name('product-sub-cat');
+        Route::get('/product-brand/{slug}', [FrontendController::class, 'productBrand'])->name('product-brand');
+    });
+// Cart section - Apply middleware to block sub admin
+    Route::middleware('block_sub_admin_frontend')->group(function () {
+        Route::get('/add-to-cart/{slug}', [CartController::class, 'addToCart'])->name('add-to-cart')->middleware('user');
+        Route::post('/add-to-cart', [CartController::class, 'singleAddToCart'])->name('single-add-to-cart')->middleware('user');
+        Route::post('/buy-now', [CartController::class, 'buyNow'])->name('buy-now')->middleware('user');
+        Route::get('/clear-buy-now', [CartController::class, 'clearBuyNow'])->name('clear-buy-now');
+        Route::get('cart-delete/{id}', [CartController::class, 'cartDelete'])->name('cart-delete');
+        Route::post('cart-update', [CartController::class, 'cartUpdate'])->name('cart.update');
 
-    Route::get('/cart', function () {
-        return view('frontend.pages.cart');
-    })->name('cart');
-    Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout')->middleware('user');
-// Wishlist
-    Route::get('/wishlist', function () {
-        return view('frontend.pages.wishlist');
-    })->name('wishlist');
-    Route::get('/wishlist/{slug}', [WishlistController::class, 'wishlist'])->name('add-to-wishlist')->middleware('user');
-    Route::get('wishlist-delete/{id}', [WishlistController::class, 'wishlistDelete'])->name('wishlist-delete');
-    Route::post('cart/order', [OrderController::class, 'store'])->name('cart.order');
-    Route::get('order/pdf/{id}', [OrderController::class, 'pdf'])->name('order.pdf');
-    Route::get('/income', [OrderController::class, 'incomeChart'])->name('product.order.income');
-// Route::get('/user/chart',[AdminController::class, 'userPieChart'])->name('user.piechart');
-    Route::get('/product-grids', [FrontendController::class, 'productGrids'])->name('product-grids');
-    Route::get('/product-lists', [FrontendController::class, 'productLists'])->name('product-lists');
-    Route::match(['get', 'post'], '/filter', [FrontendController::class, 'productFilter'])->name('shop.filter');
-// Order Track
-    Route::get('/product/track', [OrderController::class, 'orderTrack'])->name('order.track');
-    Route::post('product/track/order', [OrderController::class, 'productTrackOrder'])->name('product.track.order');
-// Blog
-    Route::get('/blog', [FrontendController::class, 'blog'])->name('blog');
-    Route::get('/blog-detail/{slug}', [FrontendController::class, 'blogDetail'])->name('blog.detail');
-    Route::get('/blog/search', [FrontendController::class, 'blogSearch'])->name('blog.search');
-    Route::post('/blog/filter', [FrontendController::class, 'blogFilter'])->name('blog.filter');
-    Route::get('blog-cat/{slug}', [FrontendController::class, 'blogByCategory'])->name('blog.category');
-    Route::get('blog-tag/{slug}', [FrontendController::class, 'blogByTag'])->name('blog.tag');
+        Route::get('/cart', function () {
+            return view('frontend.pages.cart');
+        })->name('cart');
+        Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout')->middleware('user');
+        
+        // Wishlist
+        Route::get('/wishlist', function () {
+            return view('frontend.pages.wishlist');
+        })->name('wishlist');
+        Route::get('/wishlist/{slug}', [WishlistController::class, 'wishlist'])->name('add-to-wishlist')->middleware('user');
+        Route::get('wishlist-delete/{id}', [WishlistController::class, 'wishlistDelete'])->name('wishlist-delete');
+        Route::post('cart/order', [OrderController::class, 'store'])->name('cart.order');
+        Route::get('order/pdf/{id}', [OrderController::class, 'pdf'])->name('order.pdf');
+        Route::get('/income', [OrderController::class, 'incomeChart'])->name('product.order.income');
+        
+        Route::get('/product-grids', [FrontendController::class, 'productGrids'])->name('product-grids');
+        Route::get('/product-lists', [FrontendController::class, 'productLists'])->name('product-lists');
+        Route::match(['get', 'post'], '/filter', [FrontendController::class, 'productFilter'])->name('shop.filter');
+        
+        // Order Track
+        Route::get('/product/track', [OrderController::class, 'orderTrack'])->name('order.track');
+        Route::post('product/track/order', [OrderController::class, 'productTrackOrder'])->name('product.track.order');
+        
+        // Blog
+        Route::get('/blog', [FrontendController::class, 'blog'])->name('blog');
+        Route::get('/blog-detail/{slug}', [FrontendController::class, 'blogDetail'])->name('blog.detail');
+        Route::get('/blog/search', [FrontendController::class, 'blogSearch'])->name('blog.search');
+        Route::post('/blog/filter', [FrontendController::class, 'blogFilter'])->name('blog.filter');
+        Route::get('blog-cat/{slug}', [FrontendController::class, 'blogByCategory'])->name('blog.category');
+        Route::get('blog-tag/{slug}', [FrontendController::class, 'blogByTag'])->name('blog.tag');
+    });
 
-// NewsLetter
-    Route::post('/subscribe', [FrontendController::class, 'subscribe'])->name('subscribe');
+// NewsLetter và các route khác - Apply middleware to block sub admin  
+    Route::middleware('block_sub_admin_frontend')->group(function () {
+        Route::post('/subscribe', [FrontendController::class, 'subscribe'])->name('subscribe');
 
-// Product Review
-    Route::resource('/review', 'ProductReviewController');
-    Route::post('product/{slug}/review', [ProductReviewController::class, 'store'])->name('product.review.store');
+        // Product Review
+        Route::resource('/review', 'ProductReviewController');
+        Route::post('product/{slug}/review', [ProductReviewController::class, 'store'])->name('product.review.store');
 
-// Post Comment
-    Route::post('post/{slug}/comment', [PostCommentController::class, 'store'])->name('post-comment.store');
-    Route::resource('/comment', 'PostCommentController');
-// Coupon
-    Route::post('/coupon-store', [CouponController::class, 'couponStore'])->name('coupon-store');
-// Payment
-    Route::get('payment', [PayPalController::class, 'payment'])->name('payment');
-    Route::get('cancel', [PayPalController::class, 'cancel'])->name('payment.cancel');
-    Route::get('payment/success', [PayPalController::class, 'success'])->name('payment.success');
+        // Post Comment
+        Route::post('post/{slug}/comment', [PostCommentController::class, 'store'])->name('post-comment.store');
+        Route::resource('/comment', 'PostCommentController');
+        
+        // Coupon
+        Route::post('/coupon-store', [CouponController::class, 'couponStore'])->name('coupon-store');
+        
+        // Payment
+        Route::get('payment', [PayPalController::class, 'payment'])->name('payment');
+        Route::get('cancel', [PayPalController::class, 'cancel'])->name('payment.cancel');
+        Route::get('payment/success', [PayPalController::class, 'success'])->name('payment.success');
+    });
 
 
 // Backend section start
@@ -185,8 +196,8 @@
     });
 
 
-// User section start
-    Route::group(['prefix' => '/user', 'middleware' => ['user']], function () {
+// User section start - Chặn sub admin truy cập
+    Route::group(['prefix' => '/user', 'middleware' => ['user', 'block_sub_admin_frontend']], function () {
         Route::get('/', [HomeController::class, 'index'])->name('user');
         // Profile
         Route::get('/profile', [HomeController::class, 'profile'])->name('user-profile');
@@ -220,8 +231,8 @@
 // Lucky Wheel Routes
 
 
-// Frontend Lucky Wheel Routes
-Route::group(['prefix' => 'wheel'], function () {
+// Frontend Lucky Wheel Routes - Chặn sub admin truy cập
+Route::group(['prefix' => 'wheel', 'middleware' => 'block_sub_admin_frontend'], function () {
     Route::get('/', [LuckyWheelController::class, 'index'])->name('lucky-wheel.index');
     Route::post('/spin', [LuckyWheelController::class, 'spin'])->name('lucky-wheel.spin')->middleware('auth');
     Route::get('/history', [LuckyWheelController::class, 'history'])->name('lucky-wheel.history')->middleware('auth');
@@ -266,13 +277,13 @@ Route::group(['prefix' => '/admin/lucky-wheel', 'middleware' => ['auth', 'admin'
     Route::post('/cleanup', [LuckyWheelAdminController::class, 'cleanup'])->name('admin.lucky-wheel.cleanup');
 });
 
-// Frontend Deposit Route (for header button)
-Route::middleware(['auth'])->group(function () {
+// Frontend Deposit Route (for header button) - Chặn sub admin
+Route::middleware(['auth', 'block_sub_admin_frontend'])->group(function () {
     Route::get('/deposit-request', 'WalletController@frontendDepositForm')->name('deposit.request');
 });
 
-// User Wallet Routes
-Route::middleware(['auth'])->prefix('wallet')->name('wallet.')->group(function () {
+// User Wallet Routes - Chặn sub admin truy cập
+Route::middleware(['auth', 'block_sub_admin_frontend'])->prefix('wallet')->name('wallet.')->group(function () {
     Route::get('/', 'WalletController@index')->name('index');
     Route::get('/deposit', 'WalletController@depositForm')->name('deposit.form');
     Route::post('/deposit', 'WalletController@deposit')->name('deposit');
@@ -287,4 +298,43 @@ Route::middleware(['auth', 'admin'])->prefix('admin/wallet')->name('admin.wallet
     Route::get('/withdrawals', 'Admin\WalletController@withdrawals')->name('withdrawals');
     Route::post('/withdrawals/{id}/approve', 'Admin\WalletController@approveWithdrawal')->name('withdrawals.approve');
     Route::post('/{type}/{id}/reject', 'Admin\WalletController@reject')->name('reject');
+});
+
+// Admin Sub Admins Management Routes
+Route::middleware(['auth', 'admin'])->prefix('admin/sub-admins')->name('admin.sub-admins.')->group(function () {
+    Route::get('/', 'AdminSubAdminsController@index')->name('index');
+    Route::get('/create', 'AdminSubAdminsController@create')->name('create');
+    Route::post('/', 'AdminSubAdminsController@store')->name('store');
+    Route::get('/{id}', 'AdminSubAdminsController@show')->name('show');
+    Route::get('/{id}/edit', 'AdminSubAdminsController@edit')->name('edit');
+    Route::put('/{id}', 'AdminSubAdminsController@update')->name('update');
+    Route::delete('/{id}', 'AdminSubAdminsController@destroy')->name('destroy');
+    Route::post('/{id}/regenerate-code', 'AdminSubAdminsController@regenerateCode')->name('regenerate-code');
+    Route::post('/{id}/toggle-status', 'AdminSubAdminsController@toggleStatus')->name('toggle-status');
+    Route::get('/{id}/users', 'AdminSubAdminsController@users')->name('users');
+});
+
+// Sub Admin Routes
+Route::middleware(['auth', 'sub_admin'])->prefix('sub-admin')->name('sub-admin.')->group(function () {
+    Route::get('/', [App\Http\Controllers\SubAdminController::class, 'index'])->name('dashboard');
+    
+    // Users Management
+    Route::get('/users', 'SubAdminController@users')->name('users');
+    Route::get('/users/create', 'SubAdminController@createUser')->name('users.create');
+    Route::post('/users', 'SubAdminController@storeUser')->name('users.store');
+    Route::get('/users/{id}', 'SubAdminController@showUser')->name('users.show');
+    Route::get('/users/{id}/edit', 'SubAdminController@editUser')->name('users.edit');
+    Route::put('/users/{id}', 'SubAdminController@updateUser')->name('users.update');
+    
+    // Orders Management
+    Route::get('/orders', 'SubAdminController@orders')->name('orders');
+    Route::get('/orders/create', 'SubAdminController@createOrder')->name('orders.create');
+    Route::post('/orders', 'SubAdminController@storeOrder')->name('orders.store');
+    Route::post('/orders/search-user', 'SubAdminController@searchManagedUser')->name('orders.search-user');
+    Route::get('/orders/{id}', 'SubAdminController@showOrder')->name('orders.show');
+    Route::get('/orders/{id}/edit', 'SubAdminController@editOrder')->name('orders.edit');
+    Route::put('/orders/{id}', 'SubAdminController@updateOrder')->name('orders.update');
+    
+    // Reports
+    Route::get('/reports', 'SubAdminController@reports')->name('reports');
 });

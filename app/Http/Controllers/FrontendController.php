@@ -354,7 +354,18 @@ class FrontendController extends Controller
         if(Auth::attempt(['email' => $data['email'], 'password' => $data['password'],'status'=>'active'])){
             Session::put('user',$data['email']);
             request()->session()->flash('success','Successfully login');
-            return redirect()->route('home');
+            
+            // Redirect theo role
+            $user = Auth::user();
+            \Log::info('User login debug: ', ['role' => $user->role, 'email' => $user->email]);
+            
+            if($user->role == 'admin'){
+                return redirect()->route('admin');
+            } else if($user->role == 'sub_admin'){
+                return redirect()->route('sub-admin.dashboard');
+            } else {
+                return redirect()->route('home');
+            }
         }
         else{
             request()->session()->flash('error','Invalid email and password pleas try again!');
@@ -378,10 +389,33 @@ class FrontendController extends Controller
             'name'=>'string|required|min:2',
             'email'=>'string|required|unique:users,email',
             'password'=>'required|min:6|confirmed',
+            'sub_admin_code'=>'nullable|string|exists:users,sub_admin_code',
         ]);
         $data=$request->all();
+        
+        // Validate sub admin code if provided
+        $subAdmin = null;
+        if (!empty($data['sub_admin_code'])) {
+            $subAdmin = User::where('sub_admin_code', $data['sub_admin_code'])
+                           ->where('role', 'sub_admin')
+                           ->where('status', 'active')
+                           ->first();
+            
+            if (!$subAdmin) {
+                request()->session()->flash('error','Mã Sub Admin không hợp lệ hoặc đã bị vô hiệu hóa');
+                return back()->withInput();
+            }
+
+            // Kiểm tra giới hạn users
+            if ($subAdmin->subAdminSettings && 
+                $subAdmin->getManagedUsersCount() >= $subAdmin->subAdminSettings->max_users_allowed) {
+                request()->session()->flash('error','Sub Admin này đã đạt giới hạn số lượng users');
+                return back()->withInput();
+            }
+        }
+        
         // dd($data);
-        $check=$this->create($data);
+        $check=$this->create($data, $subAdmin);
         Session::put('user',$data['email']);
         if($check){
             request()->session()->flash('success','Successfully registered');
@@ -392,13 +426,45 @@ class FrontendController extends Controller
             return back();
         }
     }
-    public function create(array $data){
-        return User::create([
+    
+    public function create(array $data, $subAdmin = null){
+        $userData = [
             'name'=>$data['name'],
             'email'=>$data['email'],
             'password'=>Hash::make($data['password']),
             'status'=>'active'
-            ]);
+        ];
+
+        if ($subAdmin) {
+            $userData['parent_sub_admin_id'] = $subAdmin->id;
+            $userData['referral_code'] = $data['sub_admin_code'];
+        }
+
+        $user = User::create($userData);
+
+        // Cập nhật stats nếu có sub admin
+        if ($subAdmin) {
+            $this->updateSubAdminStats($subAdmin->id);
+        }
+
+        return $user;
+    }
+
+    private function updateSubAdminStats($subAdminId)
+    {
+        $subAdmin = User::findOrFail($subAdminId);
+        $totalUsers = $subAdmin->getManagedUsersCount();
+        $activeUsers = $subAdmin->getActiveUsersCount();
+        
+        \App\Models\SubAdminUserStats::updateOrCreate(
+            ['sub_admin_id' => $subAdminId],
+            [
+                'total_users' => $totalUsers,
+                'active_users' => $activeUsers,
+                'inactive_users' => $totalUsers - $activeUsers,
+                'last_updated' => now(),
+            ]
+        );
     }
     // Reset password
     public function showResetForm(){

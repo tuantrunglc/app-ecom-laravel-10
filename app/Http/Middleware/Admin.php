@@ -15,12 +15,23 @@ class Admin
      */
     public function handle($request, Closure $next)
     {
-        if($request->user()->role=='admin'){
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
+        $user = auth()->user();
+        
+        if ($user->role === 'admin') {
             return $next($request);
         }
-        else{
-            request()->session()->flash('error','You do not have any permission to access this page');
-            return redirect()->route($request->user()->role);
+        
+        request()->session()->flash('error', 'Bạn không có quyền truy cập trang này');
+        
+        // Redirect theo role
+        if ($user->role === 'sub_admin') {
+            return redirect()->route('sub-admin.dashboard');
+        } else {
+            return redirect()->route('user');
         }
     }
 }

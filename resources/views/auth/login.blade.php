@@ -24,7 +24,8 @@
               <div class="col-lg-6">
                 <div class="p-5">
                   <div class="text-center">
-                    <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
+                    <h1 class="h4 text-gray-900 mb-4">Admin & Sub Admin Login</h1>
+                    <p class="text-muted mb-4">Đăng nhập dành cho Admin và Sub Admin</p>
                   </div>
                   <form class="user"  method="POST" action="{{ route('login') }}">
                     @csrf
