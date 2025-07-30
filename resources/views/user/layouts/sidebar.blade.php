@@ -39,6 +39,13 @@
             <i class="fas fa-comments"></i>
             <span>Reviews</span></a>
     </li>
+
+    <!-- Wallet -->
+    <li class="nav-item">
+        <a class="nav-link" href="{{route('wallet.index')}}">
+            <i class="fas fa-wallet"></i>
+            <span>My Wallet</span></a>
+    </li>
     
 
     <!-- Divider -->

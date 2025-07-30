@@ -14,19 +14,19 @@ use Carbon\Carbon;
 class LuckyWheelController extends Controller
 {
     /**
-     * Hiển thị trang vòng quay may mắn
+     * Display the lucky wheel page
      */
     public function index()
     {
-        // Kiểm tra vòng quay có được bật không
+        // Check if wheel is enabled
         if (!LuckyWheelSetting::getValue('wheel_enabled', true)) {
             return view('frontend.lucky-wheel.disabled');
         }
 
-        // Lấy danh sách phần thưởng
+        // Get prizes list
         $prizes = LuckyWheelPrize::active()->get();
         
-        // Lấy cài đặt
+        // Get settings
         $settings = [
             'max_spins_per_day' => LuckyWheelSetting::getValue('max_spins_per_day', 3),
             'require_login' => LuckyWheelSetting::getValue('require_login', true),
@@ -52,60 +52,60 @@ class LuckyWheelController extends Controller
     }
 
     /**
-     * Thực hiện quay vòng quay
+     * Spin the wheel
      */
     public function spin(Request $request)
     {
         try {
-            // Kiểm tra vòng quay có được bật không
+            // Check if wheel is enabled
             if (!LuckyWheelSetting::getValue('wheel_enabled', true)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Vòng quay hiện đang tạm dừng hoạt động.'
+                    'message' => 'The wheel is currently disabled.'
                 ]);
             }
 
-            // Kiểm tra đăng nhập
+            // Check if user is logged in
             if (!Auth::check()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Bạn cần đăng nhập để tham gia vòng quay.'
+                    'message' => 'You need to login to spin the wheel.'
                 ]);
             }
 
             $userId = Auth::id();
 
-            // Kiểm tra số lần quay trong ngày
+            // Check daily spin limit
             if (!LuckyWheelSpin::canUserSpin($userId)) {
                 $maxSpins = LuckyWheelSetting::getValue('max_spins_per_day', 3);
                 return response()->json([
                     'success' => false,
-                    'message' => "Bạn đã hết lượt quay hôm nay. Tối đa {$maxSpins} lần/ngày."
+                    'message' => "You've reached your daily spin limit. Maximum {$maxSpins} spins per day."
                 ]);
             }
 
             DB::beginTransaction();
 
-            // Kiểm tra admin có đặt kết quả không
+            // Check if admin has set a result
             $adminSet = LuckyWheelAdminSet::getAvailableSetForUser($userId);
             
             if ($adminSet && $adminSet->canBeUsed()) {
-                // Sử dụng kết quả admin đặt
+                // Use admin set result
                 $prize = $adminSet->prize;
                 $isWinner = true;
                 $adminSetFlag = true;
                 
-                // Đánh dấu admin set đã sử dụng
+                // Mark admin set as used
                 $adminSet->markAsUsed();
             } else {
-                // Random theo tỷ lệ
+                // Random prize by probability  
                 $result = $this->randomPrize();
                 $prize = $result['prize'];
                 $isWinner = $result['is_winner'];
                 $adminSetFlag = false;
             }
 
-            // Lưu kết quả quay
+            // Save spin result
             $spin = LuckyWheelSpin::create([
                 'user_id' => $userId,
                 'prize_id' => $prize ? $prize->id : null,
@@ -114,7 +114,7 @@ class LuckyWheelController extends Controller
                 'admin_set' => $adminSetFlag
             ]);
 
-            // Giảm số lượng phần thưởng nếu trúng
+            // Decrease prize quantity if won
             if ($isWinner && $prize) {
                 $prize->decreaseQuantity();
             }
@@ -123,7 +123,7 @@ class LuckyWheelController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => $isWinner ? 'Chúc mừng! Bạn đã trúng thưởng!' : 'Chúc bạn may mắn lần sau!',
+                'message' => $isWinner ? 'Congratulations! You won a prize!' : 'Better luck next time!',
                 'prize' => $prize ? [
                     'id' => $prize->id,
                     'name' => $prize->name,
@@ -139,31 +139,31 @@ class LuckyWheelController extends Controller
             
             return response()->json([
                 'success' => false,
-                'message' => 'Có lỗi xảy ra, vui lòng thử lại sau.'
+                'message' => 'An error occurred, please try again later.'
             ]);
         }
     }
 
     /**
-     * Random phần thưởng theo tỷ lệ
+     * Random prize by probability
      */
     private function randomPrize()
     {
         $prizes = LuckyWheelPrize::active()->available()->get();
         
         if ($prizes->isEmpty()) {
-            // Không có phần thưởng nào
-            $noPrize = LuckyWheelPrize::where('name', 'like', '%may mắn lần sau%')->first();
+            // No prizes available
+            $noPrize = LuckyWheelPrize::where('name', 'like', '%better luck%')->first();
             return [
                 'prize' => $noPrize,
                 'is_winner' => false
             ];
         }
 
-        // Tính tổng tỷ lệ
+        // Calculate total probability
         $totalProbability = $prizes->sum('probability');
         
-        // Random số từ 0 đến tổng tỷ lệ
+        // Random number from 0 to total probability
         $random = mt_rand(0, $totalProbability * 100) / 100;
         
         $currentProbability = 0;
@@ -172,21 +172,21 @@ class LuckyWheelController extends Controller
             if ($random <= $currentProbability) {
                 return [
                     'prize' => $prize,
-                    'is_winner' => !str_contains(strtolower($prize->name), 'may mắn lần sau')
+                    'is_winner' => !str_contains(strtolower($prize->name), 'better luck')
                 ];
             }
         }
 
-        // Fallback - trả về phần thưởng cuối cùng
+        // Fallback - return last prize
         $lastPrize = $prizes->last();
         return [
             'prize' => $lastPrize,
-            'is_winner' => !str_contains(strtolower($lastPrize->name), 'may mắn lần sau')
+            'is_winner' => !str_contains(strtolower($lastPrize->name), 'better luck')
         ];
     }
 
     /**
-     * Lịch sử quay của user
+     * User's spin history
      */
     public function history(Request $request)
     {
@@ -203,7 +203,7 @@ class LuckyWheelController extends Controller
     }
 
     /**
-     * API: Lấy danh sách phần thưởng
+     * API: Get prizes list
      */
     public function getPrizes()
     {
@@ -216,14 +216,14 @@ class LuckyWheelController extends Controller
     }
 
     /**
-     * API: Lấy thông tin user
+     * API: Get user information
      */
     public function getUserInfo()
     {
         if (!Auth::check()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Chưa đăng nhập'
+                'message' => 'Not logged in'
             ]);
         }
 

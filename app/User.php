@@ -16,7 +16,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password','role','photo','status','provider','provider_id',
+        'name', 'email', 'password','role','photo','status','provider','provider_id','wallet_balance',
     ];
 
     /**
@@ -35,9 +35,27 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'wallet_balance' => 'decimal:2',
     ];
 
     public function orders(){
         return $this->hasMany('App\Models\Order');
+    }
+
+    // Wallet relationships
+    public function walletTransactions()
+    {
+        return $this->hasMany('App\Models\WalletTransaction')->orderBy('created_at', 'desc');
+    }
+
+    public function withdrawalRequests()
+    {
+        return $this->hasMany('App\Models\WithdrawalRequest')->orderBy('created_at', 'desc');
+    }
+
+    // Helper methods
+    public function getFormattedBalanceAttribute()
+    {
+        return '$' . number_format($this->wallet_balance, 2);
     }
 }

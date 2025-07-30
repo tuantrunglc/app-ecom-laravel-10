@@ -149,7 +149,7 @@
                                             </div>
                                             @if($product->commission && $product->commission > 0)
                                                 <div class="commission-badge" style="background: #28a745; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-top: 5px; display: inline-block;">
-                                                    <i class="fa fa-percent"></i> {{$product->commission}}Commission
+                                                    <i class="fa fa-percent"></i> {{$product->commission}} Commission
                                                 </div>
                                             @endif
                                         </div>
@@ -248,7 +248,7 @@
                                 </div>
                                 @if($product->commission && $product->commission > 0)
                                     <div class="commission-badge" style="background: #28a745; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-top: 5px; display: inline-block;">
-                                        <i class="fa fa-percent"></i> {{$product->commission}}Commission
+                                        <i class="fa fa-percent"></i> {{$product->commission}} Commission
                                     </div>
                                 @endif
                             </div>
@@ -274,33 +274,33 @@
                             <div class="promo-content">
                                 <h2 class="promo-title">
                                     <i class="fas fa-gift"></i> 
-                                    Vòng Quay May Mắn
+                                    Lucky Wheel
                                 </h2>
                                 <p class="promo-description">
-                                    Tham gia vòng quay may mắn để nhận những phần thưởng hấp dẫn! 
-                                    Mỗi ngày bạn có cơ hội quay và trúng những món quà giá trị.
+                                    Join the lucky wheel to win attractive prizes! 
+                                    Every day you have the chance to spin and win valuable gifts.
                                 </p>
                                 <div class="promo-features">
                                     <div class="feature-item">
                                         <i class="fas fa-check-circle"></i>
-                                        <span>Miễn phí tham gia</span>
+                                        <span>Free to play</span>
                                     </div>
                                     <div class="feature-item">
                                         <i class="fas fa-check-circle"></i>
-                                        <span>Phần thưởng hấp dẫn</span>
+                                        <span>Attractive prizes</span>
                                     </div>
                                     <div class="feature-item">
                                         <i class="fas fa-check-circle"></i>
-                                        <span>Cơ hội trúng mỗi ngày</span>
+                                        <span>Daily chances to win</span>
                                     </div>
                                 </div>
                                 <div class="promo-actions">
                                     <a href="{{ route('lucky-wheel.index') }}" class="btn btn-primary btn-lg">
-                                        <i class="fas fa-sync-alt"></i> Quay Ngay
+                                        <i class="fas fa-sync-alt"></i> Spin Now
                                     </a>
                                     @auth
                                     <a href="{{ route('lucky-wheel.history') }}" class="btn btn-outline-primary">
-                                        <i class="fas fa-history"></i> Lịch Sử
+                                        <i class="fas fa-history"></i> History
                                     </a>
                                     @endauth
                                 </div>

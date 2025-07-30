@@ -57,6 +57,92 @@
     margin-left: 0px;
     }
 
+    /* Deposit Button Styles */
+    .header.shop .right-bar .sinlge-bar .deposit-btn {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white !important;
+        padding: 8px 15px;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .header.shop .right-bar .sinlge-bar .deposit-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .header.shop .right-bar .sinlge-bar .deposit-btn:hover::before {
+        left: 100%;
+    }
+
+    .header.shop .right-bar .sinlge-bar .deposit-btn:hover {
+        background: linear-gradient(135deg, #218838, #1ea085);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+        color: white !important;
+        text-decoration: none;
+    }
+
+    .header.shop .right-bar .sinlge-bar .deposit-btn i {
+        font-size: 16px;
+    }
+
+    .header.shop .right-bar .sinlge-bar .deposit-btn .deposit-text {
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+        .header.shop .right-bar .sinlge-bar .deposit-btn {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+        
+        .header.shop .right-bar .sinlge-bar .deposit-btn .deposit-text {
+            font-size: 12px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .header.shop .right-bar .sinlge-bar .deposit-btn {
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+        
+        .header.shop .right-bar .sinlge-bar .deposit-btn .deposit-text {
+            display: none;
+        }
+        
+        .header.shop .right-bar .sinlge-bar .deposit-btn i {
+            font-size: 14px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header.shop .right-bar .sinlge-bar .deposit-btn {
+            padding: 5px 8px;
+            border-radius: 20px;
+        }
+    }
+
     /*
 </style>
 @stack('styles')
