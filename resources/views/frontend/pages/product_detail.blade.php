@@ -149,6 +149,16 @@
 													</div>
 												</form>
 
+												<!-- Buy Now Form -->
+												<form action="{{route('buy-now')}}" method="POST" class="buy-now-form mt-3">
+													@csrf 
+													<input type="hidden" name="slug" value="{{$product_detail->slug}}">
+													<input type="hidden" name="quant[1]" id="buy-now-quantity" value="1">
+													<button type="submit" class="btn btn-success btn-lg btn-block">
+														<i class="fa fa-bolt"></i> Buy Now
+													</button>
+												</form>
+
 												<p class="cat">Category :<a href="{{route('product-cat',$product_detail->cat_info['slug'])}}">{{$product_detail->cat_info['title']}}</a></p>
 												@if($product_detail->sub_cat_info)
 												<p class="cat mt-1">Sub Category :<a href="{{route('product-sub-cat',[$product_detail->cat_info['slug'],$product_detail->sub_cat_info['slug']])}}">{{$product_detail->sub_cat_info['title']}}</a></p>
@@ -237,6 +247,7 @@
 																		</div>
 																	</div>
 																</form>
+
 																@else 
 																<p class="text-center p-5">
 																	You need to <a href="{{route('login.form')}}" style="color:rgb(54, 54, 204)">Login</a> OR <a style="color:blue" href="{{route('register.form')}}">Register</a>
@@ -531,10 +542,123 @@
 		content: "\F005";
 		}
 
+		/* Buy Now Button Styling */
+		.buy-now-form .btn {
+			background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+			border: none;
+			color: white;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+		}
+		
+		.buy-now-form .btn:hover {
+			background: linear-gradient(135deg, #218838 0%, #1abc9c 100%);
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+		}
+		
+		.buy-now-form .btn:active {
+			transform: translateY(0);
+		}
+		
+		.buy-now-form .btn i {
+			margin-right: 8px;
+			font-size: 16px;
+		}
+
 	</style>
 @endpush
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+<script>
+    // Đồng bộ quantity giữa Add to Cart và Buy Now
+    $(document).ready(function() {
+        // Khi quantity trong form Add to Cart thay đổi
+        $('#quantity').on('input change', function() {
+            $('#buy-now-quantity').val($(this).val());
+        });
+
+        // Xử lý nút plus/minus cho quantity
+        $('.btn-number').click(function(e) {
+            e.preventDefault();
+            
+            var fieldName = $(this).attr('data-field');
+            var type = $(this).attr("data-type");
+            var input = $("input[name='" + fieldName + "']");
+            var currentVal = parseInt(input.val());
+            
+            if (!isNaN(currentVal)) {
+                if (type == 'minus') {
+                    if (currentVal > input.attr('data-min')) {
+                        input.val(currentVal - 1).change();
+                    }
+                    if (parseInt(input.val()) == input.attr('data-min')) {
+                        $(this).attr('disabled', true);
+                    }
+                } else if (type == 'plus') {
+                    if (currentVal < input.attr('data-max')) {
+                        input.val(currentVal + 1).change();
+                    }
+                    if (parseInt(input.val()) == input.attr('data-max')) {
+                        $(this).attr('disabled', true);
+                    }
+                }
+            } else {
+                input.val(0);
+            }
+            
+            // Cập nhật buy-now quantity
+            $('#buy-now-quantity').val(input.val());
+        });
+
+        $('.input-number').focusin(function() {
+            $(this).data('oldValue', $(this).val());
+        });
+
+        $('.input-number').change(function() {
+            var minValue = parseInt($(this).attr('data-min'));
+            var maxValue = parseInt($(this).attr('data-max'));
+            var valueCurrent = parseInt($(this).val());
+            var name = $(this).attr('name');
+            
+            if (valueCurrent >= minValue) {
+                $(".btn-number[data-type='minus'][data-field='" + name + "']").removeAttr('disabled')
+            } else {
+                alert('Sorry, the minimum value was reached');
+                $(this).val($(this).data('oldValue'));
+            }
+            
+            if (valueCurrent <= maxValue) {
+                $(".btn-number[data-type='plus'][data-field='" + name + "']").removeAttr('disabled')
+            } else {
+                alert('Sorry, the maximum value was reached');
+                $(this).val($(this).data('oldValue'));
+            }
+            
+            // Cập nhật buy-now quantity
+            $('#buy-now-quantity').val($(this).val());
+        });
+
+        $(".input-number").keydown(function(e) {
+            // Allow: backspace, delete, tab, escape, enter and .
+            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 190]) !== -1 ||
+                // Allow: Ctrl+A
+                (e.keyCode == 65 && e.ctrlKey === true) ||
+                // Allow: home, end, left, right
+                (e.keyCode >= 35 && e.keyCode <= 39)) {
+                // let it happen, don't do anything
+                return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
 
     {{-- <script>
         $('.cart').click(function(){
