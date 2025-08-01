@@ -45,6 +45,9 @@ RUN npm install
 # Copy source code
 COPY --chown=www-data:www-data . /var/www/html
 
+# Ensure storage directory structure is correct
+RUN rm -rf /var/www/html/public/storage
+
 # Khôi phục vendor nếu cần
 RUN if [ ! -d "/var/www/html/vendor" ]; then \
         composer install --no-dev --optimize-autoloader --no-interaction --no-scripts; \
@@ -58,20 +61,25 @@ COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.con
 
 # Copy initialization script
 COPY docker/scripts/init.sh /usr/local/bin/init.sh
-RUN chmod +x /usr/local/bin/init.sh
+RUN chmod +x /usr/local/bin/init.sh \
+    && sed -i 's/\r$//' /usr/local/bin/init.sh
 
 # Copy và setup entrypoint script
 COPY docker/scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh \
+    && sed -i 's/\r$//' /usr/local/bin/entrypoint.sh \
+    && ls -la /usr/local/bin/entrypoint.sh
 
 # Thiết lập quyền - chỉ cho các thư mục cần thiết
 RUN mkdir -p /var/www/html/storage/logs \
     && mkdir -p /var/www/html/storage/framework/cache \
     && mkdir -p /var/www/html/storage/framework/sessions \
     && mkdir -p /var/www/html/storage/framework/views \
+    && mkdir -p /var/www/html/storage/app/public \
     && mkdir -p /var/www/html/bootstrap/cache \
     && chmod -R 777 /var/www/html/storage \
-    && chmod -R 777 /var/www/html/bootstrap/cache
+    && chmod -R 777 /var/www/html/bootstrap/cache \
+    && rm -rf /var/www/html/public/storage
 
 # Expose port 80
 EXPOSE 80

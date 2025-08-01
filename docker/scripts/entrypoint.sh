@@ -46,6 +46,9 @@ if [ -f "/var/www/html/vendor/autoload.php" ]; then
     # Tạo storage link nếu chưa có
     if [ ! -L "/var/www/html/public/storage" ]; then
         echo "Creating storage link..."
+        # Remove any existing directory/file first
+        rm -rf /var/www/html/public/storage
+        # Create the storage link
         php artisan storage:link
     fi
 else
