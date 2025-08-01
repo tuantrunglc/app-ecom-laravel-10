@@ -33,7 +33,17 @@ class ChatController extends Controller
             'exp' => time() + 3600 // 1 hour expiry
         ]));
 
-        return view('chat.index', compact('user', 'availableUsers', 'conversations', 'customToken'));
+        // Return different views based on user role
+        switch ($user->role) {
+            case 'admin':
+                return view('chat.admin.index', compact('user', 'availableUsers', 'conversations', 'customToken'));
+            case 'sub_admin':
+                return view('chat.sub_admin.index', compact('user', 'availableUsers', 'conversations', 'customToken'));
+            case 'user':
+                return view('chat.user.index', compact('user', 'availableUsers', 'conversations', 'customToken'));
+            default:
+                return view('chat.index', compact('user', 'availableUsers', 'conversations', 'customToken'));
+        }
     }
 
     public function createConversation(Request $request)
@@ -99,7 +109,17 @@ class ChatController extends Controller
             'exp' => time() + 3600
         ]));
 
-        return view('chat.conversation', compact('user', 'conversation', 'otherParticipant', 'customToken'));
+        // Return different conversation views based on user role
+        switch ($user->role) {
+            case 'admin':
+                return view('chat.admin.conversation', compact('user', 'conversation', 'otherParticipant', 'customToken'));
+            case 'sub_admin':
+                return view('chat.sub_admin.conversation', compact('user', 'conversation', 'otherParticipant', 'customToken'));
+            case 'user':
+                return view('chat.user.conversation', compact('user', 'conversation', 'otherParticipant', 'customToken'));
+            default:
+                return view('chat.conversation', compact('user', 'conversation', 'otherParticipant', 'customToken'));
+        }
     }
 
     public function uploadImage(Request $request)
