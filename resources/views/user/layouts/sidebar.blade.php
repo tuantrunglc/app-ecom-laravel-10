@@ -46,6 +46,13 @@
             <i class="fas fa-wallet"></i>
             <span>My Wallet</span></a>
     </li>
+
+    <!-- Chat -->
+    <li class="nav-item">
+        <a class="nav-link" href="{{route('chat.index')}}">
+            <i class="fas fa-comment-dots"></i>
+            <span>Chat Support</span></a>
+    </li>
     
 
     <!-- Divider -->

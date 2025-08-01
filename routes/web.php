@@ -338,3 +338,21 @@ Route::middleware(['auth', 'sub_admin'])->prefix('sub-admin')->name('sub-admin.'
     // Reports
     Route::get('/reports', 'SubAdminController@reports')->name('reports');
 });
+
+// Chat System Routes
+Route::middleware(['auth'])->prefix('chat')->name('chat.')->group(function () {
+    Route::get('/', [App\Http\Controllers\ChatController::class, 'index'])->name('index');
+    Route::post('/conversation', [App\Http\Controllers\ChatController::class, 'createConversation'])->name('conversation.create');
+    Route::get('/conversation/{id}', [App\Http\Controllers\ChatController::class, 'showConversation'])->name('conversation');
+    Route::post('/upload-image', [App\Http\Controllers\ChatController::class, 'uploadImage'])->name('upload.image');
+    Route::get('/api/conversations', [App\Http\Controllers\ChatController::class, 'getConversations'])->name('api.conversations');
+    
+    // Test routes for debugging
+    Route::get('/test', function() {
+        return view('chat.test');
+    })->name('test');
+    
+    Route::get('/test-simple', function() {
+        return view('chat.test-simple');
+    })->name('test-simple');
+});

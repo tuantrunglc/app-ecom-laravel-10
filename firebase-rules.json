@@ -1,0 +1,31 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+    "messages": {
+      "$conversationId": {
+        ".read": true,
+        ".write": true,
+        "$messageId": {
+          ".validate": "newData.hasChildren(['senderId', 'content', 'timestamp'])"
+        }
+      }
+    },
+    "conversations": {
+      "$conversationId": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "userPresence": {
+      "$userId": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "test": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}

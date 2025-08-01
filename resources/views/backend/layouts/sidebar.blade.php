@@ -27,6 +27,17 @@
     <!-- Divider -->
     <hr class="sidebar-divider">
 
+    <!-- Chat System -->
+    <li class="nav-item">
+        <a class="nav-link" href="{{route('chat.index')}}">
+            <i class="fas fa-comments"></i>
+            <span>Chat System</span>
+        </a>
+    </li>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+
     @if(auth()->user()->isSubAdmin())
     <!-- Sub Admin Menu -->
     <div class="sidebar-heading">

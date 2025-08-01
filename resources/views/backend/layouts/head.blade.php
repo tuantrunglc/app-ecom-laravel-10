@@ -6,6 +6,16 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    <!-- Firebase Configuration Meta Tags -->
+    <meta name="firebase-api-key" content="{{ config('firebase.api_key') }}">
+    <meta name="firebase-auth-domain" content="{{ config('firebase.auth_domain') }}">
+    <meta name="firebase-database-url" content="{{ config('firebase.database_url') }}">
+    <meta name="firebase-project-id" content="{{ config('firebase.project_id') }}">
+    <meta name="firebase-storage-bucket" content="{{ config('firebase.storage_bucket') }}">
+    <meta name="firebase-messaging-sender-id" content="{{ config('firebase.messaging_sender_id') }}">
+    <meta name="firebase-app-id" content="{{ config('firebase.app_id') }}">
+    
     <title>E-SHOP || DASHBOARD</title>
   
     <!-- Custom fonts for this template-->

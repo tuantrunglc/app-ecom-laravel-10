@@ -132,4 +132,74 @@ class User extends Authenticatable
     {
         return $this->managedUsers()->where('status', 'active')->count();
     }
+
+    // Chat System Methods
+    public function conversations()
+    {
+        return $this->belongsToMany('App\Models\Conversation', 'conversation_participants', 'user_id', 'conversation_id')
+                    ->withTimestamps();
+    }
+
+    public function canChatWith(User $user)
+    {
+        // Admin có thể chat với tất cả Users và Sub Admins (không giới hạn)
+        if ($this->role === 'admin') {
+            return true;
+        }
+        
+        // Sub Admin có thể chat với Admin và users thuộc quyền quản lý
+        if ($this->role === 'sub_admin') {
+            return $user->role === 'admin' || 
+                   ($user->role === 'user' && $user->parent_sub_admin_id === $this->id);
+        }
+        
+        // User chỉ có thể chat với Admin và Sub Admin quản lý mình (parent_sub_admin_id)
+        if ($this->role === 'user') {
+            // User luôn chat được với Admin
+            if ($user->role === 'admin') {
+                return true;
+            }
+            
+            // User chỉ chat với Sub Admin quản lý mình (chỉ có 1 Sub Admin)
+            if ($user->role === 'sub_admin' && $this->parent_sub_admin_id === $user->id) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    public function getAvailableChatUsers()
+    {
+        $query = User::where('id', '!=', $this->id)->where('status', 'active');
+        
+        if ($this->role === 'admin') {
+            // Admin có thể chat với tất cả Users và Sub Admins (không giới hạn)
+            return $query->get();
+        }
+        
+        if ($this->role === 'sub_admin') {
+            // Sub Admin chat với Admin và users thuộc quyền quản lý
+            return $query->where(function($q) {
+                $q->where('role', 'admin')
+                  ->orWhere(function($subQ) {
+                      $subQ->where('role', 'user')
+                           ->where('parent_sub_admin_id', $this->id);
+                  });
+            })->get();
+        }
+        
+        if ($this->role === 'user') {
+            // User chỉ chat với Admin và Sub Admin quản lý mình (chỉ có 1 Sub Admin)
+            return $query->where(function($q) {
+                $q->where('role', 'admin')
+                  ->orWhere(function($subQ) {
+                      $subQ->where('role', 'sub_admin')
+                           ->where('id', $this->parent_sub_admin_id);
+                  });
+            })->get();
+        }
+        
+        return collect();
+    }
 }
