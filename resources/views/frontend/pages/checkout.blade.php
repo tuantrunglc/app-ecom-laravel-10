@@ -456,10 +456,10 @@
                                     <h2>Payments</h2>
                                     <div class="content">
                                         <div class="checkbox">
-                                            {{-- <label class="checkbox-inline" for="1"><input name="updates" id="1" type="checkbox"> Check Payments</label> --}}
                                             <form-group>
-                                                <input name="payment_method"  type="radio" value="cod"> <label> Cash On Delivery</label><br>
-                                                <input name="payment_method"  type="radio" value="paypal"> <label> PayPal</label> 
+                                                <input name="payment_method" type="radio" value="wallet" checked required> 
+                                                <label> Wallet Payment (Balance: ${{number_format(auth()->user()->wallet_balance ?? 0, 2)}})</label>
+                                                <div id="wallet-error" class="text-danger mt-2" style="display: none;"></div>
                                             </form-group>
                                             
                                         </div>
@@ -599,6 +599,22 @@
 		.form-select .nice-select::after {
 			top: 14px;
 		}
+		#wallet-error {
+			background: #f8d7da;
+			border: 1px solid #f5c6cb;
+			border-radius: 5px;
+			padding: 10px;
+			margin-top: 10px;
+		}
+		#wallet-error i {
+			color: #721c24;
+			margin-right: 5px;
+		}
+		.btn-secondary {
+			background-color: #6c757d !important;
+			border-color: #6c757d !important;
+			cursor: not-allowed !important;
+		}
 	</style>
 @endpush
 @push('scripts')
@@ -634,6 +650,67 @@
 
 		});
 
+	</script>
+	
+	<!-- Wallet Balance Validation Script -->
+	<script>
+		$(document).ready(function(){
+			// Wallet balance from server
+			const walletBalance = {{auth()->user()->wallet_balance ?? 0}};
+			
+			// Function to check wallet balance
+			function checkWalletBalance() {
+				let cost = parseFloat( $('.shipping select[name=shipping] option:selected').data('price') ) || 0;
+				let subtotal = parseFloat( $('.order_subtotal').data('price') ); 
+				let coupon = parseFloat( $('.coupon_price').data('price') ) || 0; 
+				let totalAmount = subtotal + cost - coupon;
+				
+				const errorDiv = $('#wallet-error');
+				const submitBtn = $('button[type="submit"]');
+				
+				if (walletBalance < totalAmount) {
+					errorDiv.html(`
+						<i class="fa fa-exclamation-triangle"></i> 
+						<strong>Insufficient wallet balance!</strong><br>
+						Your balance: $${walletBalance.toFixed(2)}<br>
+						Required: $${totalAmount.toFixed(2)}<br>
+						<small>Please add $${(totalAmount - walletBalance).toFixed(2)} to your wallet.</small>
+					`).show();
+					submitBtn.prop('disabled', true).addClass('btn-secondary').removeClass('btn');
+					return false;
+				} else {
+					errorDiv.hide();
+					submitBtn.prop('disabled', false).removeClass('btn-secondary').addClass('btn');
+					return true;
+				}
+			}
+			
+			// Check on shipping change (override existing handler)
+			$('.shipping select[name=shipping]').off('change').on('change', function(){
+				let cost = parseFloat( $(this).find('option:selected').data('price') ) || 0;
+				let subtotal = parseFloat( $('.order_subtotal').data('price') ); 
+				let coupon = parseFloat( $('.coupon_price').data('price') ) || 0; 
+				$('#order_total_price span').text('$'+(subtotal + cost-coupon).toFixed(2));
+				
+				// Check wallet balance after price update
+				setTimeout(checkWalletBalance, 100);
+			});
+			
+			// Check on page load
+			setTimeout(checkWalletBalance, 500);
+			
+			// Prevent form submission if insufficient balance
+			$('form').on('submit', function(e) {
+				if (!checkWalletBalance()) {
+					e.preventDefault();
+					$('html, body').animate({
+						scrollTop: $('#wallet-error').offset().top - 100
+					}, 500);
+					return false;
+				}
+			});
+
+		});
 	</script>
 
 @endpush

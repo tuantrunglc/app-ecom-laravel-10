@@ -254,7 +254,7 @@ class SubAdminController extends Controller
             'post_code'=>'nullable|string|max:20',
             'email'=>'required|email|max:255',
             'shipping'=>'required|exists:shippings,id',
-            'payment_method'=>'required|in:cod,paypal',
+            'payment_method'=>'required|in:wallet',
             'status'=>'required|in:new,process,delivered,cancel',
             'sub_total'=>'required|numeric|min:0|max:999999.99',
             'quantity'=>'required|integer|min:1|max:1000',

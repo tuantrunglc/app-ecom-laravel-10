@@ -89,7 +89,7 @@ class OrderController extends Controller
             'post_code'=>'string|nullable',
             'email'=>'string|required|email',
             'shipping'=>'required|exists:shippings,id',
-            'payment_method'=>'required|in:cod,paypal',
+            'payment_method'=>'required|in:wallet',
             'status'=>'required|in:new,process,delivered,cancel',
             'sub_total'=>'required|numeric|min:0',
             'quantity'=>'required|integer|min:1',
@@ -194,12 +194,33 @@ class OrderController extends Controller
         
         $order_data['shipping_id'] = $request->shipping;
         
-        // Set payment status based on method
-        if($request->payment_method == 'paypal'){
+        // Get the user who will pay for this order
+        $payingUser = null;
+        if ($isAdminOrder) {
+            $payingUser = User::find($request->user_id);
+        } else {
+            $payingUser = $request->user();
+        }
+        
+        // Check wallet balance and process payment
+        if($request->payment_method == 'wallet'){
+            $totalAmount = $order_data['total_amount'];
+            $currentBalance = $payingUser->wallet_balance ?? 0;
+            
+            if($currentBalance < $totalAmount){
+                request()->session()->flash('error','Insufficient wallet balance. Your balance: $' . number_format($currentBalance, 2) . ', Required: $' . number_format($totalAmount, 2) . '. Please add funds to your wallet before placing the order.');
+                return back();
+            }
+            
+            // Deduct money from wallet
+            $payingUser->wallet_balance = $currentBalance - $totalAmount;
+            $payingUser->save();
+            
             $order_data['payment_status'] = 'paid';
         } else {
             $order_data['payment_status'] = 'Unpaid';
         }
+        
         $order->fill($order_data);
         $status=$order->save();
         
@@ -221,14 +242,9 @@ class OrderController extends Controller
                 // For Buy Now orders from frontend
                 $buyNowItem = session('buy_now');
                 
-                if(request('payment_method')=='paypal'){
-                    return redirect()->route('payment')->with(['id'=>$order->id]);
-                }
-                else{
-                    // Clear buy now session
-                    session()->forget('buy_now');
-                    session()->forget('coupon');
-                }
+                // Clear buy now session
+                session()->forget('buy_now');
+                session()->forget('coupon');
                 
                 // Create cart entry for this buy now item linked to the order
                 $cart = new Cart;
@@ -240,19 +256,15 @@ class OrderController extends Controller
                 $cart->amount = $buyNowItem['amount'];
                 $cart->save();
                 
-                request()->session()->flash('success','Your product successfully placed in order');
+                request()->session()->flash('success','Your product successfully placed in order. Payment deducted from wallet.');
                 return redirect()->route('home');
             } else {
                 // For regular orders from frontend
-                if(request('payment_method')=='paypal'){
-                    return redirect()->route('payment')->with(['id'=>$order->id]);
-                }
-                else{
-                    session()->forget('cart');
-                    session()->forget('coupon');
-                }
+                session()->forget('cart');
+                session()->forget('coupon');
+                
                 Cart::where('user_id', auth()->user()->id)->where('order_id', null)->update(['order_id' => $order->id]);
-                request()->session()->flash('success','Your product successfully placed in order');
+                request()->session()->flash('success','Your product successfully placed in order. Payment deducted from wallet.');
                 return redirect()->route('home');
             }
         }

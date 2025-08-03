@@ -157,8 +157,7 @@
                    <label for="payment_method" class="col-form-label">Phương thức thanh toán <span class="text-danger">*</span></label>
                    <select name="payment_method" class="form-control">
                      <option value="">--Chọn phương thức thanh toán--</option>
-                     <option value="cod">Thanh toán khi nhận hàng (COD)</option>
-                     <option value="paypal">PayPal</option>
+                     <option value="wallet" selected>Thanh toán qua ví</option>
                    </select>
                    @error('payment_method')
                    <span class="text-danger">{{$message}}</span>

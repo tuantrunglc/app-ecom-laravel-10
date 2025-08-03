@@ -90,7 +90,7 @@
                     </tr>
                     <tr>
                       <td>Payment Method</td>
-                      <td> : @if($order->payment_method=='cod') Cash on Delivery @else Paypal @endif</td>
+                      <td> : @if($order->payment_method=='wallet') Wallet Payment @elseif($order->payment_method=='cod') Cash on Delivery @else Paypal @endif</td>
                     </tr>
                     <tr>
                         <td>Payment Status</td>
