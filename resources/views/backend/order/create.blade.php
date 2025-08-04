@@ -143,8 +143,7 @@
            <label for="payment_method" class="col-form-label">Phương Thức Thanh Toán <span class="text-danger">*</span></label>
            <select name="payment_method" class="form-control" required>
                <option value="">--Chọn phương thức thanh toán--</option>
-               <option value="cod" {{(old('payment_method')=='cod') ? 'selected' : ''}}>Thanh toán khi nhận hàng (COD)</option>
-               <option value="paypal" {{(old('payment_method')=='paypal') ? 'selected' : ''}}>PayPal</option>
+               <option value="wallet" {{(old('payment_method')=='wallet') ? 'selected' : 'selected'}}>Thanh toán qua ví</option>
            </select>
            @error('payment_method')
            <span class="text-danger">{{$message}}</span>
