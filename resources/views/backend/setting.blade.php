@@ -5,7 +5,7 @@
 <div class="card">
     <h5 class="card-header">Chỉnh Sửa Cài Đặt</h5>
     <div class="card-body">
-    <form method="post" action="{{route('settings.update')}}">
+    <form method="post" action="{{route('settings.update')}}" enctype="multipart/form-data">
         @csrf 
         {{-- @method('PATCH') --}}
         {{-- {{dd($data)}} --}}
@@ -26,14 +26,24 @@
 
         <div class="form-group">
           <label for="inputPhoto" class="col-form-label">Logo <span class="text-danger">*</span></label>
+          
+          <!-- Option 1: File Upload -->
+          <div class="mb-3">
+            <input type="file" class="form-control" id="logo_upload" name="logo_upload" accept="image/*" onchange="previewLogo(this)">
+            <small class="text-muted">Chọn logo mới (JPEG, PNG, GIF). Sẽ được lưu vào public/photos/</small>
+          </div>
+          
+          <!-- Option 2: Manual Path Input -->
           <div class="input-group">
               <span class="input-group-btn">
                   <a id="lfm1" data-input="thumbnail1" data-preview="holder1" class="btn btn-primary">
-                  <i class="fa fa-picture-o"></i> Chọn
+                  <i class="fa fa-picture-o"></i> Chọn từ Gallery
                   </a>
               </span>
-          <input id="thumbnail1" class="form-control" type="text" name="logo" value="{{$data->logo}}">
+          <input id="thumbnail1" class="form-control" type="text" name="logo" value="{{$data->logo}}" placeholder="Hoặc nhập đường dẫn logo">
         </div>
+        
+        <div id="logo_preview_container" style="margin-top:15px;"></div>
         <div id="holder1" style="margin-top:15px;max-height:100px;"></div>
 
           @error('logo')
@@ -43,14 +53,24 @@
 
         <div class="form-group">
           <label for="inputPhoto" class="col-form-label">Hình Ảnh <span class="text-danger">*</span></label>
+          
+          <!-- Option 1: File Upload -->
+          <div class="mb-3">
+            <input type="file" class="form-control" id="photo_upload" name="photo_upload" accept="image/*" onchange="previewPhoto(this)">
+            <small class="text-muted">Chọn hình ảnh mới (JPEG, PNG, GIF). Sẽ được lưu vào public/photos/</small>
+          </div>
+          
+          <!-- Option 2: Manual Path Input -->
           <div class="input-group">
               <span class="input-group-btn">
                   <a id="lfm" data-input="thumbnail" data-preview="holder" class="btn btn-primary">
-                  <i class="fa fa-picture-o"></i> Chọn
+                  <i class="fa fa-picture-o"></i> Chọn từ Gallery
                   </a>
               </span>
-          <input id="thumbnail" class="form-control" type="text" name="photo" value="{{$data->photo}}">
+          <input id="thumbnail" class="form-control" type="text" name="photo" value="{{$data->photo}}" placeholder="Hoặc nhập đường dẫn hình ảnh">
         </div>
+        
+        <div id="photo_preview_container" style="margin-top:15px;"></div>
         <div id="holder" style="margin-top:15px;max-height:100px;"></div>
 
           @error('photo')
@@ -100,8 +120,67 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 <script>
-    $('#lfm').filemanager('image');
-    $('#lfm1').filemanager('image');
+    $('#lfm').filemanager('image', {prefix: '/laravel-filemanager'});
+    $('#lfm1').filemanager('image', {prefix: '/laravel-filemanager'});
+    
+    // Preview logo upload
+    function previewLogo(input) {
+        const container = document.getElementById('logo_preview_container');
+        container.innerHTML = '';
+        
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.cssText = 'height: 80px; width: 80px; object-fit: cover; margin: 5px; border: 1px solid #ddd; border-radius: 4px;';
+                    container.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+                
+                // Update the text input
+                const fileName = file.name;
+                setTimeout(() => {
+                    const thumbnailInput = document.getElementById('thumbnail1');
+                    if (thumbnailInput) {
+                        thumbnailInput.value = 'photos/' + fileName;
+                    }
+                }, 100);
+            }
+        }
+    }
+    
+    // Preview photo upload
+    function previewPhoto(input) {
+        const container = document.getElementById('photo_preview_container');
+        container.innerHTML = '';
+        
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.cssText = 'height: 80px; width: 80px; object-fit: cover; margin: 5px; border: 1px solid #ddd; border-radius: 4px;';
+                    container.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+                
+                // Update the text input
+                const fileName = file.name;
+                setTimeout(() => {
+                    const thumbnailInput = document.getElementById('thumbnail');
+                    if (thumbnailInput) {
+                        thumbnailInput.value = 'photos/' + fileName;
+                    }
+                }, 100);
+            }
+        }
+    }
+    
     $(document).ready(function() {
     $('#summary').summernote({
       placeholder: "Write short description.....",

@@ -54,28 +54,64 @@ class AdminController extends Controller
     }
 
     public function settingsUpdate(Request $request){
-        // return $request->all();
-        $this->validate($request,[
-            'short_des'=>'required|string',
-            'description'=>'required|string',
-            'photo'=>'required',
-            'logo'=>'required',
-            'address'=>'required|string',
-            'email'=>'required|email',
-            'phone'=>'required|string',
-        ]);
-        $data=$request->all();
-        // return $data;
-        $settings=Settings::first();
-        // return $settings;
-        $status=$settings->fill($data)->save();
-        if($status){
-            request()->session()->flash('success','Setting successfully updated');
+        try {
+            $this->validate($request,[
+                'short_des'=>'required|string',
+                'description'=>'required|string',
+                'photo'=>'nullable|string',
+                'logo'=>'nullable|string',
+                'logo_upload' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'photo_upload' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'address'=>'required|string',
+                'email'=>'required|email',
+                'phone'=>'required|string',
+            ]);
+            
+            $data = $request->all();
+            
+            // Handle logo upload
+            if ($request->hasFile('logo_upload')) {
+                $logoFile = $request->file('logo_upload');
+                $logoFileName = 'logo_' . time() . '.' . $logoFile->getClientOriginalExtension();
+                $logoFile->move(public_path('photos'), $logoFileName);
+                $data['logo'] = 'photos/' . $logoFileName;
+            }
+            
+            // Handle photo upload
+            if ($request->hasFile('photo_upload')) {
+                $photoFile = $request->file('photo_upload');
+                $photoFileName = 'photo_' . time() . '.' . $photoFile->getClientOriginalExtension();
+                $photoFile->move(public_path('photos'), $photoFileName);
+                $data['photo'] = 'photos/' . $photoFileName;
+            }
+            
+            // Ensure required fields have values
+            $settings = Settings::first();
+            if (empty($data['logo']) && empty($settings->logo)) {
+                return redirect()->back()
+                    ->withErrors(['logo' => 'Vui lòng chọn logo.'])
+                    ->withInput();
+            }
+            if (empty($data['photo']) && empty($settings->photo)) {
+                return redirect()->back()
+                    ->withErrors(['photo' => 'Vui lòng chọn hình ảnh.'])
+                    ->withInput();
+            }
+            
+            $status = $settings->fill($data)->save();
+            if($status){
+                request()->session()->flash('success','Setting successfully updated');
+            }
+            else{
+                request()->session()->flash('error','Please try again');
+            }
+            return redirect()->route('admin');
+            
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withErrors(['error' => 'Có lỗi xảy ra: ' . $e->getMessage()])
+                ->withInput();
         }
-        else{
-            request()->session()->flash('error','Please try again');
-        }
-        return redirect()->route('admin');
     }
 
     public function changePassword(){

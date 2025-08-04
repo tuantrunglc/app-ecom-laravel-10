@@ -37,26 +37,49 @@ class BannerController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:50',
-            'description' => 'nullable|string',
-            'photo' => 'required|string',
-            'status' => 'required|in:active,inactive',
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'title' => 'required|string|max:50',
+                'description' => 'nullable|string',
+                'photo' => 'nullable|string',
+                'photo_upload' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'status' => 'required|in:active,inactive',
+            ]);
 
-        $slug = $this->generateUniqueSlug($request->title);
-        $validatedData['slug'] = $slug;
+            // Handle file upload
+            if ($request->hasFile('photo_upload')) {
+                $photoFile = $request->file('photo_upload');
+                $photoFileName = 'banner_' . time() . '.' . $photoFile->getClientOriginalExtension();
+                $photoFile->move(public_path('photos'), $photoFileName);
+                $validatedData['photo'] = 'photos/' . $photoFileName;
+            }
 
-        $banner = Banner::create($validatedData);
+            // Ensure photo field has a value
+            if (empty($validatedData['photo'])) {
+                return redirect()->back()
+                    ->withErrors(['photo' => 'Vui lòng chọn ảnh banner.'])
+                    ->withInput();
+            }
 
-        $message = $banner
-            ? 'Banner successfully added'
-            : 'Error occurred while adding banner';
+            $slug = $this->generateUniqueSlug($request->title);
+            $validatedData['slug'] = $slug;
 
-        return redirect()->route('banner.index')->with(
-            $banner ? 'success' : 'error',
-            $message
-        );
+            $banner = Banner::create($validatedData);
+
+            $message = $banner
+                ? 'Banner successfully added'
+                : 'Error occurred while adding banner';
+
+            return redirect()->route('banner.index')->with(
+                $banner ? 'success' : 'error',
+                $message
+            );
+            
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withErrors(['error' => 'Có lỗi xảy ra: ' . $e->getMessage()])
+                ->withInput();
+        }
     }
 
     /**
@@ -91,25 +114,48 @@ class BannerController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $banner = Banner::findOrFail($id);
+        try {
+            $banner = Banner::findOrFail($id);
 
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:50',
-            'description' => 'nullable|string',
-            'photo' => 'required|string',
-            'status' => 'required|in:active,inactive',
-        ]);
+            $validatedData = $request->validate([
+                'title' => 'required|string|max:50',
+                'description' => 'nullable|string',
+                'photo' => 'nullable|string',
+                'photo_upload' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'status' => 'required|in:active,inactive',
+            ]);
 
-        $status = $banner->update($validatedData);
+            // Handle file upload
+            if ($request->hasFile('photo_upload')) {
+                $photoFile = $request->file('photo_upload');
+                $photoFileName = 'banner_' . time() . '.' . $photoFile->getClientOriginalExtension();
+                $photoFile->move(public_path('photos'), $photoFileName);
+                $validatedData['photo'] = 'photos/' . $photoFileName;
+            }
 
-        $message = $status
-            ? 'Banner successfully updated'
-            : 'Error occurred while updating banner';
+            // Ensure photo field has a value
+            if (empty($validatedData['photo']) && empty($banner->photo)) {
+                return redirect()->back()
+                    ->withErrors(['photo' => 'Vui lòng chọn ảnh banner.'])
+                    ->withInput();
+            }
 
-        return redirect()->route('banner.index')->with(
-            $status ? 'success' : 'error',
-            $message
-        );
+            $status = $banner->update($validatedData);
+
+            $message = $status
+                ? 'Banner successfully updated'
+                : 'Error occurred while updating banner';
+
+            return redirect()->route('banner.index')->with(
+                $status ? 'success' : 'error',
+                $message
+            );
+            
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withErrors(['error' => 'Có lỗi xảy ra: ' . $e->getMessage()])
+                ->withInput();
+        }
     }
 
     /**

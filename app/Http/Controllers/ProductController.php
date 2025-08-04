@@ -148,44 +148,74 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $product = Product::findOrFail($id);
+        try {
+            $product = Product::findOrFail($id);
 
-        $validatedData = $request->validate([
-            'title' => 'required|string',
-            'summary' => 'required|string',
-            'description' => 'nullable|string',
-            'photo' => 'required|string',
-            'size' => 'nullable',
-            'stock' => 'required|numeric',
-            'cat_id' => 'required|exists:categories,id',
-            'child_cat_id' => 'nullable|exists:categories,id',
-            'is_featured' => 'sometimes|in:1',
-            'brand_id' => 'nullable|exists:brands,id',
-            'status' => 'required|in:active,inactive',
-            'condition' => 'required|in:default,new,hot',
-            'price' => 'required|numeric',
-            'discount' => 'nullable|numeric',
-            'commission' => 'nullable|numeric|min:0|max:100',
-        ]);
+            $validatedData = $request->validate([
+                'title' => 'required|string',
+                'summary' => 'required|string',
+                'description' => 'nullable|string',
+                'photo' => 'nullable|string',
+                'photo_upload.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'size' => 'nullable',
+                'stock' => 'required|numeric',
+                'cat_id' => 'required|exists:categories,id',
+                'child_cat_id' => 'nullable|exists:categories,id',
+                'is_featured' => 'sometimes|in:1',
+                'brand_id' => 'nullable|exists:brands,id',
+                'status' => 'required|in:active,inactive',
+                'condition' => 'required|in:default,new,hot',
+                'price' => 'required|numeric',
+                'discount' => 'nullable|numeric',
+                'commission' => 'nullable|numeric|min:0|max:100',
+            ]);
 
-        $validatedData['is_featured'] = $request->input('is_featured', 0);
+            // Handle file uploads
+            if ($request->hasFile('photo_upload')) {
+                $uploadedPaths = [];
+                foreach ($request->file('photo_upload') as $file) {
+                    $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $file->move(public_path('photos'), $fileName);
+                    $uploadedPaths[] = 'photos/' . $fileName;
+                }
+                
+                // If files were uploaded, use them instead of manual input
+                if (!empty($uploadedPaths)) {
+                    $validatedData['photo'] = implode(',', $uploadedPaths);
+                }
+            }
 
-        if ($request->has('size')) {
-            $validatedData['size'] = implode(',', $request->input('size'));
-        } else {
-            $validatedData['size'] = '';
+            // Ensure photo field has a value (keep existing if no new upload)
+            if (empty($validatedData['photo']) && empty($product->photo)) {
+                return redirect()->back()
+                    ->withErrors(['photo' => 'Vui lòng chọn ít nhất một ảnh sản phẩm.'])
+                    ->withInput();
+            }
+
+            $validatedData['is_featured'] = $request->input('is_featured', 0);
+
+            if ($request->has('size')) {
+                $validatedData['size'] = implode(',', $request->input('size'));
+            } else {
+                $validatedData['size'] = '';
+            }
+
+            $status = $product->update($validatedData);
+
+            $message = $status
+                ? 'Product Successfully updated'
+                : 'Please try again!!';
+
+            return redirect()->route('product.index')->with(
+                $status ? 'success' : 'error',
+                $message
+            );
+            
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withErrors(['error' => 'Có lỗi xảy ra: ' . $e->getMessage()])
+                ->withInput();
         }
-
-        $status = $product->update($validatedData);
-
-        $message = $status
-            ? 'Product Successfully updated'
-            : 'Please try again!!';
-
-        return redirect()->route('product.index')->with(
-            $status ? 'success' : 'error',
-            $message
-        );
     }
 
     /**

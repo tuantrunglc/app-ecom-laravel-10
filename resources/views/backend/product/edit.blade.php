@@ -5,7 +5,7 @@
 <div class="card">
     <h5 class="card-header">Edit Product</h5>
     <div class="card-body">
-      <form method="post" action="{{route('product.update',$product->id)}}">
+      <form method="post" action="{{route('product.update',$product->id)}}" enctype="multipart/form-data">
         @csrf 
         @method('PATCH')
         <div class="form-group">
@@ -130,14 +130,24 @@
         </div>
         <div class="form-group">
           <label for="inputPhoto" class="col-form-label">Photo <span class="text-danger">*</span></label>
+          
+          <!-- Option 1: File Upload -->
+          <div class="mb-3">
+            <input type="file" class="form-control" id="photo_upload" name="photo_upload[]" multiple accept="image/*" onchange="previewImages(this)">
+            <small class="text-muted">Chọn ảnh mới (JPEG, PNG, GIF). Ảnh sẽ được lưu vào public/photos/</small>
+          </div>
+          
+          <!-- Option 2: Manual Path Input (for existing images) -->
           <div class="input-group">
               <span class="input-group-btn">
                   <a id="lfm" data-input="thumbnail" data-preview="holder" class="btn btn-primary text-white">
-                  <i class="fas fa-image"></i> Choose
+                  <i class="fas fa-image"></i> Choose from Gallery
                   </a>
               </span>
-          <input id="thumbnail" class="form-control" type="text" name="photo" value="{{$product->photo}}">
+          <input id="thumbnail" class="form-control" type="text" name="photo" value="{{$product->photo}}" placeholder="Hoặc nhập đường dẫn ảnh thủ công">
         </div>
+        
+        <div id="preview_container" style="margin-top:15px;"></div>
         <div id="holder" style="margin-top:15px;max-height:100px;"></div>
           @error('photo')
           <span class="text-danger">{{$message}}</span>
@@ -174,7 +184,44 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 <script>
-    $('#lfm').filemanager('image');
+    // Laravel File Manager (fallback)
+    $('#lfm').filemanager('image', {prefix: '/laravel-filemanager'});
+
+    // Preview uploaded images
+    function previewImages(input) {
+        const container = document.getElementById('preview_container');
+        container.innerHTML = '';
+        
+        if (input.files) {
+            const files = Array.from(input.files);
+            let imagePaths = [];
+            
+            files.forEach((file, index) => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.cssText = 'height: 80px; width: 80px; object-fit: cover; margin: 5px; border: 1px solid #ddd; border-radius: 4px;';
+                        container.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                    
+                    // Generate expected path
+                    const fileName = file.name;
+                    imagePaths.push('photos/' + fileName);
+                }
+            });
+            
+            // Update the text input with comma-separated paths
+            setTimeout(() => {
+                const thumbnailInput = document.getElementById('thumbnail');
+                if (thumbnailInput && imagePaths.length > 0) {
+                    thumbnailInput.value = imagePaths.join(',');
+                }
+            }, 100);
+        }
+    }
 
     $(document).ready(function() {
     $('#summary').summernote({
