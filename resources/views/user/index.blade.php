@@ -1,166 +1,269 @@
 @extends('user.layouts.master')
 
 @section('main-content')
-<div class="container-fluid">
-    @include('user.layouts.notification')
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-      <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-    </div>
+<!-- Notifications -->
+@include('user.layouts.notification')
 
-    <!-- Content Row -->
-    {{-- <div class="row">
-
-      <!-- Category -->
-      <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-primary shadow h-100 py-2">
-          <div class="card-body">
-            <div class="row no-gutters align-items-center">
-              <div class="col mr-2">
-                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Category</div>
-                <div class="h5 mb-0 font-weight-bold text-gray-800">{{\App\Models\Category::countActiveCategory()}}</div>
-              </div>
-              <div class="col-auto">
-                <i class="fas fa-sitemap fa-2x text-gray-300"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Products -->
-      <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-success shadow h-100 py-2">
-          <div class="card-body">
-            <div class="row no-gutters align-items-center">
-              <div class="col mr-2">
-                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Products</div>
-                <div class="h5 mb-0 font-weight-bold text-gray-800">{{\App\Models\Product::countActiveProduct()}}</div>
-              </div>
-              <div class="col-auto">
-                <i class="fas fa-cubes fa-2x text-gray-300"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Order -->
-      <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-info shadow h-100 py-2">
-          <div class="card-body">
-            <div class="row no-gutters align-items-center">
-              <div class="col mr-2">
-                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Order</div>
-                <div class="row no-gutters align-items-center">
-                  <div class="col-auto">
-                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{\App\Models\Order::countActiveOrder()}}</div>
-                  </div>
-                  
-                </div>
-              </div>
-              <div class="col-auto">
-                <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!--Posts-->
-      <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-warning shadow h-100 py-2">
-          <div class="card-body">
-            <div class="row no-gutters align-items-center">
-              <div class="col mr-2">
-                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Post</div>
-                <div class="h5 mb-0 font-weight-bold text-gray-800">{{\App\Models\Post::countActivePost()}}</div>
-              </div>
-              <div class="col-auto">
-                <i class="fas fa-folder fa-2x text-gray-300"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div> --}}
-
-    <!-- Content Row -->
-
-    <div class="row">
-      @php
-          $orders=DB::table('orders')->where('user_id',auth()->user()->id)->paginate(10);
-      @endphp
-      <!-- Order -->
-      <div class="col-xl-12 col-lg-12">
-        <table class="table table-bordered" id="order-dataTable" width="100%" cellspacing="0">
-          <thead>
-            <tr>
-              <th>S.N.</th>
-              <th>Order No.</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Quantity</th>
-              <th>Total Amount</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tfoot>
-            <tr>
-              <th>S.N.</th>
-              <th>Order No.</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Quantity</th>
-              <th>Total Amount</th>
-              <th>Status</th>
-              <th>Action</th>
-              </tr>
-          </tfoot>
-          <tbody>
-            @if(count($orders)>0)
-              @foreach($orders as $order)   
-                <tr>
-                    <td>{{$order->id}}</td>
-                    <td>{{$order->order_number}}</td>
-                    <td>{{$order->first_name}} {{$order->last_name}}</td>
-                    <td>{{$order->email}}</td>
-                    <td>{{$order->quantity}}</td>
-                    <td>${{number_format($order->total_amount,2)}}</td>
-                    <td>
-                        @if($order->status=='new')
-                          <span class="badge badge-primary">{{$order->status}}</span>
-                        @elseif($order->status=='process')
-                          <span class="badge badge-warning">{{$order->status}}</span>
-                        @elseif($order->status=='delivered')
-                          <span class="badge badge-success">{{$order->status}}</span>
-                        @else
-                          <span class="badge badge-danger">{{$order->status}}</span>
-                        @endif
-                    </td>
-                    <td>
-                        <a href="{{route('user.order.show',$order->id)}}" class="btn btn-warning btn-sm float-left mr-1" style="height:30px; width:30px;border-radius:50%" data-toggle="tooltip" title="view" data-placement="bottom"><i class="fas fa-eye"></i></a>
-                        <form method="POST" action="{{route('user.order.delete',[$order->id])}}">
-                          @csrf 
-                          @method('delete')
-                              <button class="btn btn-danger btn-sm dltBtn" data-id={{$order->id}} style="height:30px; width:30px;border-radius:50%" data-toggle="tooltip" data-placement="bottom" title="Delete"><i class="fas fa-trash-alt"></i></button>
-                        </form>
-                    </td>
-                </tr>  
-              @endforeach
-              @else
-                <td colspan="8" class="text-center"><h4 class="my-4">You have no order yet!! Please order some products</h4></td>
-              @endif
-          </tbody>
-        </table>
-
-        {{$orders->links()}}
-      </div>
-    </div>
-
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h3 mb-1 text-gray-800 font-weight-bold">Welcome back, {{Auth()->user()->name}}!</h1>
+    <p class="text-muted mb-0">Here's what's happening with your account today.</p>
   </div>
+  <div class="d-none d-md-block">
+    <a href="{{route('home')}}" target="_blank" class="walmart-btn walmart-btn-primary">
+      <i class="fas fa-shopping-cart mr-2"></i>
+      Continue Shopping
+    </a>
+  </div>
+</div>
+
+@php
+    $user_orders = DB::table('orders')->where('user_id', auth()->user()->id);
+    $total_orders = $user_orders->count();
+    $pending_orders = $user_orders->where('status', 'new')->count();
+    $processing_orders = $user_orders->where('status', 'process')->count();
+    $delivered_orders = $user_orders->where('status', 'delivered')->count();
+    $total_spent = $user_orders->sum('total_amount');
+    
+    $recent_orders = DB::table('orders')
+        ->where('user_id', auth()->user()->id)
+        ->orderBy('created_at', 'desc')
+        ->limit(5)
+        ->get();
+@endphp
+
+<!-- Stats Cards Row -->
+<div class="row mb-4">
+  <!-- Total Orders -->
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="stats-card primary">
+      <div class="stats-card-content">
+        <div class="stats-card-info">
+          <h3>{{$total_orders}}</h3>
+          <p>Total Orders</p>
+        </div>
+        <div class="stats-card-icon">
+          <i class="fas fa-shopping-bag"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending Orders -->
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="stats-card warning">
+      <div class="stats-card-content">
+        <div class="stats-card-info">
+          <h3>{{$pending_orders}}</h3>
+          <p>Pending Orders</p>
+        </div>
+        <div class="stats-card-icon">
+          <i class="fas fa-clock"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Processing Orders -->
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="stats-card info">
+      <div class="stats-card-content">
+        <div class="stats-card-info">
+          <h3>{{$processing_orders}}</h3>
+          <p>Processing</p>
+        </div>
+        <div class="stats-card-icon">
+          <i class="fas fa-cog"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Total Spent -->
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="stats-card success">
+      <div class="stats-card-content">
+        <div class="stats-card-info">
+          <h3>${{number_format($total_spent, 2)}}</h3>
+          <p>Total Spent</p>
+        </div>
+        <div class="stats-card-icon">
+          <i class="fas fa-dollar-sign"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions Row -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="walmart-card">
+      <div class="card-header">
+        <h4 class="card-title">Quick Actions</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3 col-6 mb-3">
+            <a href="{{route('user.order.index')}}" class="walmart-btn walmart-btn-primary w-100">
+              <i class="fas fa-list mr-2"></i>
+              View Orders
+            </a>
+          </div>
+          <div class="col-md-3 col-6 mb-3">
+            <a href="{{route('wallet.index')}}" class="walmart-btn walmart-btn-secondary w-100">
+              <i class="fas fa-wallet mr-2"></i>
+              My Wallet
+            </a>
+          </div>
+          <div class="col-md-3 col-6 mb-3">
+            <a href="{{route('user.productreview.index')}}" class="walmart-btn walmart-btn-secondary w-100">
+              <i class="fas fa-star mr-2"></i>
+              Reviews
+            </a>
+          </div>
+          <div class="col-md-3 col-6 mb-3">
+            <a href="{{route('chat.index')}}" class="walmart-btn walmart-btn-secondary w-100">
+              <i class="fas fa-comment-dots mr-2"></i>
+              Support
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Orders -->
+<div class="row">
+  <div class="col-12">
+    <div class="walmart-card">
+      <div class="card-header">
+        <h4 class="card-title">Recent Orders</h4>
+        <a href="{{route('user.order.index')}}" class="view-all">View All Orders</a>
+      </div>
+      <div class="card-body">
+        @if(count($recent_orders) > 0)
+          <div class="table-responsive">
+            <table class="walmart-table">
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Date</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach($recent_orders as $order)
+                <tr>
+                  <td data-label="Order #">
+                    <strong>{{$order->order_number}}</strong>
+                  </td>
+                  <td data-label="Date">
+                    {{date('M d, Y', strtotime($order->created_at))}}
+                  </td>
+                  <td data-label="Items">
+                    {{$order->quantity}} item(s)
+                  </td>
+                  <td data-label="Total">
+                    <strong>${{number_format($order->total_amount, 2)}}</strong>
+                  </td>
+                  <td data-label="Status">
+                    @if($order->status == 'new')
+                      <span class="status-badge new">New</span>
+                    @elseif($order->status == 'process')
+                      <span class="status-badge process">Processing</span>
+                    @elseif($order->status == 'delivered')
+                      <span class="status-badge delivered">Delivered</span>
+                    @else
+                      <span class="status-badge cancelled">{{ucfirst($order->status)}}</span>
+                    @endif
+                  </td>
+                  <td data-label="Actions">
+                    <div class="d-flex">
+                      <a href="{{route('user.order.show', $order->id)}}" 
+                         class="walmart-btn walmart-btn-warning walmart-btn-icon mr-2" 
+                         data-toggle="tooltip" title="View Order">
+                        <i class="fas fa-eye"></i>
+                      </a>
+                      <form method="POST" action="{{route('user.order.delete', $order->id)}}" class="d-inline">
+                        @csrf 
+                        @method('delete')
+                        <button type="submit" 
+                                class="walmart-btn walmart-btn-danger walmart-btn-icon dltBtn" 
+                                data-id="{{$order->id}}" 
+                                data-toggle="tooltip" 
+                                title="Delete Order"
+                                onclick="return confirm('Are you sure you want to delete this order?')">
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+                @endforeach
+              </tbody>
+            </table>
+          </div>
+        @else
+          <div class="text-center py-5">
+            <div class="mb-3">
+              <i class="fas fa-shopping-bag fa-3x text-muted"></i>
+            </div>
+            <h5 class="text-muted mb-3">No Orders Yet</h5>
+            <p class="text-muted mb-4">You haven't placed any orders yet. Start shopping to see your orders here!</p>
+            <a href="{{route('home')}}" target="_blank" class="walmart-btn walmart-btn-primary">
+              <i class="fas fa-shopping-cart mr-2"></i>
+              Start Shopping
+            </a>
+          </div>
+        @endif
+      </div>
+    </div>
+  </div>
+</div>
+
 @endsection
+
+@push('styles')
+<style>
+.w-100 {
+  width: 100% !important;
+}
+
+.py-5 {
+  padding-top: 3rem !important;
+  padding-bottom: 3rem !important;
+}
+
+.fa-3x {
+  font-size: 3em;
+}
+
+.d-flex {
+  display: flex !important;
+}
+
+.d-inline {
+  display: inline !important;
+}
+
+@media (max-width: 575.98px) {
+  .stats-card h3 {
+    font-size: 1.5rem;
+  }
+  
+  .quick-actions .walmart-btn {
+    font-size: 0.875rem;
+    padding: 0.5rem;
+  }
+}
+</style>
+@endpush
 
 @push('scripts')
 <script type="text/javascript">

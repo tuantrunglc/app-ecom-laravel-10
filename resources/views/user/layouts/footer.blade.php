@@ -1,65 +1,128 @@
 
-      <!-- Footer -->
-      <footer class="sticky-footer bg-white">
-        <div class="container my-auto">
-          <div class="copyright text-center my-auto">
-            <span>Copyright &copy; <a href="https://github.com/Prajwal100" target="_blank">Prajwal R.</a> {{date('Y')}}</span>
-          </div>
+<!-- Walmart Footer -->
+<footer class="walmart-footer bg-white border-top mt-auto">
+  <div class="container-fluid py-3">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <div class="copyright text-muted">
+          <small>
+            &copy; {{date('Y')}} E-SHOP. All rights reserved. 
+            <span class="d-none d-md-inline">
+              | Built with <i class="fas fa-heart text-danger"></i> by 
+              <a href="https://github.com/Prajwal100" target="_blank" class="text-walmart-blue">Prajwal R.</a>
+            </span>
+          </small>
         </div>
-      </footer>
-      <!-- End of Footer -->
-
-    </div>
-    <!-- End of Content Wrapper -->
-
-  </div>
-  <!-- End of Page Wrapper -->
-
-  <!-- Scroll to Top Button-->
-  <a class="scroll-to-top rounded" href="#page-top">
-    <i class="fas fa-angle-up"></i>
-  </a>
-
-  <!-- Logout Modal-->
-  <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-          <a class="btn btn-primary" href="login.html">Logout</a>
+      </div>
+      <div class="col-md-6 text-md-right">
+        <div class="footer-links">
+          <a href="{{route('home')}}" class="text-muted mr-3" target="_blank">
+            <small><i class="fas fa-home mr-1"></i>Store</small>
+          </a>
+          <a href="#" class="text-muted mr-3">
+            <small><i class="fas fa-question-circle mr-1"></i>Help</small>
+          </a>
+          <a href="#" class="text-muted">
+            <small><i class="fas fa-shield-alt mr-1"></i>Privacy</small>
+          </a>
         </div>
       </div>
     </div>
   </div>
+</footer>
 
-  <!-- Bootstrap core JavaScript-->
-  <script src="{{asset('backend/vendor/jquery/jquery.min.js')}}"></script>
-  <script src="{{asset('backend/vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+<!-- Scroll to Top Button -->
+<button class="scroll-to-top" id="scrollToTop" style="display: none;">
+  <i class="fas fa-chevron-up"></i>
+</button>
 
-  <!-- Core plugin JavaScript-->
-  <script src="{{asset('backend/vendor/jquery-easing/jquery.easing.min.js')}}"></script>
+<!-- Page level plugins -->
+<script src="{{asset('backend/vendor/chart.js/Chart.min.js')}}"></script>
 
-  <!-- Custom scripts for all pages-->
-  <script src="{{asset('backend/js/sb-admin-2.min.js')}}"></script>
+<!-- Page level custom scripts -->
+<script src="{{asset('backend/js/demo/chart-pie-demo.js')}}"></script>
 
-  <!-- Page level plugins -->
-  <script src="{{asset('backend/vendor/chart.js/Chart.min.js')}}"></script>
+@stack('scripts')
 
-  <!-- Page level custom scripts -->
-  {{-- <script src="{{asset('backend/js/demo/chart-area-demo.js')}}"></script> --}}
-  <script src="{{asset('backend/js/demo/chart-pie-demo.js')}}"></script>
+<script>
+// Alert auto-hide
+setTimeout(function(){
+  $('.alert').slideUp();
+}, 4000);
 
-  @stack('scripts')
+// Scroll to top functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const scrollToTopBtn = document.getElementById('scrollToTop');
+  
+  // Show/hide scroll to top button
+  window.addEventListener('scroll', function() {
+    if (window.pageYOffset > 300) {
+      scrollToTopBtn.style.display = 'flex';
+    } else {
+      scrollToTopBtn.style.display = 'none';
+    }
+  });
+  
+  // Scroll to top when clicked
+  scrollToTopBtn.addEventListener('click', function() {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
+});
+</script>
 
-  <script>
-    setTimeout(function(){
-      $('.alert').slideUp();
-    },4000);
-  </script>
+<style>
+.walmart-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--border-light);
+}
+
+.footer-links a {
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: var(--walmart-blue) !important;
+  text-decoration: none;
+}
+
+.scroll-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 45px;
+  height: 45px;
+  background: var(--walmart-blue);
+  color: var(--white);
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 113, 206, 0.3);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.scroll-to-top:hover {
+  background: var(--walmart-dark-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 113, 206, 0.4);
+}
+
+@media (max-width: 575.98px) {
+  .scroll-to-top {
+    bottom: 1rem;
+    right: 1rem;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .footer-links {
+    margin-top: 0.5rem;
+  }
+}
+</style>

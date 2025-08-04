@@ -1,151 +1,364 @@
 @extends('user.layouts.master')
 
 @section('main-content')
- <!-- DataTales Example -->
- <div class="card shadow mb-4">
-     <div class="row">
-         <div class="col-md-12">
-            @include('user.layouts.notification')
-         </div>
-     </div>
-    <div class="card-header py-3">
-      <h6 class="m-0 font-weight-bold text-primary float-left">Order Lists</h6>
+<!-- Notifications -->
+@include('user.layouts.notification')
+
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h3 mb-1 text-gray-800 font-weight-bold">My Orders</h1>
+    <p class="text-muted mb-0">Track and manage all your orders</p>
+  </div>
+  <div class="d-none d-md-block">
+    <a href="{{route('home')}}" target="_blank" class="walmart-btn walmart-btn-primary">
+      <i class="fas fa-plus mr-2"></i>
+      Place New Order
+    </a>
+  </div>
+</div>
+
+@php
+    $total_orders = count($orders);
+    $new_orders = $orders->where('status', 'new')->count();
+    $processing_orders = $orders->where('status', 'process')->count();
+    $delivered_orders = $orders->where('status', 'delivered')->count();
+@endphp
+
+<!-- Order Stats -->
+<div class="row mb-4">
+  <div class="col-xl-3 col-md-6 mb-3">
+    <div class="stats-card primary">
+      <div class="stats-card-content">
+        <div class="stats-card-info">
+          <h3>{{$total_orders}}</h3>
+          <p>Total Orders</p>
+        </div>
+        <div class="stats-card-icon">
+          <i class="fas fa-shopping-bag"></i>
+        </div>
+      </div>
     </div>
-    <div class="card-body">
+  </div>
+  <div class="col-xl-3 col-md-6 mb-3">
+    <div class="stats-card warning">
+      <div class="stats-card-content">
+        <div class="stats-card-info">
+          <h3>{{$new_orders}}</h3>
+          <p>New Orders</p>
+        </div>
+        <div class="stats-card-icon">
+          <i class="fas fa-clock"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-md-6 mb-3">
+    <div class="stats-card info">
+      <div class="stats-card-content">
+        <div class="stats-card-info">
+          <h3>{{$processing_orders}}</h3>
+          <p>Processing</p>
+        </div>
+        <div class="stats-card-icon">
+          <i class="fas fa-cog"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-md-6 mb-3">
+    <div class="stats-card success">
+      <div class="stats-card-content">
+        <div class="stats-card-info">
+          <h3>{{$delivered_orders}}</h3>
+          <p>Delivered</p>
+        </div>
+        <div class="stats-card-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Orders Table -->
+<div class="walmart-card">
+  <div class="card-header">
+    <h4 class="card-title">Order History</h4>
+    <div class="d-flex align-items-center">
+      <div class="mr-3">
+        <select class="walmart-select" id="statusFilter" style="width: auto; min-width: 120px;">
+          <option value="">All Status</option>
+          <option value="new">New</option>
+          <option value="process">Processing</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancel">Cancelled</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    @if(count($orders)>0)
       <div class="table-responsive">
-        @if(count($orders)>0)
-        <table class="table table-bordered" id="order-dataTable" width="100%" cellspacing="0">
+        <table class="walmart-table" id="order-dataTable">
           <thead>
             <tr>
-              <th>S.N.</th>
-              <th>Order No.</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Quantity</th>
-              <th>Charge</th>
-              <th>Total Amount</th>
+              <th>Order #</th>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Shipping</th>
+              <th>Total</th>
               <th>Status</th>
-              <th>Action</th>
+              <th>Actions</th>
             </tr>
           </thead>
-          <tfoot>
-            <tr>
-              <th>S.N.</th>
-              <th>Order No.</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Quantity</th>
-              <th>Charge</th>
-              <th>Total Amount</th>
-              <th>Status</th>
-              <th>Action</th>
-              </tr>
-          </tfoot>
           <tbody>
             @foreach($orders as $order)
-                <tr>
-                    <td>{{$order->id}}</td>
-                    <td>{{$order->order_number}}</td>
-                    <td>{{$order->first_name}} {{$order->last_name}}</td>
-                    <td>{{$order->email}}</td>
-                    <td>{{$order->quantity}}</td>
-                    <td>${{$order->shipping->price}}</td>
-                    <td>${{number_format($order->total_amount,2)}}</td>
-                    <td>
-                        @if($order->status=='new')
-                          <span class="badge badge-primary">{{$order->status}}</span>
-                        @elseif($order->status=='process')
-                          <span class="badge badge-warning">{{$order->status}}</span>
-                        @elseif($order->status=='delivered')
-                          <span class="badge badge-success">{{$order->status}}</span>
-                        @else
-                          <span class="badge badge-danger">{{$order->status}}</span>
-                        @endif
-                    </td>
-                    <td>
-                        <a href="{{route('user.order.show',$order->id)}}" class="btn btn-warning btn-sm float-left mr-1" style="height:30px; width:30px;border-radius:50%" data-toggle="tooltip" title="view" data-placement="bottom"><i class="fas fa-eye"></i></a>
-                        <form method="POST" action="{{route('user.order.delete',[$order->id])}}">
-                          @csrf
-                          @method('delete')
-                              <button class="btn btn-danger btn-sm dltBtn" data-id={{$order->id}} style="height:30px; width:30px;border-radius:50%" data-toggle="tooltip" data-placement="bottom" title="Delete"><i class="fas fa-trash-alt"></i></button>
-                        </form>
-                    </td>
-                </tr>
+            <tr>
+              <td data-label="Order #">
+                <div class="font-weight-bold text-walmart-blue">{{$order->order_number}}</div>
+                <small class="text-muted">#{{$order->id}}</small>
+              </td>
+              <td data-label="Date">
+                <div>{{date('M d, Y', strtotime($order->created_at))}}</div>
+                <small class="text-muted">{{date('h:i A', strtotime($order->created_at))}}</small>
+              </td>
+              <td data-label="Customer">
+                <div class="font-weight-medium">{{$order->first_name}} {{$order->last_name}}</div>
+                <small class="text-muted">{{$order->email}}</small>
+              </td>
+              <td data-label="Items">
+                <span class="font-weight-bold">{{$order->quantity}}</span> item(s)
+              </td>
+              <td data-label="Shipping">
+                ${{number_format($order->shipping->price ?? 0, 2)}}
+              </td>
+              <td data-label="Total">
+                <div class="font-weight-bold text-lg">${{number_format($order->total_amount,2)}}</div>
+              </td>
+              <td data-label="Status">
+                @if($order->status=='new')
+                  <span class="status-badge new">New</span>
+                @elseif($order->status=='process')
+                  <span class="status-badge process">Processing</span>
+                @elseif($order->status=='delivered')
+                  <span class="status-badge delivered">Delivered</span>
+                @else
+                  <span class="status-badge cancelled">{{ucfirst($order->status)}}</span>
+                @endif
+              </td>
+              <td data-label="Actions">
+                <div class="d-flex align-items-center">
+                  <a href="{{route('user.order.show',$order->id)}}" 
+                     class="walmart-btn walmart-btn-warning walmart-btn-icon mr-2" 
+                     data-toggle="tooltip" title="View Details">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                  <form method="POST" action="{{route('user.order.delete',[$order->id])}}" class="d-inline">
+                    @csrf
+                    @method('delete')
+                    <button type="button" 
+                            class="walmart-btn walmart-btn-danger walmart-btn-icon dltBtn" 
+                            data-id="{{$order->id}}" 
+                            data-toggle="tooltip" 
+                            title="Delete Order">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
             @endforeach
           </tbody>
         </table>
-        <span style="float:right">{{$orders->links()}}</span>
-        @else
-          <h6 class="text-center">No orders found!!! Please order some products</h6>
-        @endif
       </div>
-    </div>
+      
+      <!-- Pagination -->
+      <div class="p-3 border-top">
+        {{$orders->links()}}
+      </div>
+    @else
+      <div class="text-center py-5">
+        <div class="mb-3">
+          <i class="fas fa-shopping-bag fa-4x text-muted"></i>
+        </div>
+        <h5 class="text-muted mb-3">No Orders Found</h5>
+        <p class="text-muted mb-4">You haven't placed any orders yet. Start shopping to see your orders here!</p>
+        <a href="{{route('home')}}" target="_blank" class="walmart-btn walmart-btn-primary">
+          <i class="fas fa-shopping-cart mr-2"></i>
+          Start Shopping
+        </a>
+      </div>
+    @endif
+  </div>
 </div>
 @endsection
 
 @push('styles')
-  <link href="{{asset('backend/vendor/datatables/dataTables.bootstrap4.min.css')}}" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css" />
-  <style>
-      div.dataTables_wrapper div.dataTables_paginate{
-          display: none;
-      }
-  </style>
+<style>
+.fa-4x {
+  font-size: 4em;
+}
+
+.p-0 {
+  padding: 0 !important;
+}
+
+.p-3 {
+  padding: 1rem !important;
+}
+
+.border-top {
+  border-top: 1px solid var(--border-light) !important;
+}
+
+.font-weight-medium {
+  font-weight: var(--font-medium);
+}
+
+.text-lg {
+  font-size: var(--text-lg);
+}
+
+.align-items-center {
+  align-items: center !important;
+}
+
+.mr-2 {
+  margin-right: 0.5rem !important;
+}
+
+.mr-3 {
+  margin-right: 1rem !important;
+}
+
+.mb-3 {
+  margin-bottom: 1rem !important;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem !important;
+}
+
+.py-5 {
+  padding-top: 3rem !important;
+  padding-bottom: 3rem !important;
+}
+
+/* Status filter styling */
+#statusFilter {
+  padding: 0.5rem 0.75rem;
+  font-size: var(--text-sm);
+}
+
+/* Responsive table improvements */
+@media (max-width: 767.98px) {
+  .stats-card h3 {
+    font-size: 1.5rem;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 1rem;
+  }
+  
+  .card-header .d-flex {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+</style>
 @endpush
 
 @push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
 
-  <!-- Page level plugins -->
-  <script src="{{asset('backend/vendor/datatables/jquery.dataTables.min.js')}}"></script>
-  <script src="{{asset('backend/vendor/datatables/dataTables.bootstrap4.min.js')}}"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
-
-  <!-- Page level custom scripts -->
-  <script src="{{asset('backend/js/demo/datatables-demo.js')}}"></script>
-  <script>
-
-      $('#order-dataTable').DataTable( {
-            "columnDefs":[
-                {
-                    "orderable":false,
-                    "targets":[8]
-                }
-            ]
-        } );
-
-        // Sweet alert
-
-        function deleteData(id){
-
+<script>
+$(document).ready(function(){
+  // CSRF Token setup
+  $.ajaxSetup({
+    headers: {
+      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+  });
+  
+  // Status filter functionality
+  $('#statusFilter').change(function(){
+    var status = $(this).val().toLowerCase();
+    var rows = $('#order-dataTable tbody tr');
+    
+    if(status === '') {
+      rows.show();
+    } else {
+      rows.each(function(){
+        var rowStatus = $(this).find('.status-badge').text().toLowerCase();
+        if(rowStatus.includes(status)) {
+          $(this).show();
+        } else {
+          $(this).hide();
         }
-  </script>
-  <script>
-      $(document).ready(function(){
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-          $('.dltBtn').click(function(e){
-            var form=$(this).closest('form');
-              var dataID=$(this).data('id');
-              // alert(dataID);
-              e.preventDefault();
-              swal({
-                    title: "Are you sure?",
-                    text: "Once deleted, you will not be able to recover this data!",
-                    icon: "warning",
-                    buttons: true,
-                    dangerMode: true,
-                })
-                .then((willDelete) => {
-                    if (willDelete) {
-                       form.submit();
-                    } else {
-                        swal("Your data is safe!");
-                    }
-                });
-          })
-      })
-  </script>
+      });
+    }
+  });
+  
+  // Delete confirmation with SweetAlert
+  $('.dltBtn').click(function(e){
+    e.preventDefault();
+    var form = $(this).closest('form');
+    var dataID = $(this).data('id');
+    
+    swal({
+      title: "Delete Order?",
+      text: "Are you sure you want to delete this order? This action cannot be undone!",
+      icon: "warning",
+      buttons: {
+        cancel: {
+          text: "Cancel",
+          value: null,
+          visible: true,
+          className: "btn-secondary",
+          closeModal: true,
+        },
+        confirm: {
+          text: "Yes, Delete",
+          value: true,
+          visible: true,
+          className: "btn-danger",
+          closeModal: true
+        }
+      },
+      dangerMode: true,
+    })
+    .then((willDelete) => {
+      if (willDelete) {
+        form.submit();
+      }
+    });
+  });
+  
+  // Initialize tooltips
+  $('[data-toggle="tooltip"]').tooltip();
+  
+  // Stats cards click functionality
+  $('.stats-card').click(function(){
+    var cardType = '';
+    if($(this).hasClass('warning')) {
+      cardType = 'new';
+    } else if($(this).hasClass('info')) {
+      cardType = 'process';
+    } else if($(this).hasClass('success')) {
+      cardType = 'delivered';
+    }
+    
+    if(cardType) {
+      $('#statusFilter').val(cardType).trigger('change');
+    }
+  });
+  
+  // Add cursor pointer to clickable stats cards
+  $('.stats-card.warning, .stats-card.info, .stats-card.success').css('cursor', 'pointer');
+});
+</script>
 @endpush

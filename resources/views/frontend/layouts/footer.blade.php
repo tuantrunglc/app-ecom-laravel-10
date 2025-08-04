@@ -125,6 +125,8 @@
 	<!-- Active JS -->
 	<script src="{{asset('frontend/js/active.js')}}"></script>
 
+	<!-- Walmart Theme JS -->
+	<script src="{{asset('user/js/walmart-theme.js')}}"></script>
 	
 	@stack('scripts')
 	<script>
