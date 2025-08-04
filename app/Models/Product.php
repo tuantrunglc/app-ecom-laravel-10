@@ -46,4 +46,33 @@ class Product extends Model
         return $this->hasOne(Brand::class,'id','brand_id');
     }
 
+    /**
+     * Get array of photo paths
+     */
+    public function getPhotosArray()
+    {
+        if (empty($this->photo)) {
+            return [];
+        }
+        
+        return array_filter(array_map('trim', explode(',', $this->photo)));
+    }
+
+    /**
+     * Get first photo path
+     */
+    public function getFirstPhoto()
+    {
+        $photos = $this->getPhotosArray();
+        return !empty($photos) ? $photos[0] : null;
+    }
+
+    /**
+     * Get photo count
+     */
+    public function getPhotoCount()
+    {
+        return count($this->getPhotosArray());
+    }
+
 }
