@@ -236,6 +236,35 @@ class Helper
             ->count();
     }  
 
+    /**
+     * Convert image path to use photos directory instead of storage
+     */
+    public static function getImagePath($imagePath)
+    {
+        if (empty($imagePath)) {
+            return asset('backend/img/thumbnail-default.jpg');
+        }
+
+        // If path already starts with photos/, return as is
+        if (strpos($imagePath, 'photos/') === 0) {
+            return asset($imagePath);
+        }
+
+        // If path contains storage path, convert to photos
+        if (strpos($imagePath, 'storage/') === 0) {
+            $newPath = str_replace('storage/', 'photos/', $imagePath);
+            return asset($newPath);
+        }
+
+        // If it's just a filename, assume it's in photos/1/
+        if (!strpos($imagePath, '/')) {
+            return asset('photos/1/' . $imagePath);
+        }
+
+        // Default: assume it's already a relative path from public
+        return asset($imagePath);
+    }
+
 }
 
 if (!function_exists('generateUniqueSlug')) {

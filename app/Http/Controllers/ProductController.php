@@ -42,11 +42,12 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
+        try {
+            $validatedData = $request->validate([
             'title' => 'required|string',
             'summary' => 'required|string',
             'description' => 'nullable|string',
-            'photo' => 'required|string',
+            'photo' => 'nullable|string', // Changed to nullable
             'photo_upload.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'size' => 'nullable',
             'stock' => 'required|numeric',
@@ -65,7 +66,7 @@ class ProductController extends Controller
         if ($request->hasFile('photo_upload')) {
             $uploadedPaths = [];
             foreach ($request->file('photo_upload') as $file) {
-                $fileName = time() . '_' . $file->getClientOriginalName();
+                $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('photos'), $fileName);
                 $uploadedPaths[] = 'photos/' . $fileName;
             }
@@ -74,6 +75,13 @@ class ProductController extends Controller
             if (!empty($uploadedPaths)) {
                 $validatedData['photo'] = implode(',', $uploadedPaths);
             }
+        }
+
+        // Ensure photo field has a value
+        if (empty($validatedData['photo'])) {
+            return redirect()->back()
+                ->withErrors(['photo' => 'Vui lòng chọn ít nhất một ảnh sản phẩm.'])
+                ->withInput();
         }
 
         $slug = generateUniqueSlug($request->title, Product::class);
@@ -96,6 +104,12 @@ class ProductController extends Controller
             $product ? 'success' : 'error',
             $message
         );
+        
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withErrors(['error' => 'Có lỗi xảy ra: ' . $e->getMessage()])
+                ->withInput();
+        }
     }
 
     /**

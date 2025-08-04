@@ -2,6 +2,16 @@
 
 @section('main-content')
 
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 <div class="card">
     <h5 class="card-header">Thêm Sản Phẩm</h5>
     <div class="card-body">
@@ -208,7 +218,10 @@
             
             // Update the text input with comma-separated paths
             setTimeout(() => {
-                document.getElementById('thumbnail').value = imagePaths.join(',');
+                const thumbnailInput = document.getElementById('thumbnail');
+                if (thumbnailInput && imagePaths.length > 0) {
+                    thumbnailInput.value = imagePaths.join(',');
+                }
             }, 100);
         }
     }
