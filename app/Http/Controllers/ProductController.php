@@ -68,7 +68,7 @@ class ProductController extends Controller
             foreach ($request->file('photo_upload') as $file) {
                 $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('photos'), $fileName);
-                $uploadedPaths[] = 'photos/' . $fileName;
+                $uploadedPaths[] = '/photos/' . $fileName;
             }
             
             // If files were uploaded, use them instead of manual input
