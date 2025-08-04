@@ -132,26 +132,32 @@
           @enderror
         </div>
         <div class="form-group">
-          <label for="inputPhoto" class="col-form-label">Photo <span class="text-danger">*</span></label>
+          <label for="inputPhoto" class="col-form-label">Ảnh Sản Phẩm <span class="text-danger">*</span></label>
           
-          <!-- Option 1: File Upload -->
+          <!-- File Upload Section -->
           <div class="mb-3">
             <input type="file" class="form-control" id="photo_upload" name="photo_upload[]" multiple accept="image/*" onchange="previewImages(this)">
-            <small class="text-muted">Chọn nhiều ảnh (JPEG, PNG, GIF). Ảnh sẽ được lưu vào public/photos/</small>
+            <small class="text-muted">Chọn nhiều ảnh (JPEG, PNG, GIF). Ảnh sẽ được lưu theo format: /photos/1/Products/xxxxx-filename.jpg</small>
           </div>
           
-          <!-- Option 2: Manual Path Input (for existing images) -->
-          <div class="input-group">
-              <span class="input-group-btn">
-                  <a id="lfm" data-input="thumbnail" data-preview="holder" class="btn btn-primary">
-                  <i class="fa fa-picture-o"></i> Choose from Gallery
-                  </a>
-              </span>
-          <input id="thumbnail" class="form-control" type="text" name="photo" value="{{old('photo')}}" placeholder="Hoặc nhập đường dẫn ảnh thủ công">
-        </div>
+          <!-- Preview Container -->
+          <div id="preview_container" class="row" style="margin-top:15px;"></div>
+          
+          <!-- Manual Path Input (for existing images) -->
+          <div class="mt-3">
+            <label class="form-label">Hoặc nhập đường dẫn ảnh thủ công:</label>
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <a id="lfm" data-input="thumbnail" data-preview="holder" class="btn btn-primary">
+                    <i class="fa fa-picture-o"></i> Chọn từ Gallery
+                    </a>
+                </span>
+                <input id="thumbnail" class="form-control" type="text" name="photo" value="{{old('photo')}}" placeholder="VD: /photos/1/Products/405b7-pmtk004t.jpg,/photos/1/Products/43f35-2_2.jpg">
+            </div>
+            <small class="text-muted">Nhiều ảnh cách nhau bằng dấu phẩy</small>
+          </div>
         
-        <div id="preview_container" style="margin-top:15px;"></div>
-        <div id="holder" style="margin-top:15px;max-height:100px;"></div>
+          <div id="holder" style="margin-top:15px;max-height:100px;"></div>
           @error('photo')
           <span class="text-danger">{{$message}}</span>
           @enderror
@@ -180,6 +186,31 @@
 @push('styles')
 <link rel="stylesheet" href="{{asset('backend/summernote/summernote.min.css')}}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+<style>
+.image-preview-card {
+    transition: transform 0.2s;
+    border: 2px solid #e9ecef;
+}
+.image-preview-card:hover {
+    transform: translateY(-2px);
+    border-color: #007bff;
+    box-shadow: 0 4px 8px rgba(0,123,255,0.2);
+}
+.current-image-card {
+    border: 2px solid #28a745;
+}
+.upload-area {
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    transition: border-color 0.3s;
+}
+.upload-area:hover {
+    border-color: #007bff;
+    background-color: #f8f9fa;
+}
+</style>
 @endpush
 @push('scripts')
 <script src="/vendor/laravel-filemanager/js/stand-alone-button.js"></script>
@@ -198,21 +229,50 @@
         if (input.files) {
             const files = Array.from(input.files);
             let imagePaths = [];
+            const userId = 1; // Default user ID, you can make this dynamic
             
             files.forEach((file, index) => {
                 if (file.type.startsWith('image/')) {
+                    // Create preview column
+                    const colDiv = document.createElement('div');
+                    colDiv.className = 'col-md-3 col-sm-4 col-6 mb-3';
+                    
+                    const cardDiv = document.createElement('div');
+                    cardDiv.className = 'card image-preview-card';
+                    cardDiv.style.cssText = 'height: 200px;';
+                    
+                    const img = document.createElement('img');
+                    img.className = 'card-img-top';
+                    img.style.cssText = 'height: 150px; object-fit: cover;';
+                    
+                    const cardBody = document.createElement('div');
+                    cardBody.className = 'card-body p-2';
+                    
+                    const fileName = document.createElement('small');
+                    fileName.className = 'text-muted';
+                    fileName.style.cssText = 'font-size: 10px; word-break: break-all;';
+                    
+                    // Generate expected path with random prefix
+                    const randomPrefix = Math.random().toString(36).substr(2, 5);
+                    const originalName = file.name.split('.')[0];
+                    const extension = file.name.split('.').pop();
+                    const expectedFileName = `${randomPrefix}-${originalName}.${extension}`;
+                    const expectedPath = `/photos/${userId}/Products/${expectedFileName}`;
+                    
+                    fileName.textContent = expectedFileName;
+                    imagePaths.push(expectedPath);
+                    
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        const img = document.createElement('img');
                         img.src = e.target.result;
-                        img.style.cssText = 'height: 80px; width: 80px; object-fit: cover; margin: 5px; border: 1px solid #ddd; border-radius: 4px;';
-                        container.appendChild(img);
                     };
                     reader.readAsDataURL(file);
                     
-                    // Generate expected path
-                    const fileName = file.name;
-                    imagePaths.push('photos/' + fileName);
+                    cardBody.appendChild(fileName);
+                    cardDiv.appendChild(img);
+                    cardDiv.appendChild(cardBody);
+                    colDiv.appendChild(cardDiv);
+                    container.appendChild(colDiv);
                 }
             });
             

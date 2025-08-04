@@ -74,7 +74,7 @@ class AdminController extends Controller
                 $logoFile = $request->file('logo_upload');
                 $logoFileName = 'logo_' . time() . '.' . $logoFile->getClientOriginalExtension();
                 $logoFile->move(public_path('photos'), $logoFileName);
-                $data['logo'] = 'photos/' . $logoFileName;
+                $data['logo'] = '/photos/' . $logoFileName;
             }
             
             // Handle photo upload
@@ -82,7 +82,7 @@ class AdminController extends Controller
                 $photoFile = $request->file('photo_upload');
                 $photoFileName = 'photo_' . time() . '.' . $photoFile->getClientOriginalExtension();
                 $photoFile->move(public_path('photos'), $photoFileName);
-                $data['photo'] = 'photos/' . $photoFileName;
+                $data['photo'] = '/photos/' . $photoFileName;
             }
             
             // Ensure required fields have values

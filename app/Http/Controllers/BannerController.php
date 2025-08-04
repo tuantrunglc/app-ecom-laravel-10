@@ -51,7 +51,7 @@ class BannerController extends Controller
                 $photoFile = $request->file('photo_upload');
                 $photoFileName = 'banner_' . time() . '.' . $photoFile->getClientOriginalExtension();
                 $photoFile->move(public_path('photos'), $photoFileName);
-                $validatedData['photo'] = 'photos/' . $photoFileName;
+                $validatedData['photo'] = '/photos/' . $photoFileName;
             }
 
             // Ensure photo field has a value
