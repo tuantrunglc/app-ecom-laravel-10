@@ -6,7 +6,7 @@
       <div class="col-md-6">
         <div class="copyright text-muted">
           <small>
-            &copy; {{date('Y')}} E-SHOP. All rights reserved. 
+            &copy; {{date('Y')}} Walmart. All rights reserved. 
             <span class="d-none d-md-inline">
               | Built with <i class="fas fa-heart text-danger"></i> by 
               <a href="https://github.com/Prajwal100" target="_blank" class="text-walmart-blue">Prajwal R.</a>

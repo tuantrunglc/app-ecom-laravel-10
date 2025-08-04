@@ -15,6 +15,8 @@
 <link rel="stylesheet" href="{{asset('frontend/css/magnific-popup.min.css')}}">
 <!-- Font Awesome -->
 <link rel="stylesheet" href="{{asset('frontend/css/font-awesome.css')}}">
+<!-- Font Awesome 6 CDN for better icon support -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <!-- Fancybox -->
 <link rel="stylesheet" href="{{asset('frontend/css/jquery.fancybox.min.css')}}">
 <!-- Themify Icons -->
@@ -32,15 +34,18 @@
 <!-- Jquery Ui -->
 <link rel="stylesheet" href="{{asset('frontend/css/jquery-ui.css')}}">
 
-<!-- Eshop StyleSheet -->
+<!-- Walmart StyleSheet -->
 <link rel="stylesheet" href="{{asset('frontend/css/reset.css')}}">
 <link rel="stylesheet" href="{{asset('frontend/css/style.css')}}">
 <link rel="stylesheet" href="{{asset('frontend/css/responsive.css')}}">
 
 <!-- Walmart Theme CSS -->
-<link rel="stylesheet" href="{{asset('user/css/walmart-theme.css')}}">
-<link rel="stylesheet" href="{{asset('user/css/walmart-components.css')}}">
-<link rel="stylesheet" href="{{asset('user/css/walmart-responsive.css')}}">
+<link rel="stylesheet" href="{{asset('frontend/css/walmart-theme.css')}}">
+<link rel="stylesheet" href="{{asset('frontend/css/walmart-components.css')}}">
+<link rel="stylesheet" href="{{asset('frontend/css/walmart-responsive.css')}}">
+
+<!-- Walmart Theme JavaScript -->
+<script src="{{asset('frontend/js/walmart-theme.js')}}" defer></script>
 <script type='text/javascript' src='https://platform-api.sharethis.com/js/sharethis.js#property=5f2e5abf393162001291e431&product=inline-share-buttons' async='async'></script>
 <style>
     /* Multilevel dropdown */

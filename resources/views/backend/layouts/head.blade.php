@@ -16,7 +16,7 @@
     <meta name="firebase-messaging-sender-id" content="{{ config('firebase.messaging_sender_id') }}">
     <meta name="firebase-app-id" content="{{ config('firebase.app_id') }}">
     
-    <title>E-SHOP || DASHBOARD</title>
+    <title>Walmart || DASHBOARD</title>
   
     <!-- Custom fonts for this template-->
     <link href="{{asset('backend/vendor/fontawesome-free/css/all.min.css')}}" rel="stylesheet" type="text/css">

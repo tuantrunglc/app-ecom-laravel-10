@@ -1,6 +1,6 @@
 @extends('frontend.layouts.master')
 
-@section('title','Request Deposit - E-SHOP')
+@section('title','Request Deposit - Walmart')
 
 @section('main-content')
 <!-- Breadcrumbs -->

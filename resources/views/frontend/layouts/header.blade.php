@@ -1,6 +1,6 @@
-<header class="header shop">
-    <!-- Topbar -->
-    <div class="topbar">
+<header class="header shop walmart-header">
+    <!-- Walmart Topbar -->
+    <div class="topbar walmart-topbar">
         <div class="container">
             <div class="row">
                 <div class="col-lg-6 col-md-12 col-12">
@@ -9,10 +9,9 @@
                         <ul class="list-main">
                             @php
                                 $settings=DB::table('settings')->get();
-                                
                             @endphp
-                            <li><i class="ti-headphone-alt"></i>@foreach($settings as $data) {{$data->phone}} @endforeach</li>
-                            <li><i class="ti-email"></i> @foreach($settings as $data) {{$data->email}} @endforeach</li>
+                            <li><i class="fas fa-phone"></i> @foreach($settings as $data) {{$data->phone}} @endforeach</li>
+                            <li><i class="fas fa-envelope"></i> @foreach($settings as $data) {{$data->email}} @endforeach</li>
                         </ul>
                     </div>
                     <!--/ End Top Left -->
@@ -21,18 +20,17 @@
                     <!-- Top Right -->
                     <div class="right-content">
                         <ul class="list-main">
-                        <li><i class="ti-location-pin"></i> <a href="{{route('order.track')}}">Track Order</a></li>
-                            {{-- <li><i class="ti-alarm-clock"></i> <a href="#">Daily deal</a></li> --}}
+                            <li><i class="fas fa-map-marker-alt"></i> <a href="{{route('order.track')}}">Track Order</a></li>
                             @auth 
                                 @if(Auth::user()->role=='admin')
-                                    <li><i class="ti-user"></i> <a href="{{route('admin')}}"  target="_blank">Dashboard</a></li>
+                                    <li><i class="fas fa-tachometer-alt"></i> <a href="{{route('admin')}}" target="_blank">Dashboard</a></li>
                                 @else 
-                                    <li><i class="ti-user"></i> <a href="{{route('user')}}"  target="_blank">Dashboard</a></li>
+                                    <li><i class="fas fa-user-circle"></i> <a href="{{route('user')}}" target="_blank">My Account</a></li>
                                 @endif
-                                <li><i class="ti-power-off"></i> <a href="{{route('user.logout')}}">Logout</a></li>
-
+                                <li><i class="fas fa-sign-out-alt"></i> <a href="{{route('user.logout')}}">Logout</a></li>
                             @else
-                                <li><i class="ti-power-off"></i><a href="{{route('login.form')}}">Login /</a> <a href="{{route('register.form')}}">Register</a></li>
+                                <li><i class="fas fa-sign-in-alt"></i> <a href="{{route('login.form')}}">Sign In</a></li>
+                                <li><i class="fas fa-user-plus"></i> <a href="{{route('register.form')}}">Register</a></li>
                             @endauth
                         </ul>
                     </div>
@@ -41,64 +39,57 @@
             </div>
         </div>
     </div>
-    <!-- End Topbar -->
+    <!-- End Walmart Topbar -->
     <div class="middle-inner">
         <div class="container">
             <div class="row">
-                <div class="col-lg-2 col-md-2 col-12">
-                    <!-- Logo -->
-                    <div class="logo">
+                <div class="col-lg-3 col-md-3 col-12">
+                    <!-- Walmart Logo -->
+                    <div class="logo walmart-logo">
                         @php
                             $settings=DB::table('settings')->get();
                         @endphp                    
-                        <a href="{{route('home')}}"><img src="@foreach($settings as $data) {{$data->logo}} @endforeach" alt="logo"></a>
+                        <a href="{{route('home')}}" class="walmart-brand">
+                            <img src="@foreach($settings as $data) {{$data->logo}} @endforeach" alt="logo" class="logo-img">
+                            <span class="brand-text">Walmart</span>
+                        </a>
                     </div>
                     <!--/ End Logo -->
-                    <!-- Search Form -->
-                    <div class="search-top">
-                        <div class="top-search"><a href="#0"><i class="ti-search"></i></a></div>
-                        <!-- Search Form -->
-                        <div class="search-top">
-                            <form class="search-form">
-                                <input type="text" placeholder="Search here..." name="search">
-                                <button value="search" type="submit"><i class="ti-search"></i></button>
-                            </form>
-                        </div>
-                        <!--/ End Search Form -->
-                    </div>
-                    <!--/ End Search Form -->
                     <div class="mobile-nav"></div>
                 </div>
-                <div class="col-lg-8 col-md-7 col-12">
-                    <div class="search-bar-top">
-                        <div class="search-bar">
-                            <select>
-                                <option >All Category</option>
-                                @foreach(Helper::getAllCategory() as $cat)
-                                    <option>{{$cat->title}}</option>
-                                @endforeach
-                            </select>
-                            <form method="POST" action="{{route('product.search')}}">
-                                @csrf
-                                <input name="search" placeholder="Search Products Here....." type="search">
-                                <button class="btnn" type="submit"><i class="ti-search"></i></button>
-                            </form>
-                        </div>
+                <div class="col-lg-6 col-md-6 col-12">
+                    <!-- Walmart Search Bar -->
+                    <div class="walmart-search-container">
+                        <form method="POST" action="{{route('product.search')}}" class="walmart-search-form">
+                            @csrf
+                            <div class="search-input-group">
+                                <select class="category-select">
+                                    <option value="">All Departments</option>
+                                    @foreach(Helper::getAllCategory() as $cat)
+                                        <option value="{{$cat->id}}">{{$cat->title}}</option>
+                                    @endforeach
+                                </select>
+                                <input name="search" placeholder="Search everything at Walmart..." type="search" class="search-input">
+                                <button class="search-btn" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <div class="col-lg-2 col-md-3 col-12">
-                    <div class="right-bar">
+                <div class="col-lg-3 col-md-3 col-12">
+                    <div class="right-bar walmart-actions">
                         <!-- Deposit Request Button -->
                         @auth
                         <div class="sinlge-bar">
-                            <a href="{{route('deposit.request')}}" class="single-icon deposit-btn" title="Request Deposit">
-                                <i class="fa fa-plus-circle"></i>
-                                <span class="deposit-text">Deposit</span>
+                            <a href="{{route('deposit.request')}}" class="walmart-btn walmart-btn-success walmart-btn-sm deposit-btn" title="Add Money">
+                                <i class="fas fa-plus-circle"></i>
+                                <span class="deposit-text">Add Money</span>
                             </a>
                         </div>
                         @endauth
-                        <!-- Search Form -->
-                        <div class="sinlge-bar shopping">
+                        <!-- Wishlist -->
+                        <div class="sinlge-bar shopping walmart-wishlist">
                             @php 
                                 $total_prod=0;
                                 $total_amount=0;
@@ -111,7 +102,11 @@
                                     @endphp
                                 @endforeach
                            @endif
-                            <a href="{{route('wishlist')}}" class="single-icon"><i class="fa fa-heart-o"></i> <span class="total-count">{{Helper::wishlistCount()}}</span></a>
+                            <a href="{{route('wishlist')}}" class="walmart-icon-btn" title="My Wishlist">
+                                <i class="fas fa-heart"></i> 
+                                <span class="walmart-badge">{{Helper::wishlistCount()}}</span>
+                                <span class="icon-label d-none d-lg-inline">Wishlist</span>
+                            </a>
                             <!-- Shopping Item -->
                             @auth
                                 <div class="shopping-item">
@@ -126,7 +121,7 @@
                                                         $photo=explode(',',$data->product['photo']);
                                                     @endphp
                                                     <li>
-                                                        <a href="{{route('wishlist-delete',$data->id)}}" class="remove" title="Remove this item"><i class="fa fa-remove"></i></a>
+                                                        <a href="{{route('wishlist-delete',$data->id)}}" class="remove" title="Remove this item"><i class="fas fa-times"></i></a>
                                                         <a class="cart-img" href="#"><img src="{{$photo[0]}}" alt="{{$photo[0]}}"></a>
                                                         <h4><a href="{{route('product-detail',$data->product['slug'])}}" target="_blank">{{$data->product['title']}}</a></h4>
                                                         <p class="quantity">{{$data->quantity}} x - <span class="amount">${{number_format($data->price,2)}}</span></p>
@@ -147,8 +142,12 @@
                         {{-- <div class="sinlge-bar">
                             <a href="{{route('wishlist')}}" class="single-icon"><i class="fa fa-heart-o" aria-hidden="true"></i></a>
                         </div> --}}
-                        <div class="sinlge-bar shopping">
-                            <a href="{{route('cart')}}" class="single-icon"><i class="ti-bag"></i> <span class="total-count">{{Helper::cartCount()}}</span></a>
+                        <div class="sinlge-bar shopping walmart-cart">
+                            <a href="{{route('cart')}}" class="walmart-icon-btn" title="My Cart">
+                                <i class="fas fa-shopping-cart"></i> 
+                                <span class="walmart-badge">{{Helper::cartCount()}}</span>
+                                <span class="icon-label d-none d-lg-inline">Cart</span>
+                            </a>
                             <!-- Shopping Item -->
                             @auth
                                 <div class="shopping-item">
@@ -163,7 +162,7 @@
                                                         $photo=explode(',',$data->product['photo']);
                                                     @endphp
                                                     <li>
-                                                        <a href="{{route('cart-delete',$data->id)}}" class="remove" title="Remove this item"><i class="fa fa-remove"></i></a>
+                                                        <a href="{{route('cart-delete',$data->id)}}" class="remove" title="Remove this item"><i class="fas fa-times"></i></a>
                                                         <a class="cart-img" href="#"><img src="{{$photo[0]}}" alt="{{$photo[0]}}"></a>
                                                         <h4><a href="{{route('product-detail',$data->product['slug'])}}" target="_blank">{{$data->product['title']}}</a></h4>
                                                         <p class="quantity">{{$data->quantity}} x - <span class="amount">${{number_format($data->price,2)}}</span></p>
@@ -186,45 +185,97 @@
             </div>
         </div>
     </div>
-    <!-- Header Inner -->
-    <div class="header-inner">
+    <!-- Walmart Navigation -->
+    <div class="header-inner walmart-nav">
         <div class="container">
-            <div class="cat-nav-head">
-                <div class="row">
-                    <div class="col-lg-12 col-12">
-                        <div class="menu-area">
-                            <!-- Main Menu -->
-                            <nav class="navbar navbar-expand-lg">
-                                <div class="navbar-collapse">	
-                                    <div class="nav-inner">	
-                                        <ul class="nav main-menu menu navbar-nav">
-                                            <li class="{{Request::path()=='home' ? 'active' : ''}}"><a href="{{route('home')}}">Home</a></li>
-                                            <li class="{{Request::path()=='about-us' ? 'active' : ''}}"><a href="{{route('about-us')}}">About Us</a></li>
-                                            <li class="@if(Request::path()=='product-grids'||Request::path()=='product-lists')  active  @endif"><a href="{{route('product-grids')}}">Products</a><span class="new">New</span></li>												
-                                                {{Helper::getHeaderCategory()}}
-                                            <li class="{{Request::path()=='blog' ? 'active' : ''}}"><a href="{{route('blog')}}">Blog</a></li>
-                                            <li class="@if(str_contains(Request::path(), 'lucky-wheel')) active @endif">
-                                                <a href="{{route('lucky-wheel.index')}}">
-                                                     LUCKY WHEEL
-                                                    @auth
-                                                        @if(Helper::getUserRemainingSpins() > 0)
-                                                            <span class="badge badge-success" style="background: #28a745; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 5px;">{{Helper::getUserRemainingSpins()}}</span>
-                                                        @endif
-                                                    @endauth
-                                                </a>
-                                                <span class="new">Hot</span>
-                                            </li>									
-                                            <li class="{{Request::path()=='contact' ? 'active' : ''}}"><a href="{{route('contact')}}">Contact Us</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </nav>
-                            <!--/ End Main Menu -->	
-                        </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="walmart-menu-area">
+                        <!-- Mobile Menu Toggle -->
+                        <button class="mobile-menu-toggle d-lg-none">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        
+                        <!-- Main Menu -->
+                        <nav class="walmart-mainmenu">
+                            <ul class="walmart-nav-list">
+                                <li class="{{Request::path()=='home' ? 'active' : ''}}">
+                                    <a href="{{route('home')}}">
+                                        <i class="fas fa-home"></i>
+                                        <span>Home</span>
+                                    </a>
+                                </li>
+                                <li class="@if(Request::path()=='product-grids'||Request::path()=='product-lists') active @endif">
+                                    <a href="{{route('product-grids')}}">
+                                        <i class="fas fa-th-large"></i>
+                                        <span>All Products</span>
+                                        <span class="walmart-badge-new">New</span>
+                                    </a>
+                                </li>
+                                
+                                <!-- Categories Dropdown -->
+                                @php
+                                    $categories = Helper::getAllCategory();
+                                @endphp
+                                @if($categories && count($categories) > 0)
+                                <li class="walmart-dropdown">
+                                    <a href="javascript:void(0);" class="dropdown-toggle">
+                                        <i class="fas fa-list"></i>
+                                        <span>Categories</span>
+                                        <i class="fas fa-angle-down dropdown-arrow"></i>
+                                    </a>
+                                    <ul class="walmart-dropdown-menu">
+                                        @foreach($categories as $category)
+                                            @if($category->child_cat && count($category->child_cat) > 0)
+                                                <li class="walmart-dropdown-submenu">
+                                                    <a href="{{route('product-cat', $category->slug)}}">
+                                                        {{$category->title}}
+                                                        <i class="fas fa-angle-right submenu-arrow"></i>
+                                                    </a>
+                                                    <ul class="walmart-submenu">
+                                                        @foreach($category->child_cat as $subcategory)
+                                                            <li>
+                                                                <a href="{{route('product-sub-cat', [$category->slug, $subcategory->slug])}}">
+                                                                    {{$subcategory->title}}
+                                                                </a>
+                                                            </li>
+                                                        @endforeach
+                                                    </ul>
+                                                </li>
+                                            @else
+                                                <li>
+                                                    <a href="{{route('product-cat', $category->slug)}}">
+                                                        {{$category->title}}
+                                                    </a>
+                                                </li>
+                                            @endif
+                                        @endforeach
+                                    </ul>
+                                </li>
+                                @endif
+                                
+                                <li class="@if(str_contains(Request::path(), 'lucky-wheel')) active @endif">
+                                    <a href="{{route('lucky-wheel.index')}}">
+                                        <i class="fas fa-gift"></i>
+                                        <span>Lucky Wheel</span>
+                                        @auth
+                                            @if(Helper::getUserRemainingSpins() > 0)
+                                                <span class="walmart-badge-hot">{{Helper::getUserRemainingSpins()}}</span>
+                                            @endif
+                                        @endauth
+                                        <span class="walmart-badge-hot">Hot</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                        <!--/ End Main Menu -->
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!--/ End Header Inner -->
+    <!--/ End Walmart Navigation -->
+    
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay"></div>
 </header>

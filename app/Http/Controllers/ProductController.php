@@ -47,6 +47,7 @@ class ProductController extends Controller
             'summary' => 'required|string',
             'description' => 'nullable|string',
             'photo' => 'required|string',
+            'photo_upload.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'size' => 'nullable',
             'stock' => 'required|numeric',
             'cat_id' => 'required|exists:categories,id',
@@ -59,6 +60,21 @@ class ProductController extends Controller
             'discount' => 'nullable|numeric',
             'commission' => 'nullable|numeric|min:0|max:100',
         ]);
+
+        // Handle file uploads
+        if ($request->hasFile('photo_upload')) {
+            $uploadedPaths = [];
+            foreach ($request->file('photo_upload') as $file) {
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('photos'), $fileName);
+                $uploadedPaths[] = 'photos/' . $fileName;
+            }
+            
+            // If files were uploaded, use them instead of manual input
+            if (!empty($uploadedPaths)) {
+                $validatedData['photo'] = implode(',', $uploadedPaths);
+            }
+        }
 
         $slug = generateUniqueSlug($request->title, Product::class);
         $validatedData['slug'] = $slug;

@@ -228,6 +228,11 @@
         Lfm::routes();
     });
 
+    // Test route for file manager
+    Route::get('/test-filemanager', function () {
+        return view('backend.layouts.file-manager');
+    })->middleware('auth')->name('test.filemanager');
+
 // Lucky Wheel Routes
 
 

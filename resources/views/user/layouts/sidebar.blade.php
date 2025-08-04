@@ -102,7 +102,7 @@
   <!-- Sidebar Footer -->
   <div class="sidebar-footer p-3 mt-auto">
     <div class="text-center">
-      <small class="text-muted">E-SHOP User Panel</small>
+      <small class="text-muted">Walmart User Panel</small>
     </div>
   </div>
 
