@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\User;
+use App\Models\LuckyWheelPrize;
 use Carbon\Carbon;
 
 class LuckyWheelAdminSet extends Model

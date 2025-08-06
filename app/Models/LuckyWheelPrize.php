@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\LuckyWheelSpin;
+use App\Models\LuckyWheelAdminSet;
+use Illuminate\Support\Facades\Cache;
 
 class LuckyWheelPrize extends Model
 {

@@ -21,7 +21,7 @@
     <li class="nav-item active">
       <a class="nav-link" href="{{auth()->user()->isAdmin() ? route('admin') : route('sub-admin.dashboard')}}">
         <i class="fas fa-fw fa-tachometer-alt"></i>
-        <span>Bảng Điều Khiển</span></a>
+        <span>Bảng Điều Khiển Admin( chỉ có admin mới thấy nút này)</span></a>
     </li>
 
     <!-- Divider -->

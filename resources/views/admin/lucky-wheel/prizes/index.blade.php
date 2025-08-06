@@ -71,7 +71,7 @@
                                 <tr>
                                     <td>
                                         @if($prize->image)
-                                        <img src="{{ asset('storage/' . $prize->image) }}" 
+                                        <img src="{{ asset($prize->image) }}" 
                                              alt="{{ $prize->name }}" 
                                              class="rounded" 
                                              style="width: 50px; height: 50px; object-fit: cover;">

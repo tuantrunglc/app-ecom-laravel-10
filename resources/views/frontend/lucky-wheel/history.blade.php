@@ -42,7 +42,7 @@
                                         @if($spin->prize)
                                         <div class="d-flex align-items-center">
                                             @if($spin->prize->image)
-                                            <img src="{{ asset('storage/' . $spin->prize->image) }}" 
+                                            <img src="{{ asset($spin->prize->image) }}" 
                                                  alt="{{ $spin->prize->name }}" 
                                                  class="me-2 rounded" 
                                                  style="width: 30px; height: 30px; object-fit: cover;">

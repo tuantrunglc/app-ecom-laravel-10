@@ -16,7 +16,7 @@
     </div>
 
     <!-- Sound Toggle Button -->
-    <button class="sound-toggle" id="soundToggle" title="Toggle Sound">
+    <button class="sound-toggle" id="soundToggle" title="Turn on/off sound">
         <i class="fas fa-volume-up"></i>
     </button>
 
@@ -131,7 +131,7 @@
                                     <div class="prize-content">
                                         <div class="prize-icon-wrapper">
                                             @if($prize->image)
-                                            <img src="{{ asset('storage/' . $prize->image) }}" alt="{{ $prize->name }}" 
+                                            <img src="{{ asset($prize->image) }}" alt="{{ $prize->name }}" 
                                                  class="prize-image">
                                             @else
                                             <div class="prize-icon">
@@ -564,6 +564,16 @@
     background: #6c757d;
     cursor: not-allowed;
     box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.spin-button[disabled] {
+    background: #6c757d;
+    cursor: not-allowed;
+    box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+    pointer-events: none;
+    opacity: 0.6;
 }
 
 .button-content {
@@ -1091,7 +1101,7 @@ $(document).ready(function() {
     // Prizes data from server
     const prizes = @json($prizes);
     const settings = @json($settings);
-    const canSpin = @json($canSpin);
+    let canSpin = @json($canSpin);
     
     let isSpinning = false;
     let currentRotation = 0;
@@ -1322,7 +1332,7 @@ $(document).ready(function() {
         isSpinning = true;
         spinBtn.classList.add('disabled');
         spinBtn.classList.add('spinning');
-        spinBtnText.textContent = 'ĐANG QUAY...';
+        spinBtnText.textContent = 'SPINNING...';
         
         // Show loading overlay
         showLoadingOverlay();
@@ -1394,16 +1404,25 @@ $(document).ready(function() {
                         spinBtn.classList.remove('spinning');
                         document.querySelector('.wheel-container').classList.remove('spinning');
                         
-                        // Update button state
-                        if (response.remaining_spins && response.remaining_spins > 0) {
+                        // Update button state based on remaining spins
+                        const totalSpins = settings.max_spins_per_day;
+                        const usedSpins = response.spins_used || (response.user_spins_today + 1);
+                        const remainingSpins = totalSpins - usedSpins;
+                        
+                        if (remainingSpins > 0) {
                             spinBtn.classList.remove('disabled');
+                            spinBtn.removeAttribute('disabled');
                             spinBtnText.textContent = 'SPIN NOW!';
+                            canSpin = true;
                         } else {
+                            spinBtn.classList.add('disabled');
+                            spinBtn.setAttribute('disabled', 'disabled');
                             spinBtnText.textContent = 'NO SPINS LEFT';
+                            canSpin = false;
                         }
                         
                         // Update spin count display
-                        updateSpinCount(response.remaining_spins);
+                        updateSpinCount(remainingSpins, usedSpins);
                         
                     }, 4500); // Increased delay for better suspense
                 } else {
@@ -1467,9 +1486,9 @@ $(document).ready(function() {
     // Reset spin button state
     function resetSpinButton() {
         isSpinning = false;
-        spinBtn.classList.remove('disabled', 'spinning');
+        spinBtn.classList.remove('spinning');
         document.querySelector('.wheel-container').classList.remove('spinning');
-        spinBtnText.textContent = 'SPIN NOW!';
+        syncButtonState(); // Use sync function to set correct state
     }
     
     // Show error message with better styling
@@ -1507,19 +1526,19 @@ $(document).ready(function() {
     }
     
     // Update spin count display
-    function updateSpinCount(remainingSpins) {
+    function updateSpinCount(remainingSpins, usedSpins) {
         const spinCountElement = document.querySelector('.spin-count');
         const remainingElement = document.querySelector('.remaining-spins');
         const noSpinsElement = document.querySelector('.no-spins');
         
         if (spinCountElement) {
-            const currentCount = parseInt(spinCountElement.textContent);
-            spinCountElement.textContent = currentCount + 1;
+            spinCountElement.textContent = usedSpins;
         }
         
         if (remainingSpins > 0) {
             if (remainingElement) {
-                remainingElement.innerHTML = `<i class="fas fa-fire"></i> Còn ${remainingSpins} lượt quay!`;
+                remainingElement.innerHTML = `<i class="fas fa-fire"></i> ${remainingSpins} spins left!`;
+                remainingElement.style.display = 'block';
             }
             if (noSpinsElement) {
                 noSpinsElement.style.display = 'none';
@@ -1529,6 +1548,7 @@ $(document).ready(function() {
                 remainingElement.style.display = 'none';
             }
             if (noSpinsElement) {
+                noSpinsElement.innerHTML = '<i class="fas fa-clock"></i> No spins left today!';
                 noSpinsElement.style.display = 'block';
             }
         }
@@ -1541,34 +1561,39 @@ $(document).ready(function() {
         const body = $('#resultModalBody');
         
         if (response.is_winner && response.prize) {
-            title.html('🎉 CHÚC MỪNG! 🎉');
+            title.html('🎉 CONGRATULATIONS! 🎉');
             body.html(`
                 <div class="result-winner">
                     <div class="winner-animation">
                         <i class="fas fa-trophy"></i>
                     </div>
+                    ${response.prize.image ? `
+                        <div class="winner-prize-image">
+                            <img src="${response.prize.image}" alt="${response.prize.name}" class="prize-winner-img">
+                        </div>
+                    ` : ''}
                     <h3 class="winner-prize-name">${response.prize.name}</h3>
                     ${response.prize.description ? `<p class="winner-description">${response.prize.description}</p>` : ''}
-                    ${response.admin_set ? '<div class="special-badge">🌟 Phần thưởng đặc biệt 🌟</div>' : ''}
+                    ${response.admin_set ? '<div class="special-badge">🌟 Special Prize 🌟</div>' : ''}
                     <div class="winner-message">
                         <p><strong>${response.message}</strong></p>
                     </div>
                     <div class="celebration-text">
-                        🎊 Bạn đã trúng thưởng! 🎊
+                        🎊 You won a prize! 🎊
                     </div>
                 </div>
             `);
         } else {
-            title.html('😊 CẢM ƠN BẠN ĐÃ THAM GIA!');
+            title.html('😊 THANK YOU FOR PARTICIPATING!');
             body.html(`
                 <div class="result-no-win">
                     <div class="no-win-icon">
                         <i class="fas fa-heart"></i>
                     </div>
                     <h4>${response.message}</h4>
-                    <p class="encouragement">Đừng bỏ lỡ cơ hội trong những lần quay tiếp theo nhé!</p>
+                    <p class="encouragement">Don't miss the opportunity in the next spins!</p>
                     <div class="next-chance">
-                        <i class="fas fa-star"></i> Chúc bạn may mắn lần sau! <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i> Good luck next time! <i class="fas fa-star"></i>
                     </div>
                 </div>
             `);
@@ -1594,16 +1619,26 @@ $(document).ready(function() {
         if (soundEnabled) {
             icon.className = 'fas fa-volume-up';
             soundToggle.classList.remove('muted');
-            soundToggle.title = 'Tắt âm thanh';
+            soundToggle.title = 'Turn off sound';
         } else {
             icon.className = 'fas fa-volume-mute';
             soundToggle.classList.add('muted');
-            soundToggle.title = 'Bật âm thanh';
+            soundToggle.title = 'Turn on sound';
         }
     }
     
     // Event listeners
-    spinBtn.addEventListener('click', spinWheel);
+    spinBtn.addEventListener('click', function(e) {
+        // Prevent click if button is disabled or conditions not met
+        if (spinBtn.classList.contains('disabled') || 
+            spinBtn.hasAttribute('disabled') || 
+            !canSpin || 
+            isSpinning) {
+            e.preventDefault();
+            return false;
+        }
+        spinWheel();
+    });
     
     soundToggle.addEventListener('click', function() {
         soundEnabled = !soundEnabled;
@@ -1613,7 +1648,11 @@ $(document).ready(function() {
     
     // Add keyboard support
     document.addEventListener('keydown', function(e) {
-        if (e.code === 'Space' && canSpin && !isSpinning) {
+        if (e.code === 'Space' && 
+            canSpin && 
+            !isSpinning && 
+            !spinBtn.classList.contains('disabled') && 
+            !spinBtn.hasAttribute('disabled')) {
             e.preventDefault();
             spinWheel();
         }
@@ -1638,8 +1677,22 @@ $(document).ready(function() {
         });
     });
     
+    // Function to sync button state
+    function syncButtonState() {
+        if (!canSpin) {
+            spinBtn.classList.add('disabled');
+            spinBtn.setAttribute('disabled', 'disabled');
+            spinBtnText.textContent = 'NO SPINS LEFT';
+        } else {
+            spinBtn.classList.remove('disabled');
+            spinBtn.removeAttribute('disabled');
+            spinBtnText.textContent = 'SPIN NOW!';
+        }
+    }
+    
     // Initial setup
     updateSoundToggle();
+    syncButtonState();
     
     // Initial draw with animation
     setTimeout(() => {
@@ -1725,6 +1778,28 @@ const additionalStyles = `
 @keyframes winner-bounce {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.2); }
+}
+
+.winner-prize-image {
+    margin-bottom: 1rem;
+}
+
+.prize-winner-img {
+    max-width: 150px;
+    max-height: 150px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    border: 3px solid #FFD700;
+    animation: prize-glow 2s ease-in-out infinite;
+}
+
+@keyframes prize-glow {
+    0%, 100% { 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 20px rgba(255, 215, 0, 0.5); 
+    }
+    50% { 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 30px rgba(255, 215, 0, 0.8); 
+    }
 }
 
 .winner-prize-name {

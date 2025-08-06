@@ -4910,3 +4910,317 @@ Version:1.0
 /*=============================
 	End Footer CSS
 ===============================*/
+
+/*=============================
+        Wallet Balance CSS
+===============================*/
+.wallet-balance-display {
+    display: inline-flex;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 10px 14px;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+    font-size: 14px;
+    white-space: nowrap;
+    color: #495057;
+    vertical-align: middle;
+    height: 40px;
+    box-sizing: border-box;
+}
+
+.wallet-balance-display i {
+    margin-right: 8px;
+    color: #28a745;
+    font-size: 16px;
+}
+
+.balance-text {
+    color: #28a745;
+    font-weight: 700;
+    font-size: 15px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+    .wallet-balance-display {
+        font-size: 13px;
+        padding: 8px 12px;
+        height: 36px;
+    }
+    
+    .balance-text {
+        font-size: 14px;
+    }
+    
+    .wallet-balance-display i {
+        font-size: 14px;
+        margin-right: 6px;
+    }
+}
+
+@media (max-width: 767px) {
+    .wallet-balance-display {
+        font-size: 12px;
+        padding: 6px 10px;
+        height: 32px;
+    }
+    
+    .balance-text {
+        font-size: 13px;
+    }
+    
+    .wallet-balance-display i {
+        font-size: 13px;
+        margin-right: 5px;
+    }
+}
+/*=============================
+        End Wallet Balance CSS
+===============================*/
+
+/*=============================
+        Walmart Search Bar CSS
+===============================*/
+.walmart-search-container {
+    padding: 15px 0;
+}
+
+.walmart-search-form {
+    width: 100%;
+    max-width: 100%;
+}
+
+.walmart-search-wrapper {
+    display: flex;
+    align-items: stretch;
+    background: #fff;
+    border: 2px solid #0071ce;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 113, 206, 0.1);
+    transition: all 0.3s ease;
+}
+
+.walmart-search-wrapper:hover {
+    box-shadow: 0 4px 12px rgba(0, 113, 206, 0.15);
+}
+
+.walmart-search-wrapper:focus-within,
+.walmart-search-wrapper.focused {
+    border-color: #004c91;
+    box-shadow: 0 4px 16px rgba(0, 113, 206, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Category Dropdown */
+.search-category-dropdown {
+    position: relative;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    min-width: 140px;
+    display: flex;
+    align-items: center;
+}
+
+.category-select {
+    width: 100%;
+    height: 48px;
+    padding: 0 35px 0 15px;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    outline: none;
+    font-weight: 500;
+}
+
+.category-select:focus {
+    outline: none;
+}
+
+.dropdown-arrow {
+    position: absolute;
+    right: 12px;
+    color: #666;
+    font-size: 12px;
+    pointer-events: none;
+    transition: transform 0.3s ease;
+}
+
+.search-category-dropdown:hover .dropdown-arrow {
+    color: #0071ce;
+}
+
+/* Search Input */
+.search-input-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.walmart-search-input {
+    width: 100%;
+    height: 48px;
+    padding: 0 20px;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    color: #333;
+    outline: none;
+    font-weight: 400;
+}
+
+.walmart-search-input::placeholder {
+    color: #999;
+    font-weight: 400;
+}
+
+.walmart-search-input:focus::placeholder {
+    color: #ccc;
+}
+
+/* Search Button */
+.walmart-search-btn {
+    background: #0071ce;
+    border: none;
+    padding: 0 25px;
+    height: 48px;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    min-width: 100px;
+    justify-content: center;
+}
+
+.walmart-search-btn:hover {
+    background: #004c91;
+    transform: translateY(-1px);
+}
+
+.walmart-search-btn:active {
+    transform: translateY(0);
+}
+
+.walmart-search-btn i {
+    font-size: 16px;
+}
+
+.btn-text {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 991px) {
+    .walmart-search-wrapper {
+        border-radius: 20px;
+    }
+    
+    .category-select {
+        height: 44px;
+        font-size: 13px;
+        min-width: 120px;
+    }
+    
+    .walmart-search-input {
+        height: 44px;
+        font-size: 15px;
+        padding: 0 15px;
+    }
+    
+    .walmart-search-btn {
+        height: 44px;
+        padding: 0 20px;
+        min-width: 80px;
+    }
+    
+    .btn-text {
+        display: none;
+    }
+}
+
+@media (max-width: 767px) {
+    .walmart-search-container {
+        padding: 10px 0;
+    }
+    
+    .walmart-search-wrapper {
+        border-radius: 15px;
+        border-width: 1px;
+    }
+    
+    .search-category-dropdown {
+        min-width: 100px;
+    }
+    
+    .category-select {
+        height: 40px;
+        font-size: 12px;
+        padding: 0 25px 0 10px;
+    }
+    
+    .walmart-search-input {
+        height: 40px;
+        font-size: 14px;
+        padding: 0 12px;
+    }
+    
+    .walmart-search-input::placeholder {
+        font-size: 13px;
+    }
+    
+    .walmart-search-btn {
+        height: 40px;
+        padding: 0 15px;
+        min-width: 60px;
+    }
+    
+    .walmart-search-btn i {
+        font-size: 14px;
+    }
+    
+    .dropdown-arrow {
+        right: 8px;
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .walmart-search-wrapper {
+        flex-direction: column;
+        border-radius: 12px;
+    }
+    
+    .search-category-dropdown {
+        border-right: none;
+        border-bottom: 1px solid #e9ecef;
+        min-width: 100%;
+    }
+    
+    .category-select {
+        height: 36px;
+        text-align: center;
+    }
+    
+    .walmart-search-input {
+        height: 36px;
+    }
+    
+    .walmart-search-btn {
+        height: 36px;
+        border-radius: 0 0 12px 12px;
+    }
+}
+/*=============================
+        End Walmart Search Bar CSS
+===============================*/

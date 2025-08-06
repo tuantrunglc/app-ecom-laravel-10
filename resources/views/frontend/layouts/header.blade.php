@@ -7,11 +7,7 @@
                     <!-- Top Left -->
                     <div class="top-left">
                         <ul class="list-main">
-                            @php
-                                $settings=DB::table('settings')->get();
-                            @endphp
-                            <li><i class="fas fa-phone"></i> @foreach($settings as $data) {{$data->phone}} @endforeach</li>
-                            <li><i class="fas fa-envelope"></i> @foreach($settings as $data) {{$data->email}} @endforeach</li>
+                            
                         </ul>
                     </div>
                     <!--/ End Top Left -->
@@ -62,16 +58,22 @@
                     <div class="walmart-search-container">
                         <form method="POST" action="{{route('product.search')}}" class="walmart-search-form">
                             @csrf
-                            <div class="search-input-group">
-                                <select class="category-select">
-                                    <option value="">All Departments</option>
-                                    @foreach(Helper::getAllCategory() as $cat)
-                                        <option value="{{$cat->id}}">{{$cat->title}}</option>
-                                    @endforeach
-                                </select>
-                                <input name="search" placeholder="Search everything at Walmart..." type="search" class="search-input">
-                                <button class="search-btn" type="submit">
+                            <div class="walmart-search-wrapper">
+                                <div class="search-category-dropdown">
+                                    <select name="category" class="category-select" id="categorySelect">
+                                        <option value="">All Departments</option>
+                                        @foreach(Helper::getAllCategory() as $cat)
+                                            <option value="{{$cat->id}}">{{$cat->title}}</option>
+                                        @endforeach
+                                    </select>
+                                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                                </div>
+                                <div class="search-input-wrapper">
+                                    <input name="search" placeholder="Search everything at Walmart online and in store..." type="search" class="walmart-search-input" autocomplete="off">
+                                </div>
+                                <button class="walmart-search-btn" type="submit">
                                     <i class="fas fa-search"></i>
+                                    <span class="btn-text">Search</span>
                                 </button>
                             </div>
                         </form>
@@ -79,6 +81,16 @@
                 </div>
                 <div class="col-lg-3 col-md-3 col-12">
                     <div class="right-bar walmart-actions">
+                        <!-- Wallet Balance -->
+                        @auth
+                        <div class="sinlge-bar wallet-balance-bar">
+                            <div class="wallet-balance-display">
+                                <i class="fas fa-wallet"></i>
+                                <span class="balance-text">${{number_format(Auth::user()->wallet_balance ?? 0, 2)}}</span>
+                            </div>
+                        </div>
+                        @endauth
+                        
                         <!-- Deposit Request Button -->
                         @auth
                         <div class="sinlge-bar">

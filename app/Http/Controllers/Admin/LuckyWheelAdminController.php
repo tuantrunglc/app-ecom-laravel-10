@@ -93,8 +93,24 @@ class LuckyWheelAdminController extends Controller
 
         // Upload hình ảnh
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('lucky-wheel/prizes', 'public');
-            $data['image'] = $imagePath;
+            $userId = auth()->id() ?? 1; // Use authenticated user ID or default to 1
+            
+            // Create directory if it doesn't exist
+            $uploadPath = public_path("photos/{$userId}/LuckyWheel");
+            if (!file_exists($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+            
+            $file = $request->file('image');
+            // Generate unique filename with random prefix
+            $randomPrefix = substr(md5(uniqid()), 0, 5);
+            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+            $fileName = $randomPrefix . '-' . $originalName . '.' . $extension;
+            
+            // Move file to the structured directory
+            $file->move($uploadPath, $fileName);
+            $data['image'] = "/photos/{$userId}/LuckyWheel/{$fileName}";
         }
 
         LuckyWheelPrize::create($data);
@@ -141,12 +157,31 @@ class LuckyWheelAdminController extends Controller
         // Upload hình ảnh mới
         if ($request->hasFile('image')) {
             // Xóa hình cũ
-            if ($prize->image && Storage::disk('public')->exists($prize->image)) {
-                Storage::disk('public')->delete($prize->image);
+            if ($prize->image) {
+                $oldImagePath = public_path($prize->image);
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
             }
             
-            $imagePath = $request->file('image')->store('lucky-wheel/prizes', 'public');
-            $data['image'] = $imagePath;
+            $userId = auth()->id() ?? 1; // Use authenticated user ID or default to 1
+            
+            // Create directory if it doesn't exist
+            $uploadPath = public_path("photos/{$userId}/LuckyWheel");
+            if (!file_exists($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+            
+            $file = $request->file('image');
+            // Generate unique filename with random prefix
+            $randomPrefix = substr(md5(uniqid()), 0, 5);
+            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+            $fileName = $randomPrefix . '-' . $originalName . '.' . $extension;
+            
+            // Move file to the structured directory
+            $file->move($uploadPath, $fileName);
+            $data['image'] = "/photos/{$userId}/LuckyWheel/{$fileName}";
         }
 
         $prize->update($data);
@@ -169,8 +204,11 @@ class LuckyWheelAdminController extends Controller
         }
 
         // Xóa hình ảnh
-        if ($prize->image && Storage::disk('public')->exists($prize->image)) {
-            Storage::disk('public')->delete($prize->image);
+        if ($prize->image) {
+            $imagePath = public_path($prize->image);
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
         }
 
         $prize->delete();

@@ -128,6 +128,47 @@
 	<!-- Walmart Theme JS -->
 	<script src="{{asset('user/js/walmart-theme.js')}}"></script>
 	
+	<!-- Walmart Search Bar Enhancement -->
+	<script>
+	$(document).ready(function() {
+		// Enhanced search functionality
+		$('.walmart-search-input').on('focus', function() {
+			$(this).closest('.walmart-search-wrapper').addClass('focused');
+		});
+		
+		$('.walmart-search-input').on('blur', function() {
+			$(this).closest('.walmart-search-wrapper').removeClass('focused');
+		});
+		
+		// Category dropdown animation
+		$('.category-select').on('focus', function() {
+			$(this).siblings('.dropdown-arrow').css('transform', 'rotate(180deg)');
+		});
+		
+		$('.category-select').on('blur', function() {
+			$(this).siblings('.dropdown-arrow').css('transform', 'rotate(0deg)');
+		});
+		
+		// Search form validation
+		$('.walmart-search-form').on('submit', function(e) {
+			var searchValue = $('.walmart-search-input').val().trim();
+			if (searchValue.length < 2) {
+				e.preventDefault();
+				$('.walmart-search-input').focus();
+				return false;
+			}
+		});
+		
+		// Auto-complete suggestions (placeholder for future enhancement)
+		$('.walmart-search-input').on('input', function() {
+			var query = $(this).val();
+			if (query.length >= 3) {
+				// Here you can add AJAX call for search suggestions
+			}
+		});
+	});
+	</script>
+	
 	@stack('scripts')
 	<script>
 		setTimeout(function(){
