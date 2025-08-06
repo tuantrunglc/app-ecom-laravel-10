@@ -4983,34 +4983,36 @@ Version:1.0
         Walmart Search Bar CSS
 ===============================*/
 .walmart-search-container {
-    padding: 15px 0;
+    padding: 10px 0;
+    width: 100%;
 }
 
 .walmart-search-form {
     width: 100%;
-    max-width: 100%;
 }
 
 .walmart-search-wrapper {
     display: flex;
     align-items: stretch;
     background: #fff;
-    border: 2px solid #0071ce;
-    border-radius: 25px;
+    border: 2px solid #ddd;
+    border-radius: 50px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 113, 206, 0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
+    height: 50px;
+    max-width: 100%;
 }
 
 .walmart-search-wrapper:hover {
-    box-shadow: 0 4px 12px rgba(0, 113, 206, 0.15);
+    border-color: #0071ce;
+    box-shadow: 0 2px 8px rgba(0, 113, 206, 0.15);
 }
 
 .walmart-search-wrapper:focus-within,
 .walmart-search-wrapper.focused {
-    border-color: #004c91;
-    box-shadow: 0 4px 16px rgba(0, 113, 206, 0.2);
-    transform: translateY(-1px);
+    border-color: #0071ce;
+    box-shadow: 0 2px 12px rgba(0, 113, 206, 0.2);
 }
 
 /* Category Dropdown */
@@ -5018,15 +5020,16 @@ Version:1.0
     position: relative;
     background: #f8f9fa;
     border-right: 1px solid #e9ecef;
-    min-width: 140px;
+    min-width: 160px;
     display: flex;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .category-select {
     width: 100%;
-    height: 48px;
-    padding: 0 35px 0 15px;
+    height: 100%;
+    padding: 0 30px 0 20px;
     border: none;
     background: transparent;
     font-size: 14px;
@@ -5045,7 +5048,7 @@ Version:1.0
 
 .dropdown-arrow {
     position: absolute;
-    right: 12px;
+    right: 15px;
     color: #666;
     font-size: 12px;
     pointer-events: none;
@@ -5061,11 +5064,12 @@ Version:1.0
     flex: 1;
     display: flex;
     align-items: center;
+    min-width: 0;
 }
 
 .walmart-search-input {
     width: 100%;
-    height: 48px;
+    height: 100%;
     padding: 0 20px;
     border: none;
     background: transparent;
@@ -5088,8 +5092,8 @@ Version:1.0
 .walmart-search-btn {
     background: #0071ce;
     border: none;
-    padding: 0 25px;
-    height: 48px;
+    padding: 0 30px;
+    height: 100%;
     color: white;
     font-size: 16px;
     font-weight: 600;
@@ -5098,17 +5102,18 @@ Version:1.0
     align-items: center;
     gap: 8px;
     transition: all 0.3s ease;
-    min-width: 100px;
+    min-width: 120px;
     justify-content: center;
+    flex-shrink: 0;
+    border-radius: 0 50px 50px 0;
 }
 
 .walmart-search-btn:hover {
     background: #004c91;
-    transform: translateY(-1px);
 }
 
 .walmart-search-btn:active {
-    transform: translateY(0);
+    transform: scale(0.98);
 }
 
 .walmart-search-btn i {
@@ -5123,54 +5128,60 @@ Version:1.0
 /* Responsive Design */
 @media (max-width: 991px) {
     .walmart-search-wrapper {
-        border-radius: 20px;
+        height: 45px;
+        border-radius: 45px;
+    }
+    
+    .search-category-dropdown {
+        min-width: 140px;
     }
     
     .category-select {
-        height: 44px;
         font-size: 13px;
-        min-width: 120px;
+        padding: 0 25px 0 15px;
     }
     
     .walmart-search-input {
-        height: 44px;
         font-size: 15px;
         padding: 0 15px;
     }
     
     .walmart-search-btn {
-        height: 44px;
-        padding: 0 20px;
-        min-width: 80px;
+        padding: 0 25px;
+        min-width: 100px;
+        border-radius: 0 45px 45px 0;
     }
     
     .btn-text {
         display: none;
     }
+    
+    .dropdown-arrow {
+        right: 12px;
+    }
 }
 
 @media (max-width: 767px) {
     .walmart-search-container {
-        padding: 10px 0;
+        padding: 8px 0;
     }
     
     .walmart-search-wrapper {
-        border-radius: 15px;
+        height: 42px;
+        border-radius: 42px;
         border-width: 1px;
     }
     
     .search-category-dropdown {
-        min-width: 100px;
+        min-width: 120px;
     }
     
     .category-select {
-        height: 40px;
         font-size: 12px;
-        padding: 0 25px 0 10px;
+        padding: 0 20px 0 12px;
     }
     
     .walmart-search-input {
-        height: 40px;
         font-size: 14px;
         padding: 0 12px;
     }
@@ -5180,9 +5191,9 @@ Version:1.0
     }
     
     .walmart-search-btn {
-        height: 40px;
-        padding: 0 15px;
-        min-width: 60px;
+        padding: 0 20px;
+        min-width: 80px;
+        border-radius: 0 42px 42px 0;
     }
     
     .walmart-search-btn i {
@@ -5190,35 +5201,43 @@ Version:1.0
     }
     
     .dropdown-arrow {
-        right: 8px;
+        right: 10px;
         font-size: 10px;
     }
 }
 
 @media (max-width: 480px) {
     .walmart-search-wrapper {
-        flex-direction: column;
-        border-radius: 12px;
+        height: 40px;
+        border-radius: 40px;
     }
     
     .search-category-dropdown {
-        border-right: none;
-        border-bottom: 1px solid #e9ecef;
-        min-width: 100%;
+        min-width: 100px;
     }
     
     .category-select {
-        height: 36px;
-        text-align: center;
+        font-size: 11px;
+        padding: 0 18px 0 10px;
     }
     
     .walmart-search-input {
-        height: 36px;
+        font-size: 13px;
+        padding: 0 10px;
+    }
+    
+    .walmart-search-input::placeholder {
+        font-size: 12px;
     }
     
     .walmart-search-btn {
-        height: 36px;
-        border-radius: 0 0 12px 12px;
+        padding: 0 15px;
+        min-width: 60px;
+        border-radius: 0 40px 40px 0;
+    }
+    
+    .walmart-search-btn i {
+        font-size: 13px;
     }
 }
 /*=============================

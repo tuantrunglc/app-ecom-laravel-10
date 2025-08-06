@@ -1,3 +1,316 @@
+<style>
+/* Walmart Search Bar CSS */
+.walmart-search-container {
+    padding: 10px 0;
+    width: 100%;
+}
+
+.walmart-search-form {
+    width: 100%;
+}
+
+.walmart-search-wrapper {
+    display: flex;
+    align-items: stretch;
+    background: #fff;
+    border: 2px solid #ddd;
+    border-radius: 50px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    height: 50px;
+    max-width: 100%;
+}
+
+.walmart-search-wrapper:hover {
+    border-color: #0071ce;
+    box-shadow: 0 2px 8px rgba(0, 113, 206, 0.15);
+}
+
+.walmart-search-wrapper:focus-within,
+.walmart-search-wrapper.focused {
+    border-color: #0071ce;
+    box-shadow: 0 2px 12px rgba(0, 113, 206, 0.2);
+}
+
+/* Category Dropdown */
+.search-category-dropdown {
+    position: relative;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    min-width: 160px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.category-select {
+    width: 100%;
+    height: 100%;
+    padding: 0 30px 0 20px;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    outline: none;
+    font-weight: 500;
+}
+
+.category-select:focus {
+    outline: none;
+}
+
+.dropdown-arrow {
+    position: absolute;
+    right: 15px;
+    color: #666;
+    font-size: 12px;
+    pointer-events: none;
+    transition: transform 0.3s ease;
+}
+
+.search-category-dropdown:hover .dropdown-arrow {
+    color: #0071ce;
+}
+
+/* Search Input */
+.search-input-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    position: relative;
+}
+
+.walmart-search-input {
+    width: 100%;
+    height: 100%;
+    padding: 0 20px 0 50px;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    color: #333;
+    outline: none;
+    font-weight: 400;
+}
+
+.search-input-wrapper::before {
+    content: '\f002';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    font-size: 16px;
+    z-index: 1;
+}
+
+.walmart-search-input::placeholder {
+    color: #999;
+    font-weight: 400;
+}
+
+.walmart-search-input:focus::placeholder {
+    color: #ccc;
+}
+
+/* Search Button */
+.walmart-search-btn {
+    background: #0071ce;
+    border: none;
+    padding: 0 30px;
+    height: 100%;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    min-width: 120px;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 0 50px 50px 0;
+}
+
+.walmart-search-btn:hover {
+    background: #004c91;
+}
+
+.walmart-search-btn:active {
+    transform: scale(0.98);
+}
+
+.walmart-search-btn i {
+    font-size: 16px;
+}
+
+.btn-text {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Wallet Balance CSS */
+.wallet-balance-display {
+    display: inline-flex;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 10px 14px;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+    font-size: 14px;
+    white-space: nowrap;
+    color: #495057;
+    vertical-align: middle;
+    height: 40px;
+    box-sizing: border-box;
+}
+
+.wallet-balance-display i {
+    margin-right: 8px;
+    color: #28a745;
+    font-size: 16px;
+}
+
+.balance-text {
+    color: #28a745;
+    font-weight: 700;
+    font-size: 15px;
+}
+
+/* Responsive Design */
+@media (max-width: 991px) {
+    .walmart-search-wrapper {
+        height: 45px;
+        border-radius: 45px;
+    }
+    
+    .walmart-search-input {
+        font-size: 15px;
+        padding: 0 15px 0 45px;
+    }
+    
+    .search-input-wrapper::before {
+        left: 15px;
+        font-size: 14px;
+    }
+    
+    .walmart-search-btn {
+        padding: 0 25px;
+        min-width: 100px;
+        border-radius: 0 45px 45px 0;
+    }
+    
+    .btn-text {
+        display: none;
+    }
+    
+    .wallet-balance-display {
+        font-size: 13px;
+        padding: 8px 12px;
+        height: 36px;
+    }
+    
+    .balance-text {
+        font-size: 14px;
+    }
+    
+    .wallet-balance-display i {
+        font-size: 14px;
+        margin-right: 6px;
+    }
+}
+
+@media (max-width: 767px) {
+    .walmart-search-container {
+        padding: 8px 0;
+    }
+    
+    .walmart-search-wrapper {
+        height: 42px;
+        border-radius: 42px;
+        border-width: 1px;
+    }
+    
+    .walmart-search-input {
+        font-size: 14px;
+        padding: 0 12px 0 40px;
+    }
+    
+    .walmart-search-input::placeholder {
+        font-size: 13px;
+    }
+    
+    .search-input-wrapper::before {
+        left: 12px;
+        font-size: 13px;
+    }
+    
+    .walmart-search-btn {
+        padding: 0 20px;
+        min-width: 80px;
+        border-radius: 0 42px 42px 0;
+    }
+    
+    .walmart-search-btn i {
+        font-size: 14px;
+    }
+    
+    .wallet-balance-display {
+        font-size: 12px;
+        padding: 6px 10px;
+        height: 32px;
+    }
+    
+    .balance-text {
+        font-size: 13px;
+    }
+    
+    .wallet-balance-display i {
+        font-size: 13px;
+        margin-right: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .walmart-search-wrapper {
+        height: 40px;
+        border-radius: 40px;
+    }
+    
+    .walmart-search-input {
+        font-size: 13px;
+        padding: 0 10px 0 35px;
+    }
+    
+    .walmart-search-input::placeholder {
+        font-size: 12px;
+    }
+    
+    .search-input-wrapper::before {
+        left: 10px;
+        font-size: 12px;
+    }
+    
+    .walmart-search-btn {
+        padding: 0 15px;
+        min-width: 60px;
+        border-radius: 0 40px 40px 0;
+    }
+    
+    .walmart-search-btn i {
+        font-size: 13px;
+    }
+}
+</style>
+
 <header class="header shop walmart-header">
     <!-- Walmart Topbar -->
     <div class="topbar walmart-topbar">
@@ -59,17 +372,8 @@
                         <form method="POST" action="{{route('product.search')}}" class="walmart-search-form">
                             @csrf
                             <div class="walmart-search-wrapper">
-                                <div class="search-category-dropdown">
-                                    <select name="category" class="category-select" id="categorySelect">
-                                        <option value="">All Departments</option>
-                                        @foreach(Helper::getAllCategory() as $cat)
-                                            <option value="{{$cat->id}}">{{$cat->title}}</option>
-                                        @endforeach
-                                    </select>
-                                    <i class="fas fa-chevron-down dropdown-arrow"></i>
-                                </div>
                                 <div class="search-input-wrapper">
-                                    <input name="search" placeholder="Search everything at Walmart online and in store..." type="search" class="walmart-search-input" autocomplete="off">
+                                    <input name="search" placeholder="Search products..." type="search" class="walmart-search-input" autocomplete="off">
                                 </div>
                                 <button class="walmart-search-btn" type="submit">
                                     <i class="fas fa-search"></i>
