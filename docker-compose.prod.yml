@@ -61,6 +61,23 @@ services:
     networks:
       - app-network
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: laravel_phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: laravel_db_prod
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: 120811Trung@
+      MYSQL_ROOT_PASSWORD: 120811Trung@
+    ports:
+      - "8080:80"
+    networks:
+      - app-network
+    depends_on:
+      - db
+
 networks:
   app-network:
     driver: bridge
