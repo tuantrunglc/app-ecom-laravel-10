@@ -11,8 +11,7 @@ use App\Models\Cart;
 use App\Models\LuckyWheelSetting;
 use App\Models\LuckyWheelSpin;
 use Illuminate\Support\Str;
-
-// use Auth;
+use Illuminate\Support\Facades\Auth;
 class Helper
 {
     public static function messageList()
