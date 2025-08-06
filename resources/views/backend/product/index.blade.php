@@ -74,7 +74,7 @@
                     <td>{{$product->commission ?? 0}}% HOA HỒNG</td>
                     <td>{{$product->size}}</td>
                     <td>{{$product->condition}}</td>
-                    <td> {{ucfirst($product->brand->title)}}</td>
+                    <td> {{ucfirst($product->brand->title) ? ucfirst($product->brand->title) : ''}}</td>
                     <td>
                       @if($product->stock>0)
                       <span class="badge badge-primary">{{$product->stock}}</span>
