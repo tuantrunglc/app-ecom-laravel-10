@@ -44,12 +44,13 @@ if [ -f "/var/www/html/vendor/autoload.php" ]; then
     fi
 
     # Tạo storage link nếu chưa có
-    if [ ! -L "/var/www/html/public/storage" ]; then
+    echo "Checking storage link..."
+    if [ ! -L "/var/www/html/public/storage" ] && [ ! -d "/var/www/html/public/storage" ]; then
         echo "Creating storage link..."
-        # Remove any existing directory/file first
-        rm -rf /var/www/html/public/storage
-        # Create the storage link
-        php artisan storage:link
+        # Create the storage link without removing first
+        php artisan storage:link || echo "Storage link creation failed, continuing..."
+    else
+        echo "Storage link already exists, skipping..."
     fi
 else
     echo "Warning: vendor/autoload.php not found, skipping artisan commands"
