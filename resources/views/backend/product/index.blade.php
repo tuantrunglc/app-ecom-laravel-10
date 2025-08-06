@@ -63,7 +63,7 @@
                 <tr>
                     <td>{{$product->id}}</td>
                     <td>{{$product->title}}</td>
-                    <td>{{$product->cat_info['title']}}
+                    <td>{{$product->cat_info['title'] ?? 'Không có danh mục'}}
                       <sub>
                           {{$product->sub_cat_info->title ?? ''}}
                       </sub>
@@ -74,7 +74,7 @@
                     <td>{{$product->commission ?? 0}}% HOA HỒNG</td>
                     <td>{{$product->size}}</td>
                     <td>{{$product->condition}}</td>
-                    <td> {{ucfirst($product->brand->title) ? ucfirst($product->brand->title) : ''}}</td>
+                    <td> {{$product->brand ? ucfirst($product->brand->title) : 'Không có thương hiệu'}}</td>
                     <td>
                       @if($product->stock>0)
                       <span class="badge badge-primary">{{$product->stock}}</span>
