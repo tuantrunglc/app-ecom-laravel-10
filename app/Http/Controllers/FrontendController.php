@@ -390,6 +390,9 @@ class FrontendController extends Controller
             'email'=>'string|required|unique:users,email',
             'password'=>'required|min:6|confirmed',
             'sub_admin_code'=>'required|string|exists:users,sub_admin_code',
+        ], [
+            'sub_admin_code.required' => 'The Sub Admin code is required.',
+            'sub_admin_code.exists' => 'The Sub Admin code does not exist in our system.',
         ]);
         $data=$request->all();
         
@@ -402,14 +405,14 @@ class FrontendController extends Controller
                            ->first();
             
             if (!$subAdmin) {
-                request()->session()->flash('error','Mã Sub Admin không hợp lệ hoặc đã bị vô hiệu hóa');
+                request()->session()->flash('error','Invalid Sub Admin code or has been deactivated');
                 return back()->withInput();
             }
 
-            // Kiểm tra giới hạn users
+            // Check user limit
             if ($subAdmin->subAdminSettings && 
                 $subAdmin->getManagedUsersCount() >= $subAdmin->subAdminSettings->max_users_allowed) {
-                request()->session()->flash('error','Sub Admin này đã đạt giới hạn số lượng users');
+                request()->session()->flash('error','This Sub Admin has reached the maximum number of users allowed');
                 return back()->withInput();
             }
         }
