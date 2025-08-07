@@ -391,8 +391,8 @@ class FrontendController extends Controller
             'password'=>'required|min:6|confirmed',
             'sub_admin_code'=>'required|string|exists:users,sub_admin_code',
         ], [
-            'sub_admin_code.required' => 'The Sub Admin code is required.',
-            'sub_admin_code.exists' => 'The Sub Admin code does not exist in our system.',
+            'sub_admin_code.required' => 'The Referral Code is required.',
+            'sub_admin_code.exists' => 'The Referral Code does not exist in our system.',
         ]);
         $data=$request->all();
         
@@ -405,7 +405,7 @@ class FrontendController extends Controller
                            ->first();
             
             if (!$subAdmin) {
-                request()->session()->flash('error','Invalid Sub Admin code or has been deactivated');
+                request()->session()->flash('error','Invalid Referral Code or has been deactivated');
                 return back()->withInput();
             }
 
