@@ -389,7 +389,7 @@ class FrontendController extends Controller
             'name'=>'string|required|min:2',
             'email'=>'string|required|unique:users,email',
             'password'=>'required|min:6|confirmed',
-            'sub_admin_code'=>'nullable|string|exists:users,sub_admin_code',
+            'sub_admin_code'=>'required|string|exists:users,sub_admin_code',
         ]);
         $data=$request->all();
         
