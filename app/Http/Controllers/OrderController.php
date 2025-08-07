@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\Shipping;
+use App\Models\WalletTransaction;
 use App\User;
 use PDF;
 use Notification;
@@ -313,12 +314,18 @@ class OrderController extends Controller
         ]);
         $data=$request->all();
         // return $request->status;
+        $oldStatus = $order->status;
         if($request->status=='delivered'){
             foreach($order->cart as $cart){
                 $product=$cart->product;
                 // return $product;
                 $product->stock -=$cart->quantity;
                 $product->save();
+            }
+            
+            // Add commission to wallet if status changed from non-delivered to delivered
+            if($oldStatus != 'delivered') {
+                $this->processCommission($order);
             }
         }
         $status=$order->fill($data)->save();
@@ -425,5 +432,81 @@ class OrderController extends Controller
             $data[$monthName] = (!empty($result[$i]))? number_format((float)($result[$i]), 2, '.', '') : 0.0;
         }
         return $data;
+    }
+
+    /**
+     * Process commission when order is delivered
+     */
+    private function processCommission($order)
+    {
+        $user = $order->user;
+        $totalCommission = 0;
+        $commissionDetails = [];
+
+        // Calculate commission for each product in the order
+        foreach($order->cart as $cart) {
+            $product = $cart->product;
+            if($product && $product->commission > 0) {
+                // Calculate commission amount: (product price * quantity * commission percentage / 100)
+                $commissionAmount = ($cart->price * $cart->quantity * $product->commission) / 100;
+                $totalCommission += $commissionAmount;
+                
+                $commissionDetails[] = [
+                    'product' => $product->title,
+                    'quantity' => $cart->quantity,
+                    'price' => $cart->price,
+                    'commission_rate' => $product->commission,
+                    'commission_amount' => $commissionAmount
+                ];
+            }
+        }
+
+        // Add commission to user's wallet if there's any commission
+        if($totalCommission > 0) {
+            $balanceBefore = $user->wallet_balance ?? 0;
+            $balanceAfter = $balanceBefore + $totalCommission;
+            
+            // Update user's wallet balance
+            $user->wallet_balance = $balanceAfter;
+            $user->save();
+
+            // Create wallet transaction record
+            WalletTransaction::create([
+                'user_id' => $user->id,
+                'type' => 'commission',
+                'amount' => $totalCommission,
+                'balance_before' => $balanceBefore,
+                'balance_after' => $balanceAfter,
+                'description' => 'Product commission from order #' . $order->order_number . '. Details: ' . json_encode($commissionDetails),
+                'status' => 'completed'
+            ]);
+
+            // Update sub admin stats if user has parent sub admin
+            if($user->parent_sub_admin_id) {
+                $this->updateSubAdminCommissionStats($user->parent_sub_admin_id, $totalCommission);
+            }
+        }
+    }
+
+    /**
+     * Update sub admin commission statistics
+     */
+    private function updateSubAdminCommissionStats($subAdminId, $commissionAmount)
+    {
+        $subAdminStats = \App\Models\SubAdminUserStats::firstOrCreate(
+            ['sub_admin_id' => $subAdminId],
+            [
+                'total_users' => 0,
+                'active_users' => 0,
+                'total_orders' => 0,
+                'total_revenue' => 0,
+                'commission_earned' => 0,
+                'last_updated' => now()
+            ]
+        );
+
+        $subAdminStats->commission_earned += $commissionAmount;
+        $subAdminStats->last_updated = now();
+        $subAdminStats->save();
     }
 }

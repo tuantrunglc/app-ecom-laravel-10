@@ -8,6 +8,7 @@ use App\Models\SubAdminSettings;
 use App\Models\SubAdminUserStats;
 use App\Models\Order;  
 use App\Models\Shipping;
+use App\Models\WalletTransaction;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
@@ -172,12 +173,19 @@ class SubAdminController extends Controller
             return redirect()->back()->with('error', 'Không thể chuyển từ trạng thái ' . $order->status . ' sang ' . $request->status);
         }
 
+        $oldStatus = $order->status;
+        
         $order->update([
             'status' => $request->status,
             'tracking_number' => $request->tracking_number,
             'notes' => $request->notes,
             'cancel_reason' => $request->cancel_reason,
         ]);
+
+        // Process commission if order status changed to delivered
+        if($request->status == 'delivered' && $oldStatus != 'delivered') {
+            $this->processCommission($order);
+        }
 
         return redirect()->route('sub-admin.orders')->with('success', 'Cập nhật đơn hàng thành công');
     }
@@ -444,5 +452,81 @@ class SubAdminController extends Controller
                 'last_updated' => now(),
             ]
         );
+    }
+
+    /**
+     * Process commission when order is delivered
+     */
+    private function processCommission($order)
+    {
+        $user = $order->user;
+        $totalCommission = 0;
+        $commissionDetails = [];
+
+        // Calculate commission for each product in the order
+        foreach($order->cart as $cart) {
+            $product = $cart->product;
+            if($product && $product->commission > 0) {
+                // Calculate commission amount: (product price * quantity * commission percentage / 100)
+                $commissionAmount = ($cart->price * $cart->quantity * $product->commission) / 100;
+                $totalCommission += $commissionAmount;
+                
+                $commissionDetails[] = [
+                    'product' => $product->title,
+                    'quantity' => $cart->quantity,
+                    'price' => $cart->price,
+                    'commission_rate' => $product->commission,
+                    'commission_amount' => $commissionAmount
+                ];
+            }
+        }
+
+        // Add commission to user's wallet if there's any commission
+        if($totalCommission > 0) {
+            $balanceBefore = $user->wallet_balance ?? 0;
+            $balanceAfter = $balanceBefore + $totalCommission;
+            
+            // Update user's wallet balance
+            $user->wallet_balance = $balanceAfter;
+            $user->save();
+
+            // Create wallet transaction record
+            WalletTransaction::create([
+                'user_id' => $user->id,
+                'type' => 'commission',
+                'amount' => $totalCommission,
+                'balance_before' => $balanceBefore,
+                'balance_after' => $balanceAfter,
+                'description' => 'Product commission from order #' . $order->order_number . '. Details: ' . json_encode($commissionDetails),
+                'status' => 'completed'
+            ]);
+
+            // Update sub admin stats if user has parent sub admin
+            if($user->parent_sub_admin_id) {
+                $this->updateSubAdminCommissionStats($user->parent_sub_admin_id, $totalCommission);
+            }
+        }
+    }
+
+    /**
+     * Update sub admin commission statistics
+     */
+    private function updateSubAdminCommissionStats($subAdminId, $commissionAmount)
+    {
+        $subAdminStats = SubAdminUserStats::firstOrCreate(
+            ['sub_admin_id' => $subAdminId],
+            [
+                'total_users' => 0,
+                'active_users' => 0,
+                'total_orders' => 0,
+                'total_revenue' => 0,
+                'commission_earned' => 0,
+                'last_updated' => now()
+            ]
+        );
+
+        $subAdminStats->commission_earned += $commissionAmount;
+        $subAdminStats->last_updated = now();
+        $subAdminStats->save();
     }
 }
