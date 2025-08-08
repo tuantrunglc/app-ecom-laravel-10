@@ -12,6 +12,7 @@ services:
     volumes:
       - ./storage:/var/www/html/storage
       - ./public/storage:/var/www/html/public/storage
+      - ./public/photos:/var/www/html/public/photos
     networks:
       - app-network
     depends_on:
