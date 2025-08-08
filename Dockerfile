@@ -77,8 +77,11 @@ RUN mkdir -p /var/www/html/storage/logs \
     && mkdir -p /var/www/html/storage/framework/views \
     && mkdir -p /var/www/html/storage/app/public \
     && mkdir -p /var/www/html/bootstrap/cache \
+    && mkdir -p /var/www/html/public/photos \
     && chmod -R 777 /var/www/html/storage \
     && chmod -R 777 /var/www/html/bootstrap/cache \
+    && chmod -R 755 /var/www/html/public/photos \
+    && chown -R www-data:www-data /var/www/html/public/photos \
     && rm -rf /var/www/html/public/storage
 
 # Expose port 80
