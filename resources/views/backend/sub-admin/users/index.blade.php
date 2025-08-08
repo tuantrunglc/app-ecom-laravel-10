@@ -12,9 +12,6 @@
      </div>
     <div class="card-header py-3">
       <h6 class="m-0 font-weight-bold text-primary float-left">Danh Sách Users Thuộc Quyền</h6>
-      @if($subAdmin->subAdminSettings->can_create_users)
-      <a href="{{route('sub-admin.users.create')}}" class="btn btn-primary btn-sm float-right" data-toggle="tooltip" data-placement="bottom" title="Thêm User"><i class="fas fa-plus"></i> Thêm User</a>
-      @endif
     </div>
     <div class="card-body">
       <div class="table-responsive">

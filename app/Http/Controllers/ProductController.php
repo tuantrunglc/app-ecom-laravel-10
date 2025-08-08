@@ -6,7 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Brand;
-
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
@@ -62,32 +63,50 @@ class ProductController extends Controller
                 'commission' => 'nullable|numeric|min:0|max:100',
             ]);
 
-            // Handle file uploads with improved path structure
+            // Handle file uploads with improved error handling
             if ($request->hasFile('photo_upload')) {
                 $uploadedPaths = [];
-                $userId = auth()->id() ?? 1; // Use authenticated user ID or default to 1
+                $userId = auth()->id() ?? 1;
                 
-                // Create directory if it doesn't exist
-                $uploadPath = public_path("photos/{$userId}/Products");
-                if (!file_exists($uploadPath)) {
-                    mkdir($uploadPath, 0755, true);
-                }
-                
-                foreach ($request->file('photo_upload') as $file) {
-                    // Generate unique filename with random prefix
-                    $randomPrefix = substr(md5(uniqid()), 0, 5);
-                    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                    $extension = $file->getClientOriginalExtension();
-                    $fileName = $randomPrefix . '-' . $originalName . '.' . $extension;
+                try {
+                    foreach ($request->file('photo_upload') as $file) {
+                        // Validate file
+                        if (!$file->isValid()) {
+                            Log::error('Invalid file upload', ['file' => $file->getClientOriginalName()]);
+                            continue;
+                        }
+                        
+                        // Generate unique filename with random prefix
+                        $randomPrefix = substr(md5(uniqid()), 0, 5);
+                        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                        $extension = $file->getClientOriginalExtension();
+                        $fileName = $randomPrefix . '-' . $originalName . '.' . $extension;
+                        
+                        // Use Laravel Storage for better file handling
+                        $relativePath = "photos/{$userId}/Products/{$fileName}";
+                        
+                        // Store file using Laravel Storage (public_photos disk)
+                        $storedPath = $file->storeAs("{$userId}/Products", $fileName, 'public_photos');
+                        
+                        if ($storedPath) {
+                            // Use photos URL for consistent path generation
+                            $uploadedPaths[] = "/photos/" . $storedPath;
+                            Log::info('File uploaded successfully', ['path' => $storedPath]);
+                        } else {
+                            Log::error('Failed to store file', ['filename' => $fileName]);
+                        }
+                    }
                     
-                    // Move file to the structured directory
-                    $file->move($uploadPath, $fileName);
-                    $uploadedPaths[] = "/photos/{$userId}/Products/{$fileName}";
-                }
-                
-                // If files were uploaded, use them instead of manual input
-                if (!empty($uploadedPaths)) {
-                    $validatedData['photo'] = implode(',', $uploadedPaths);
+                    // If files were uploaded, use them instead of manual input
+                    if (!empty($uploadedPaths)) {
+                        $validatedData['photo'] = implode(',', $uploadedPaths);
+                    }
+                    
+                } catch (\Exception $e) {
+                    Log::error('File upload error: ' . $e->getMessage());
+                    return redirect()->back()
+                        ->withErrors(['photo_upload' => 'Lỗi khi upload ảnh: ' . $e->getMessage()])
+                        ->withInput();
                 }
             }
 
@@ -184,32 +203,47 @@ class ProductController extends Controller
                 'commission' => 'nullable|numeric|min:0|max:100',
             ]);
 
-            // Handle new file uploads
+            // Handle new file uploads with improved error handling
             if ($request->hasFile('photo_upload')) {
                 $uploadedPaths = [];
                 $userId = auth()->id() ?? 1;
                 
-                // Create directory if it doesn't exist
-                $uploadPath = public_path("photos/{$userId}/Products");
-                if (!file_exists($uploadPath)) {
-                    mkdir($uploadPath, 0755, true);
-                }
-                
-                foreach ($request->file('photo_upload') as $file) {
-                    // Generate unique filename with random prefix
-                    $randomPrefix = substr(md5(uniqid()), 0, 5);
-                    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                    $extension = $file->getClientOriginalExtension();
-                    $fileName = $randomPrefix . '-' . $originalName . '.' . $extension;
+                try {
+                    foreach ($request->file('photo_upload') as $file) {
+                        // Validate file
+                        if (!$file->isValid()) {
+                            Log::error('Invalid file upload', ['file' => $file->getClientOriginalName()]);
+                            continue;
+                        }
+                        
+                        // Generate unique filename with random prefix
+                        $randomPrefix = substr(md5(uniqid()), 0, 5);
+                        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                        $extension = $file->getClientOriginalExtension();
+                        $fileName = $randomPrefix . '-' . $originalName . '.' . $extension;
+                        
+                        // Store file using Laravel Storage (public_photos disk)
+                        $storedPath = $file->storeAs("{$userId}/Products", $fileName, 'public_photos');
+                        
+                        if ($storedPath) {
+                            // Use photos URL for consistent path generation
+                            $uploadedPaths[] = "/photos/" . $storedPath;
+                            Log::info('File uploaded successfully', ['path' => $storedPath]);
+                        } else {
+                            Log::error('Failed to store file', ['filename' => $fileName]);
+                        }
+                    }
                     
-                    // Move file to the structured directory
-                    $file->move($uploadPath, $fileName);
-                    $uploadedPaths[] = "/photos/{$userId}/Products/{$fileName}";
-                }
-                
-                // If new files were uploaded, replace existing photos
-                if (!empty($uploadedPaths)) {
-                    $validatedData['photo'] = implode(',', $uploadedPaths);
+                    // If new files were uploaded, replace existing photos
+                    if (!empty($uploadedPaths)) {
+                        $validatedData['photo'] = implode(',', $uploadedPaths);
+                    }
+                    
+                } catch (\Exception $e) {
+                    Log::error('File upload error: ' . $e->getMessage());
+                    return redirect()->back()
+                        ->withErrors(['photo_upload' => 'Lỗi khi upload ảnh: ' . $e->getMessage()])
+                        ->withInput();
                 }
             }
 
