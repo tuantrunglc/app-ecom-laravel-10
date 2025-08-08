@@ -91,9 +91,24 @@ class ProductController extends Controller
                         if ($storedPath) {
                             // Use photos URL for consistent path generation
                             $uploadedPaths[] = "/photos/" . $storedPath;
-                            Log::info('File uploaded successfully', ['path' => $storedPath]);
+                            
+                            // Debug: Check if file actually exists
+                            $fullPath = public_path('photos/' . $storedPath);
+                            $fileExists = file_exists($fullPath);
+                            
+                            Log::info('File upload attempt', [
+                                'stored_path' => $storedPath,
+                                'full_path' => $fullPath,
+                                'file_exists' => $fileExists,
+                                'file_size' => $fileExists ? filesize($fullPath) : 'N/A',
+                                'permissions' => $fileExists ? substr(sprintf('%o', fileperms($fullPath)), -4) : 'N/A'
+                            ]);
                         } else {
-                            Log::error('Failed to store file', ['filename' => $fileName]);
+                            Log::error('Failed to store file', [
+                                'filename' => $fileName,
+                                'user_id' => $userId,
+                                'disk_root' => config('filesystems.disks.public_photos.root')
+                            ]);
                         }
                     }
                     
@@ -228,9 +243,24 @@ class ProductController extends Controller
                         if ($storedPath) {
                             // Use photos URL for consistent path generation
                             $uploadedPaths[] = "/photos/" . $storedPath;
-                            Log::info('File uploaded successfully', ['path' => $storedPath]);
+                            
+                            // Debug: Check if file actually exists
+                            $fullPath = public_path('photos/' . $storedPath);
+                            $fileExists = file_exists($fullPath);
+                            
+                            Log::info('File upload attempt', [
+                                'stored_path' => $storedPath,
+                                'full_path' => $fullPath,
+                                'file_exists' => $fileExists,
+                                'file_size' => $fileExists ? filesize($fullPath) : 'N/A',
+                                'permissions' => $fileExists ? substr(sprintf('%o', fileperms($fullPath)), -4) : 'N/A'
+                            ]);
                         } else {
-                            Log::error('Failed to store file', ['filename' => $fileName]);
+                            Log::error('Failed to store file', [
+                                'filename' => $fileName,
+                                'user_id' => $userId,
+                                'disk_root' => config('filesystems.disks.public_photos.root')
+                            ]);
                         }
                     }
                     
