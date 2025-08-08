@@ -78,6 +78,8 @@ RUN mkdir -p /var/www/html/storage/logs \
     && mkdir -p /var/www/html/storage/app/public \
     && mkdir -p /var/www/html/bootstrap/cache \
     && mkdir -p /var/www/html/public/photos \
+    && mkdir -p /var/www/html/public/photos/1/Products \
+    && mkdir -p /var/www/html/public/photos/2/Products \
     && chmod -R 777 /var/www/html/storage \
     && chmod -R 777 /var/www/html/bootstrap/cache \
     && chmod -R 755 /var/www/html/public/photos \

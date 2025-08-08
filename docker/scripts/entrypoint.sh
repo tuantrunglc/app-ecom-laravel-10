@@ -9,10 +9,19 @@ mkdir -p /var/www/html/storage/framework/cache
 mkdir -p /var/www/html/storage/framework/sessions
 mkdir -p /var/www/html/storage/framework/views
 mkdir -p /var/www/html/bootstrap/cache
+mkdir -p /var/www/html/public/photos
 
 # Thiết lập quyền chỉ cho các thư mục cần thiết
 chmod -R 777 /var/www/html/storage
 chmod -R 777 /var/www/html/bootstrap/cache
+
+# Thiết lập quyền cho thư mục photos
+if [ -d "/var/www/html/public/photos" ]; then
+    echo "Setting up photos directory permissions..."
+    chown -R www-data:www-data /var/www/html/public/photos
+    chmod -R 755 /var/www/html/public/photos
+    echo "Photos directory permissions set successfully"
+fi
 
 # Kiểm tra file .env
 if [ ! -f /var/www/html/.env ]; then
