@@ -89,6 +89,22 @@
         outline: none !important;
         box-shadow: 0 0 5px rgba(247, 148, 29, 0.3) !important;
     }
+    
+    /* Hide any nice-select wrapper for country dropdown */
+    #country + .nice-select {
+        display: none !important;
+    }
+    
+    /* Target country form group specifically */
+    .form-group .nice-select[data-original="#country"] {
+        display: none !important;
+    }
+    
+    /* Ensure original country select is visible when using Select2 */
+    #country.select2 {
+        display: block !important;
+        visibility: visible !important;
+    }
 </style>
 @endpush
 
@@ -729,11 +745,26 @@
 	<script src="{{ asset('frontend/js/select2/js/select2.min.js') }}"></script>
 	<script>
 		$(document).ready(function() { 
+			// First destroy any existing nice-select on country dropdown
+			$('#country').removeClass('nice-select');
+			if ($('#country').next('.nice-select').length > 0) {
+				$('#country').next('.nice-select').remove();
+				$('#country').show();
+			}
+			
 			// Initialize Select2 for country dropdown
 			$("select.select2").select2(); 
 			
-			// Initialize nice-select only for selects with nice-select class
-			$('select.nice-select').niceSelect();
+			// Initialize nice-select only for selects with nice-select class (excluding select2)
+			$('select.nice-select').not('.select2').niceSelect();
+		});
+		
+		// Prevent any other scripts from applying nice-select to country
+		$(document).on('DOMNodeInserted', function() {
+			if ($('#country').next('.nice-select').length > 0) {
+				$('#country').next('.nice-select').remove();
+				$('#country').show();
+			}
 		});
 	</script>
 	<script>
