@@ -127,7 +127,7 @@
                                     <div class="col-lg-6 col-md-6 col-12">
                                         <div class="form-group">
                                             <label>Country<span>*</span></label>
-                                            <select name="country" id="country" class="country-search">
+                                            <select name="country" id="country" class="select2">
                                                 <option value="AF">Afghanistan</option>
                                                 <option value="AX">Åland Islands</option>
                                                 <option value="AL">Albania</option>
