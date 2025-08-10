@@ -595,18 +595,41 @@
 		#wallet-error {
 			background: #f8d7da;
 			border: 1px solid #f5c6cb;
-			border-radius: 5px;
-			padding: 10px;
-			margin-top: 10px;
+			border-radius: 8px;
+			padding: 15px;
+			margin-top: 15px;
+			color: #721c24;
+			font-size: 14px;
+			line-height: 1.5;
 		}
 		#wallet-error i {
 			color: #721c24;
-			margin-right: 5px;
+			margin-right: 8px;
+			font-size: 16px;
+		}
+		#wallet-error strong {
+			display: block;
+			margin-bottom: 8px;
+			font-size: 15px;
+		}
+		#wallet-error small {
+			display: block;
+			margin-top: 5px;
+			margin-bottom: 10px;
+		}
+		#wallet-error .btn {
+			font-size: 12px;
+			padding: 6px 12px;
 		}
 		.btn-secondary {
 			background-color: #6c757d !important;
 			border-color: #6c757d !important;
 			cursor: not-allowed !important;
+			opacity: 0.7;
+		}
+		.btn-secondary:hover {
+			background-color: #6c757d !important;
+			border-color: #6c757d !important;
 		}
 	</style>
 @endpush
@@ -631,21 +654,9 @@
 			document.getElementById(box).style.display=vis;
 		}
 	</script>
-	<script>
-		$(document).ready(function(){
-			$('.shipping select[name=shipping]').change(function(){
-				let cost = parseFloat( $(this).find('option:selected').data('price') ) || 0;
-				let subtotal = parseFloat( $('.order_subtotal').data('price') ); 
-				let coupon = parseFloat( $('.coupon_price').data('price') ) || 0; 
-				// alert(coupon);
-				$('#order_total_price span').text('$'+(subtotal + cost-coupon).toFixed(2));
-			});
-
-		});
-
-	</script>
+	<!-- This script is replaced by the combined script below -->
 	
-	<!-- Wallet Balance Validation Script -->
+	<!-- Combined Shipping and Wallet Balance Script -->
 	<script>
 		$(document).ready(function(){
 			// Wallet balance from server
@@ -653,21 +664,54 @@
 			
 			// Function to check wallet balance
 			function checkWalletBalance() {
-				let cost = parseFloat( $('.shipping select[name=shipping] option:selected').data('price') ) || 0;
-				let subtotal = parseFloat( $('.order_subtotal').data('price') ); 
-				let coupon = parseFloat( $('.coupon_price').data('price') ) || 0; 
-				let totalAmount = subtotal + cost - coupon;
+				try {
+					// Get shipping cost
+					let cost = parseFloat( $('.shipping select[name=shipping] option:selected').data('price') ) || 0;
+					
+					// Get subtotal - try to find the element with data-price
+					let subtotalElement = $('.order_subtotal[data-price]');
+					let subtotal = 0;
+					if (subtotalElement.length > 0) {
+						subtotal = parseFloat(subtotalElement.data('price')) || 0;
+					} else {
+						// Fallback: try to parse from the span text
+						let subtotalText = $('.order_subtotal span').text().replace(/[$,]/g, '');
+						subtotal = parseFloat(subtotalText) || 0;
+					}
+					
+					// Additional fallback: try to get from total price if subtotal is 0
+					if (subtotal === 0) {
+						let totalText = $('#order_total_price span').text().replace(/[$,]/g, '');
+						subtotal = parseFloat(totalText) || 0;
+					}
+					
+					// Get coupon discount
+					let coupon = parseFloat( $('.coupon_price').data('price') ) || 0; 
+					let totalAmount = subtotal + cost - coupon;
+				
+				// Debug logging
+				console.log('Wallet Balance Check:', {
+					walletBalance: walletBalance,
+					subtotal: subtotal,
+					cost: cost,
+					coupon: coupon,
+					totalAmount: totalAmount,
+					subtotalElement: subtotalElement.length
+				});
 				
 				const errorDiv = $('#wallet-error');
 				const submitBtn = $('button[type="submit"]');
 				
-				if (walletBalance < totalAmount) {
+				if (totalAmount > 0 && walletBalance < totalAmount) {
 					errorDiv.html(`
 						<i class="fa fa-exclamation-triangle"></i> 
 						<strong>Insufficient wallet balance!</strong><br>
 						Your balance: $${walletBalance.toFixed(2)}<br>
 						Required: $${totalAmount.toFixed(2)}<br>
-						<small>Please add $${(totalAmount - walletBalance).toFixed(2)} to your wallet.</small>
+						<small>You need to add $${(totalAmount - walletBalance).toFixed(2)} to your wallet.</small><br>
+						<a href="{{ route('wallet.index') }}" class="btn btn-sm btn-primary mt-2" target="_blank">
+							<i class="fa fa-wallet"></i> Add Funds to Wallet
+						</a>
 					`).show();
 					submitBtn.prop('disabled', true).addClass('btn-secondary').removeClass('btn');
 					return false;
@@ -676,21 +720,63 @@
 					submitBtn.prop('disabled', false).removeClass('btn-secondary').addClass('btn');
 					return true;
 				}
+			} catch (error) {
+				console.error('Error in checkWalletBalance:', error);
+				// If there's an error, allow the form to proceed (server will validate)
+				$('#wallet-error').hide();
+				$('button[type="submit"]').prop('disabled', false).removeClass('btn-secondary').addClass('btn');
+				return true;
 			}
+		}
 			
-			// Check on shipping change (override existing handler)
-			$('.shipping select[name=shipping]').off('change').on('change', function(){
+			// Combined shipping change handler
+			$('.shipping select[name=shipping]').on('change', function(){
 				let cost = parseFloat( $(this).find('option:selected').data('price') ) || 0;
-				let subtotal = parseFloat( $('.order_subtotal').data('price') ); 
+				
+				// Get subtotal using same logic as checkWalletBalance
+				let subtotalElement = $('.order_subtotal[data-price]');
+				let subtotal = 0;
+				if (subtotalElement.length > 0) {
+					subtotal = parseFloat(subtotalElement.data('price')) || 0;
+				} else {
+					let subtotalText = $('.order_subtotal span').text().replace(/[$,]/g, '');
+					subtotal = parseFloat(subtotalText) || 0;
+				}
+				
 				let coupon = parseFloat( $('.coupon_price').data('price') ) || 0; 
+				
+				// Update total price display
 				$('#order_total_price span').text('$'+(subtotal + cost-coupon).toFixed(2));
 				
 				// Check wallet balance after price update
 				setTimeout(checkWalletBalance, 100);
 			});
 			
-			// Check on page load
+			// Check on page load and when DOM is ready
+			checkWalletBalance(); // Immediate check
 			setTimeout(checkWalletBalance, 500);
+			setTimeout(checkWalletBalance, 1500);
+			setTimeout(checkWalletBalance, 3000); // Final check after everything loads
+			
+			// Check when nice-select is initialized
+			$(document).on('niceselect:updated', function() {
+				setTimeout(checkWalletBalance, 100);
+			});
+			
+			// Also check when coupon is applied/removed
+			$(document).on('DOMSubtreeModified', '#order_total_price', function() {
+				setTimeout(checkWalletBalance, 100);
+			});
+			
+			// Check when any input changes
+			$('input, select').on('change', function() {
+				setTimeout(checkWalletBalance, 100);
+			});
+			
+			// Force check when window loads
+			$(window).on('load', function() {
+				setTimeout(checkWalletBalance, 500);
+			});
 			
 			// Prevent form submission if insufficient balance
 			$('form').on('submit', function(e) {

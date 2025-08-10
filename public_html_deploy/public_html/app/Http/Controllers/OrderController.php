@@ -128,15 +128,13 @@ class OrderController extends Controller
         }
         $order->fill($order_data);
         $status=$order->save();
-        if($order)
-        // dd($order->id);
-        $users=User::where('role','admin')->first();
-        $details=[
-            'title'=>'New order created',
-            'actionURL'=>route('order.show',$order->id),
-            'fas'=>'fa-file-alt'
-        ];
-        Notification::send($users, new StatusNotification($details));
+        if($order) {
+            // Trigger real-time notification event
+            $orderUser = User::find($order->user_id);
+            if ($orderUser) {
+                event(new \App\Events\OrderCreated($order, $orderUser));
+            }
+        }
         if(request('payment_method')=='paypal'){
             return redirect()->route('payment')->with(['id'=>$order->id]);
         }

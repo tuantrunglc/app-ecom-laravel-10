@@ -9,6 +9,8 @@ use App\Models\SubAdminUserStats;
 use App\Models\Order;  
 use App\Models\Shipping;
 use App\Models\WalletTransaction;
+use App\Models\Product;
+use App\Models\Cart;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
@@ -242,6 +244,53 @@ class SubAdminController extends Controller
         ]);
     }
 
+    // Tìm kiếm sản phẩm
+    public function searchProduct(Request $request)
+    {
+        $search = $request->search;
+        
+        if (empty($search)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vui lòng nhập từ khóa tìm kiếm'
+            ]);
+        }
+        
+        // Tìm kiếm sản phẩm theo tên, có trạng thái active và còn hàng
+        $products = Product::where('status', 'active')
+                          ->where('stock', '>', 0)
+                          ->where(function($query) use ($search) {
+                              $query->where('title', 'like', '%' . $search . '%')
+                                    ->orWhere('slug', 'like', '%' . $search . '%');
+                          })
+                          ->select('id', 'title', 'price', 'discount', 'stock', 'photo')
+                          ->limit(10)
+                          ->get();
+        
+        if ($products->count() > 0) {
+            $productsData = $products->map(function($product) {
+                return [
+                    'id' => $product->id,
+                    'title' => $product->title,
+                    'price' => $product->price,
+                    'discount' => $product->discount ?? 0,
+                    'stock' => $product->stock,
+                    'photo' => $product->getFirstPhoto() ? asset($product->getFirstPhoto()) : null
+                ];
+            });
+            
+            return response()->json([
+                'success' => true,
+                'products' => $productsData
+            ]);
+        }
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Không tìm thấy sản phẩm nào'
+        ]);
+    }
+
     // Lưu đơn hàng mới
     public function storeOrder(Request $request)
     {
@@ -253,56 +302,42 @@ class SubAdminController extends Controller
 
         $this->validate($request,[
             'user_id'=>'required|exists:users,id',
-            'first_name'=>'required|string|max:255',
-            'last_name'=>'required|string|max:255',
-            'address1'=>'required|string|max:500',
+            'first_name'=>'nullable|string|max:255',
+            'last_name'=>'nullable|string|max:255',
+            'address1'=>'nullable|string|max:500',
             'address2'=>'nullable|string|max:500',
-            'country'=>'required|string|max:255',
-            'phone'=>'required|string|max:20',
+            'country'=>'nullable|string|max:255',
+            'phone'=>'nullable|string|max:20',
             'post_code'=>'nullable|string|max:20',
-            'email'=>'required|email|max:255',
+            'email'=>'nullable|email|max:255',
             'shipping'=>'required|exists:shippings,id',
             'payment_method'=>'required|in:wallet',
             'status'=>'required|in:new,process,delivered,cancel',
+            'quantity'=>'required|integer|min:1',
             'sub_total'=>'required|numeric|min:0|max:999999.99',
-            'quantity'=>'required|integer|min:1|max:1000',
-            'total_amount'=>'required|numeric|min:0|max:999999.99'
+            'total_amount'=>'required|numeric|min:0|max:999999.99',
+            'products_data'=>'required|string'
         ], [
             'user_id.required' => 'Vui lòng chọn user',
             'user_id.exists' => 'User không tồn tại',
-            'first_name.required' => 'Vui lòng nhập họ',
-            'first_name.max' => 'Họ không được vượt quá 255 ký tự',
-            'last_name.required' => 'Vui lòng nhập tên',
-            'last_name.max' => 'Tên không được vượt quá 255 ký tự',
-            'address1.required' => 'Vui lòng nhập địa chỉ chính',
-            'address1.max' => 'Địa chỉ không được vượt quá 500 ký tự',
-            'address2.max' => 'Địa chỉ phụ không được vượt quá 500 ký tự',
-            'country.required' => 'Vui lòng nhập quốc gia',
-            'country.max' => 'Quốc gia không được vượt quá 255 ký tự',
-            'phone.required' => 'Vui lòng nhập số điện thoại',
-            'phone.max' => 'Số điện thoại không được vượt quá 20 ký tự',
-            'post_code.max' => 'Mã bưu chính không được vượt quá 20 ký tự',
-            'email.required' => 'Vui lòng nhập email',
-            'email.email' => 'Email không đúng định dạng',
-            'email.max' => 'Email không được vượt quá 255 ký tự',
             'shipping.required' => 'Vui lòng chọn phương thức vận chuyển',
             'shipping.exists' => 'Phương thức vận chuyển không tồn tại',
             'payment_method.required' => 'Vui lòng chọn phương thức thanh toán',
             'payment_method.in' => 'Phương thức thanh toán không hợp lệ',
             'status.required' => 'Vui lòng chọn trạng thái đơn hàng',
             'status.in' => 'Trạng thái đơn hàng không hợp lệ',
+            'quantity.required' => 'Tổng số lượng là bắt buộc',
+            'quantity.integer' => 'Tổng số lượng phải là số nguyên',
+            'quantity.min' => 'Tổng số lượng phải ít nhất là 1',
             'sub_total.required' => 'Vui lòng nhập tổng phụ',
             'sub_total.numeric' => 'Tổng phụ phải là số',
             'sub_total.min' => 'Tổng phụ không được nhỏ hơn 0',
             'sub_total.max' => 'Tổng phụ không được vượt quá 999,999.99',
-            'quantity.required' => 'Vui lòng nhập số lượng',
-            'quantity.integer' => 'Số lượng phải là số nguyên',
-            'quantity.min' => 'Số lượng phải ít nhất là 1',
-            'quantity.max' => 'Số lượng không được vượt quá 1000',
             'total_amount.required' => 'Vui lòng nhập tổng cộng',
             'total_amount.numeric' => 'Tổng cộng phải là số',
             'total_amount.min' => 'Tổng cộng không được nhỏ hơn 0',
-            'total_amount.max' => 'Tổng cộng không được vượt quá 999,999.99'
+            'total_amount.max' => 'Tổng cộng không được vượt quá 999,999.99',
+            'products_data.required' => 'Vui lòng chọn ít nhất một sản phẩm'
         ]);
 
         // Kiểm tra user có thuộc quyền quản lý không
@@ -316,33 +351,113 @@ class SubAdminController extends Controller
             return redirect()->back()->withInput()->with('error', 'Không thể tạo đơn hàng cho user không hoạt động');
         }
 
+        // Parse products data
+        $productsData = json_decode($request->products_data, true);
+        if (!$productsData || !is_array($productsData) || empty($productsData)) {
+            return redirect()->back()->withInput()->with('error', 'Dữ liệu sản phẩm không hợp lệ');
+        }
+
+        // Validate products and calculate totals
+        $calculatedSubTotal = 0;
+        $totalQuantity = 0;
+        $validatedProducts = [];
+
+        foreach ($productsData as $productData) {
+            $product = Product::where('id', $productData['id'])
+                             ->where('status', 'active')
+                             ->first();
+            
+            if (!$product) {
+                return redirect()->back()->withInput()->with('error', 'Sản phẩm ID ' . $productData['id'] . ' không tồn tại hoặc không hoạt động');
+            }
+
+            if ($product->stock < $productData['quantity']) {
+                return redirect()->back()->withInput()->with('error', 'Sản phẩm "' . $product->title . '" không đủ hàng trong kho');
+            }
+
+            // Calculate final price with discount
+            $finalPrice = $product->price;
+            if ($product->discount > 0) {
+                $finalPrice = $product->price - ($product->price * $product->discount / 100);
+            }
+
+            $validatedProducts[] = [
+                'product' => $product,
+                'quantity' => $productData['quantity'],
+                'price' => $finalPrice,
+                'amount' => $finalPrice * $productData['quantity']
+            ];
+
+            $calculatedSubTotal += $finalPrice * $productData['quantity'];
+            $totalQuantity += $productData['quantity'];
+        }
+
+        // Verify calculated totals
+        if (abs($calculatedSubTotal - $request->sub_total) > 0.01) {
+            return redirect()->back()->withInput()->with('error', 'Tổng phụ không chính xác. Tính toán: ' . number_format($calculatedSubTotal, 2) . ' VND');
+        }
+
         // Kiểm tra logic của total_amount
         $shipping = Shipping::find($request->shipping);
-        $expectedTotal = $request->sub_total + ($shipping ? $shipping->price : 0);
+        $expectedTotal = $calculatedSubTotal + ($shipping ? $shipping->price : 0);
         
         if (abs($request->total_amount - $expectedTotal) > 0.01) {
             return redirect()->back()->withInput()->with('error', 'Tổng tiền không chính xác. Vui lòng kiểm tra lại.');
         }
 
-        // Chuẩn bị data để tạo order
-        $data = $request->only([
-            'user_id', 'first_name', 'last_name', 'email', 'phone', 'country',
-            'address1', 'address2', 'post_code', 'payment_method', 'status',
-            'sub_total', 'quantity', 'total_amount'
-        ]);
+        // Start transaction
+        DB::beginTransaction();
         
-        // Mapping shipping field
-        $data['shipping_id'] = $request->shipping;
-        $data['order_number'] = 'ORD-'.strtoupper(uniqid());
-        $data['payment_status'] = 'unpaid'; // Mặc định là chưa thanh toán
-        
-        $status = Order::create($data);
-        
-        if($status){
-            request()->session()->flash('success','Đơn hàng đã được tạo thành công');
-        }
-        else{
-            request()->session()->flash('error','Có lỗi xảy ra khi tạo đơn hàng, vui lòng thử lại!');
+        try {
+            // Chuẩn bị data để tạo order
+            $data = $request->only([
+                'user_id', 'first_name', 'last_name', 'email', 'phone', 'country',
+                'address1', 'address2', 'post_code', 'payment_method', 'status',
+                'sub_total', 'total_amount'
+            ]);
+            
+            // Add calculated quantity
+            $data['quantity'] = $totalQuantity;
+            
+            // Mapping shipping field
+            $data['shipping_id'] = $request->shipping;
+            $data['order_number'] = 'ORD-'.strtoupper(uniqid());
+            $data['payment_status'] = 'unpaid'; // Mặc định là chưa thanh toán
+            
+            $order = Order::create($data);
+            
+            if (!$order) {
+                throw new \Exception('Không thể tạo đơn hàng');
+            }
+
+            // Trigger real-time notification event
+            $orderUser = User::find($request->user_id);
+            if ($orderUser) {
+                event(new \App\Events\OrderCreated($order, $orderUser));
+            }
+
+            // Create cart items for each product
+            foreach ($validatedProducts as $productInfo) {
+                Cart::create([
+                    'user_id' => $request->user_id,
+                    'product_id' => $productInfo['product']->id,
+                    'order_id' => $order->id,
+                    'quantity' => $productInfo['quantity'],
+                    'price' => $productInfo['price'],
+                    'amount' => $productInfo['amount'],
+                    'status' => 'new'
+                ]);
+
+                // Update product stock
+                $productInfo['product']->decrement('stock', $productInfo['quantity']);
+            }
+
+            DB::commit();
+            request()->session()->flash('success','Đơn hàng đã được tạo thành công với ' . count($validatedProducts) . ' sản phẩm');
+            
+        } catch (\Exception $e) {
+            DB::rollback();
+            request()->session()->flash('error','Có lỗi xảy ra khi tạo đơn hàng: ' . $e->getMessage());
         }
         
         return redirect()->route('sub-admin.orders');
@@ -528,5 +643,133 @@ class SubAdminController extends Controller
         $subAdminStats->commission_earned += $commissionAmount;
         $subAdminStats->last_updated = now();
         $subAdminStats->save();
+    }
+
+    /**
+     * Change user password (SubAdmin version)
+     */
+    public function changePassword(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Check permission - SubAdmin can only manage their own users
+        if (!auth()->user()->canManageUser($id)) {
+            return response()->json(['error' => 'Bạn không có quyền thay đổi mật khẩu user này'], 403);
+        }
+
+        $this->validate($request, [
+            'new_password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $user->password = Hash::make($request->new_password);
+        $status = $user->save();
+
+        if ($status) {
+            return response()->json(['success' => 'Đã thay đổi mật khẩu thành công']);
+        } else {
+            return response()->json(['error' => 'Có lỗi xảy ra khi thay đổi mật khẩu'], 500);
+        }
+    }
+
+    /**
+     * Toggle user account status (SubAdmin version)
+     */
+    public function toggleStatus(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Check permission - SubAdmin can only manage their own users
+        if (!auth()->user()->canManageUser($id)) {
+            return response()->json(['error' => 'Bạn không có quyền thay đổi trạng thái user này'], 403);
+        }
+
+        // Toggle status
+        $newStatus = $user->status === 'active' ? 'inactive' : 'active';
+        $user->status = $newStatus;
+        $status = $user->save();
+
+        if ($status) {
+            $message = $newStatus === 'active' ? 'Đã mở khóa tài khoản' : 'Đã khóa tài khoản';
+            return response()->json([
+                'success' => $message,
+                'new_status' => $newStatus,
+                'status_badge' => $newStatus === 'active' 
+                    ? '<span class="badge badge-success">active</span>' 
+                    : '<span class="badge badge-warning">inactive</span>'
+            ]);
+        } else {
+            return response()->json(['error' => 'Có lỗi xảy ra khi thay đổi trạng thái'], 500);
+        }
+    }
+
+    /**
+     * Show user details for editing (SubAdmin version)
+     */
+    public function showDetails($id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Check permission - SubAdmin can only manage their own users
+        if (!auth()->user()->canManageUser($id)) {
+            return response()->json(['error' => 'Bạn không có quyền xem thông tin user này'], 403);
+        }
+
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'status' => $user->status,
+                'photo' => $user->photo,
+                'wallet_balance' => $user->wallet_balance,
+                'birth_date' => $user->birth_date,
+                'age' => $user->age,
+                'gender' => $user->gender,
+                'address' => $user->address,
+                'bank_name' => $user->bank_name,
+                'bank_account_number' => $user->bank_account_number,
+                'bank_account_name' => $user->bank_account_name,
+                'created_at' => $user->created_at->format('d/m/Y H:i'),
+            ]
+        ]);
+    }
+
+    /**
+     * Update user information via AJAX (SubAdmin version)
+     */
+    public function updateInfo(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Check permission - SubAdmin can only manage their own users
+        if (!auth()->user()->canManageUser($id)) {
+            return response()->json(['error' => 'Bạn không có quyền chỉnh sửa user này'], 403);
+        }
+
+        $this->validate($request, [
+            'name' => 'string|required|max:30',
+            'email' => 'string|required|email|unique:users,email,' . $id,
+            'birth_date' => 'nullable|date',
+            'age' => 'nullable|integer|min:1|max:120',
+            'gender' => 'nullable|in:male,female,other',
+            'address' => 'nullable|string|max:255',
+            'bank_name' => 'nullable|string|max:100',
+            'bank_account_number' => 'nullable|string|max:50',
+            'bank_account_name' => 'nullable|string|max:100',
+        ]);
+
+        $data = $request->only([
+            'name', 'email', 'birth_date', 'age', 'gender', 
+            'address', 'bank_name', 'bank_account_number', 'bank_account_name'
+        ]);
+
+        $status = $user->fill($data)->save();
+
+        if ($status) {
+            return response()->json(['success' => 'Đã cập nhật thông tin thành công']);
+        } else {
+            return response()->json(['error' => 'Có lỗi xảy ra khi cập nhật thông tin'], 500);
+        }
     }
 }

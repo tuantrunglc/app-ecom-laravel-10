@@ -43,9 +43,9 @@
         </a>
       </li>
 
-      <!-- Nav Item - Alerts -->
+      <!-- Nav Item - Real-time Notifications -->
       <li class="nav-item dropdown no-arrow mx-1">
-       @include('backend.notification.show')
+        @include('backend.layouts.notification-bell')
       </li>
 
       <!-- Nav Item - Messages -->

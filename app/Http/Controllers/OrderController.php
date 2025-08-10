@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\Order;
+use App\Models\Product;
 use App\Models\Shipping;
 use App\Models\WalletTransaction;
 use App\User;
@@ -23,7 +24,7 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $orders=Order::orderBy('id','DESC')->paginate(10);
+        $orders=Order::with('shipping')->orderBy('id','DESC')->paginate(10);
         return view('backend.order.index')->with('orders',$orders);
     }
 
@@ -72,6 +73,58 @@ class OrderController extends Controller
     }
 
     /**
+     * Search for products by title
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function searchProduct(Request $request)
+    {
+        $search = $request->search;
+        
+        if (empty($search)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please enter search term'
+            ]);
+        }
+        
+        // Search products by title, active status and in stock
+        $products = Product::where('status', 'active')
+                          ->where('stock', '>', 0)
+                          ->where(function($query) use ($search) {
+                              $query->where('title', 'like', '%' . $search . '%')
+                                    ->orWhere('slug', 'like', '%' . $search . '%');
+                          })
+                          ->select('id', 'title', 'price', 'discount', 'stock', 'photo')
+                          ->limit(10)
+                          ->get();
+        
+        if ($products->count() > 0) {
+            $productsData = $products->map(function($product) {
+                return [
+                    'id' => $product->id,
+                    'title' => $product->title,
+                    'price' => $product->price,
+                    'discount' => $product->discount ?? 0,
+                    'stock' => $product->stock,
+                    'photo' => $product->getFirstPhoto() ? asset($product->getFirstPhoto()) : null
+                ];
+            });
+            
+            return response()->json([
+                'success' => true,
+                'products' => $productsData
+            ]);
+        }
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'No products found'
+        ]);
+    }
+
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -79,22 +132,12 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request,[
-            'user_id'=>'required|exists:users,id',
-            'first_name'=>'string|required',
-            'last_name'=>'string|required',
-            'address1'=>'string|required',
-            'address2'=>'string|nullable',
-            'country'=>'string|required',
-            'phone'=>'string|required',
-            'post_code'=>'string|nullable',
-            'email'=>'string|required|email',
-            'shipping'=>'required|exists:shippings,id',
-            'payment_method'=>'required|in:wallet',
-            'status'=>'required|in:new,process,delivered,cancel',
-            'sub_total'=>'required|numeric|min:0',
-            'quantity'=>'required|integer|min:1',
-            'total_amount'=>'required|numeric|min:0'
+        // Log incoming request for debugging
+        \Log::info('Order creation attempt', [
+            'user_id' => $request->user_id ?? auth()->id(),
+            'request_data' => $request->all(),
+            'is_admin_order' => $request->has('user_id') && $request->user_id != auth()->id(),
+            'is_buy_now' => $request->has('buy_now_mode') && $request->buy_now_mode == 1
         ]);
 
         // Check if creating order from admin panel (no cart required)
@@ -102,6 +145,53 @@ class OrderController extends Controller
         
         // Check if this is a Buy Now order
         $isBuyNow = $request->has('buy_now_mode') && $request->buy_now_mode == 1;
+
+        try {
+            // Different validation rules for admin vs frontend
+            if ($isAdminOrder) {
+                // Admin order validation
+                $this->validate($request,[
+                    'user_id'=>'required|exists:users,id',
+                    'first_name'=>'nullable|string',
+                    'last_name'=>'nullable|string',
+                    'address1'=>'nullable|string',
+                    'address2'=>'nullable|string',
+                    'country'=>'nullable|string',
+                    'phone'=>'nullable|string',
+                    'post_code'=>'nullable|string',
+                    'email'=>'nullable|email',
+                    'shipping'=>'required|exists:shippings,id',
+                    'payment_method'=>'required|in:wallet',
+                    'status'=>'required|in:new,process,delivered,cancel',
+                    'sub_total'=>'required|numeric|min:0',
+                    'quantity'=>'required|integer|min:1',
+                    'total_amount'=>'required|numeric|min:0',
+                    'products_data'=>'required|string'
+                ]);
+            } else {
+                // Frontend order validation
+                $this->validate($request,[
+                    'first_name'=>'string|required',
+                    'last_name'=>'string|required',
+                    'address1'=>'string|required',
+                    'address2'=>'string|nullable',
+                    'country'=>'string|required',
+                    'phone'=>'string|required',
+                    'post_code'=>'string|nullable',
+                    'email'=>'string|required|email',
+                    'shipping'=>'nullable|exists:shippings,id',
+                    'payment_method'=>'required|in:wallet'
+                ]);
+            }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Order validation failed', [
+                'errors' => $e->errors(),
+                'request_data' => $request->all(),
+                'is_admin_order' => $isAdminOrder,
+                'is_buy_now' => $isBuyNow
+            ]);
+            throw $e;
+        }
         
         if (!$isAdminOrder && !$isBuyNow && empty(Cart::where('user_id',auth()->user()->id)->where('order_id',null)->first())){
             request()->session()->flash('error','Cart is Empty !');
@@ -142,10 +232,69 @@ class OrderController extends Controller
         // Set user_id based on whether it's admin order, buy now, or regular order
         if ($isAdminOrder) {
             $order_data['user_id'] = $request->user_id;
-            // For admin orders, use provided values
-            $order_data['sub_total'] = $request->sub_total;
-            $order_data['quantity'] = $request->quantity;
-            $order_data['total_amount'] = $request->total_amount;
+            
+            // For admin orders with products data, validate and process products
+            if ($request->has('products_data')) {
+                $productsData = json_decode($request->products_data, true);
+                if (!$productsData || !is_array($productsData) || empty($productsData)) {
+                    request()->session()->flash('error','Invalid products data');
+                    return back();
+                }
+
+                // Validate products and calculate totals
+                $calculatedSubTotal = 0;
+                $totalQuantity = 0;
+                $validatedProducts = [];
+
+                foreach ($productsData as $productData) {
+                    $product = Product::where('id', $productData['id'])
+                                     ->where('status', 'active')
+                                     ->first();
+                    
+                    if (!$product) {
+                        request()->session()->flash('error','Product ID ' . $productData['id'] . ' not found or inactive');
+                        return back();
+                    }
+
+                    if ($product->stock < $productData['quantity']) {
+                        request()->session()->flash('error','Product "' . $product->title . '" insufficient stock');
+                        return back();
+                    }
+
+                    // Calculate final price with discount
+                    $finalPrice = $product->price;
+                    if ($product->discount > 0) {
+                        $finalPrice = $product->price - ($product->price * $product->discount / 100);
+                    }
+
+                    $validatedProducts[] = [
+                        'product' => $product,
+                        'quantity' => $productData['quantity'],
+                        'price' => $finalPrice,
+                        'amount' => $finalPrice * $productData['quantity']
+                    ];
+
+                    $calculatedSubTotal += $finalPrice * $productData['quantity'];
+                    $totalQuantity += $productData['quantity'];
+                }
+
+                // Use calculated values
+                $order_data['sub_total'] = $calculatedSubTotal;
+                $order_data['quantity'] = $totalQuantity;
+                
+                // Calculate total with shipping
+                $shipping_cost = 0;
+                if($request->shipping){
+                    $shipping = Shipping::where('id', $request->shipping)->pluck('price');
+                    $shipping_cost = $shipping[0] ?? 0;
+                }
+                $order_data['total_amount'] = $calculatedSubTotal + $shipping_cost;
+            } else {
+                // Fallback to provided values for backward compatibility
+                $order_data['sub_total'] = $request->sub_total;
+                $order_data['quantity'] = $request->quantity;
+                $order_data['total_amount'] = $request->total_amount;
+            }
         } elseif ($isBuyNow) {
             $order_data['user_id'] = $request->user()->id;
             // For Buy Now orders, use session data
@@ -209,7 +358,8 @@ class OrderController extends Controller
             $currentBalance = $payingUser->wallet_balance ?? 0;
             
             if($currentBalance < $totalAmount){
-                request()->session()->flash('error','Insufficient wallet balance. Your balance: $' . number_format($currentBalance, 2) . ', Required: $' . number_format($totalAmount, 2) . '. Please add funds to your wallet before placing the order.');
+                $shortfall = $totalAmount - $currentBalance;
+                request()->session()->flash('error','Insufficient wallet balance! Your balance: $' . number_format($currentBalance, 2) . ', Required: $' . number_format($totalAmount, 2) . '. You need to add $' . number_format($shortfall, 2) . ' to your wallet before placing this order.');
                 return back();
             }
             
@@ -225,19 +375,40 @@ class OrderController extends Controller
         $order->fill($order_data);
         $status=$order->save();
         
+        \Log::info('Order save attempt', [
+            'order_data' => $order_data,
+            'save_status' => $status,
+            'order_id' => $order->id ?? null
+        ]);
+        
         if($order) {
-            // Send notification to admin
-            $users=User::where('role','admin')->first();
-            $details=[
-                'title'=>'New order created',
-                'actionURL'=>route('order.show',$order->id),
-                'fas'=>'fa-file-alt'
-            ];
-            Notification::send($users, new StatusNotification($details));
+            // Trigger real-time notification event
+            $orderUser = User::find($order->user_id);
+            if ($orderUser) {
+                event(new \App\Events\OrderCreated($order, $orderUser));
+            }
             
             if ($isAdminOrder) {
-                // For admin created orders, redirect back to orders list
-                request()->session()->flash('success','Đơn hàng đã được tạo thành công cho user ID: ' . $request->user_id);
+                // For admin created orders with products data, create cart items
+                if ($request->has('products_data') && isset($validatedProducts)) {
+                    foreach ($validatedProducts as $productInfo) {
+                        Cart::create([
+                            'user_id' => $request->user_id,
+                            'product_id' => $productInfo['product']->id,
+                            'order_id' => $order->id,
+                            'quantity' => $productInfo['quantity'],
+                            'price' => $productInfo['price'],
+                            'amount' => $productInfo['amount'],
+                            'status' => 'new'
+                        ]);
+
+                        // Update product stock
+                        $productInfo['product']->decrement('stock', $productInfo['quantity']);
+                    }
+                    request()->session()->flash('success','Order created successfully with ' . count($validatedProducts) . ' products for user ID: ' . $request->user_id);
+                } else {
+                    request()->session()->flash('success','Order created successfully for user ID: ' . $request->user_id);
+                }
                 return redirect()->route('order.index');
             } elseif ($isBuyNow) {
                 // For Buy Now orders from frontend
@@ -270,7 +441,13 @@ class OrderController extends Controller
             }
         }
         
-        request()->session()->flash('error','Có lỗi xảy ra khi tạo đơn hàng');
+        \Log::error('Order creation failed', [
+            'order_data' => $order_data ?? null,
+            'order_id' => $order->id ?? null,
+            'save_status' => $status ?? null
+        ]);
+        
+        request()->session()->flash('error','An error occurred while creating the order');
         return back();
     }
 
@@ -282,7 +459,7 @@ class OrderController extends Controller
      */
     public function show($id)
     {
-        $order=Order::find($id);
+        $order=Order::with('shipping')->find($id);
         // return $order;
         return view('backend.order.show')->with('order',$order);
     }
@@ -295,7 +472,7 @@ class OrderController extends Controller
      */
     public function edit($id)
     {
-        $order=Order::find($id);
+        $order=Order::with('shipping')->find($id);
         return view('backend.order.edit')->with('order',$order);
     }
 
@@ -308,7 +485,7 @@ class OrderController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $order=Order::find($id);
+        $order=Order::with('shipping')->find($id);
         $this->validate($request,[
             'status'=>'required|in:new,process,delivered,cancel'
         ]);
@@ -346,7 +523,7 @@ class OrderController extends Controller
      */
     public function destroy($id)
     {
-        $order=Order::find($id);
+        $order=Order::with('shipping')->find($id);
         if($order){
             $status=$order->delete();
             if($status){
@@ -411,7 +588,7 @@ class OrderController extends Controller
     public function incomeChart(Request $request){
         $year=\Carbon\Carbon::now()->year;
         // dd($year);
-        $items=Order::with(['cart_info'])->whereYear('created_at',$year)->where('status','delivered')->get()
+        $items=Order::with(['cart_info', 'shipping'])->whereYear('created_at',$year)->where('status','delivered')->get()
             ->groupBy(function($d){
                 return \Carbon\Carbon::parse($d->created_at)->format('m');
             });

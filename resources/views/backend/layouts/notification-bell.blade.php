@@ -1,0 +1,95 @@
+{{-- Real-time Notification Bell Component --}}
+<a class="nav-link dropdown-toggle" href="#" id="notification-bell" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <i class="fas fa-bell fa-fw"></i>
+    <!-- Counter - Show both old and new notifications -->
+    <span id="notification-badge" class="badge badge-danger badge-counter">
+        @php
+            $oldCount = count(Auth::user()->unreadNotifications);
+            $displayCount = $oldCount > 5 ? '5+' : $oldCount;
+        @endphp
+        <span class="count" data-count="{{ $oldCount }}">{{ $displayCount }}</span>
+    </span>
+</a>
+    
+{{-- Notification Dropdown --}}
+<div id="notification-dropdown" class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="notification-bell">
+        {{-- Header --}}
+        <h6 class="dropdown-header d-flex justify-content-between align-items-center">
+            <span>Notifications Center</span>
+            <div class="notification-controls">
+                <button id="sound-toggle" class="btn btn-sm btn-link sound-toggle p-1" title="Toggle notification sounds">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <button id="mark-all-read" class="btn btn-sm btn-link p-1" title="Mark all as read">
+                    <i class="fas fa-check-double"></i>
+                </button>
+            </div>
+        </h6>
+        
+        {{-- Existing Laravel Notifications --}}
+        @foreach(Auth::user()->unreadNotifications as $notification)
+            <a class="dropdown-item d-flex align-items-center" target="_blank" href="{{route('admin.notification',$notification->id)}}">
+                <div class="mr-3">
+                    <div class="icon-circle bg-primary">
+                        <i class="fas {{$notification->data['fas'] ?? 'fa-bell'}} text-white"></i>
+                    </div>
+                </div>
+                <div>
+                    <div class="small text-gray-500">{{$notification->created_at->format('F d, Y h:i A')}}</div>
+                    <span class="@if($notification->unread()) font-weight-bold @else small text-gray-500 @endif">{{$notification->data['title']}}</span>
+                </div>
+            </a>
+            @if($loop->index+1==5)
+                @php 
+                    break;
+                @endphp
+            @endif
+        @endforeach
+        
+        {{-- Separator for real-time notifications --}}
+        <div id="realtime-separator" class="dropdown-divider" style="display: none;"></div>
+        <h6 id="realtime-header" class="dropdown-header" style="display: none;">Real-time Notifications</h6>
+        
+        {{-- Real-time Notifications List --}}
+        <div id="notification-list" class="notification-list" style="display: none;">
+            <div class="notification-loading">
+                <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="mt-2">Loading real-time notifications...</div>
+            </div>
+        </div>
+        
+        {{-- Sound Control --}}
+        <div class="dropdown-item-text d-flex align-items-center justify-content-between px-3 py-2 bg-light">
+            <small class="text-muted">Volume:</small>
+            <div class="d-flex align-items-center">
+                <i class="fas fa-volume-down text-muted me-2"></i>
+                <input type="range" id="volume-control" class="form-range" style="width: 80px;" min="0" max="1" step="0.1" value="0.5">
+                <i class="fas fa-volume-up text-muted ms-2"></i>
+            </div>
+        </div>
+        
+        {{-- Footer --}}
+        <a class="dropdown-item text-center small text-gray-500" href="{{ route('all.notification') }}">
+            View All Notifications
+        </a>
+</div>
+
+{{-- Add meta tags for JavaScript --}}
+<meta name="user-role" content="{{ Auth::user()->role }}">
+<meta name="user-id" content="{{ Auth::id() }}">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+{{-- Include required CSS --}}
+<link rel="stylesheet" href="{{ asset('css/notifications.css') }}">
+
+{{-- Include Firebase SDK --}}
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+{{-- Include notification scripts --}}
+<script src="{{ asset('js/generate-sounds.js') }}"></script>
+<script src="{{ asset('js/firebase-config.js') }}"></script>
+<script src="{{ asset('js/notification-manager.js') }}"></script>
+<script src="{{ asset('js/admin-notifications.js') }}"></script>

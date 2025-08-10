@@ -41,6 +41,31 @@ class HomeController extends Controller
 
     public function profileUpdate(Request $request,$id){
         // return $request->all();
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'birth_date' => 'nullable|date|before:today',
+            'age' => 'nullable|integer|min:1|max:120',
+            'gender' => 'nullable|in:male,female,other',
+            'address' => 'nullable|string|max:500',
+            'bank_name' => 'nullable|string|max:255',
+            'bank_account_number' => 'nullable|string|max:50',
+            'bank_account_name' => 'nullable|string|max:255',
+            'photo' => 'nullable|string'
+        ], [
+            'name.required' => 'Name is required',
+            'name.max' => 'Name cannot exceed 255 characters',
+            'birth_date.date' => 'Please enter a valid date',
+            'birth_date.before' => 'Birth date must be before today',
+            'age.integer' => 'Age must be a number',
+            'age.min' => 'Age must be at least 1',
+            'age.max' => 'Age cannot exceed 120',
+            'gender.in' => 'Please select a valid gender',
+            'address.max' => 'Address cannot exceed 500 characters',
+            'bank_name.max' => 'Bank name cannot exceed 255 characters',
+            'bank_account_number.max' => 'Account number cannot exceed 50 characters',
+            'bank_account_name.max' => 'Account holder name cannot exceed 255 characters'
+        ]);
+
         $user=User::findOrFail($id);
         $data=$request->all();
         $status=$user->fill($data)->save();
@@ -55,12 +80,12 @@ class HomeController extends Controller
 
     // Order
     public function orderIndex(){
-        $orders=Order::orderBy('id','DESC')->where('user_id',auth()->user()->id)->paginate(10);
+        $orders=Order::with('shipping')->orderBy('id','DESC')->where('user_id',auth()->user()->id)->paginate(10);
         return view('user.order.index')->with('orders',$orders);
     }
     public function userOrderDelete($id)
     {
-        $order=Order::find($id);
+        $order=Order::with('shipping')->find($id);
         if($order){
            if($order->status=="process" || $order->status=='delivered' || $order->status=='cancel'){
                 return redirect()->back()->with('error','You can not delete this order now');
@@ -84,7 +109,7 @@ class HomeController extends Controller
 
     public function orderShow($id)
     {
-        $order=Order::find($id);
+        $order=Order::with('shipping')->find($id);
         // return $order;
         return view('user.order.show')->with('order',$order);
     }

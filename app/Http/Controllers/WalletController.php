@@ -21,8 +21,11 @@ class WalletController extends Controller
         $user = Auth::user();
         $transactions = $user->walletTransactions()->paginate(10);
         $withdrawals = $user->withdrawalRequests()->paginate(5);
+        
+        // Kiểm tra xem user đã liên kết ngân hàng chưa
+        $hasBankInfo = !empty($user->bank_name) && !empty($user->bank_account_number) && !empty($user->bank_account_name);
 
-        return view('user.wallet.index', compact('user', 'transactions', 'withdrawals'));
+        return view('user.wallet.index', compact('user', 'transactions', 'withdrawals', 'hasBankInfo'));
     }
 
     // Form yêu cầu nạp tiền (frontend)
@@ -62,7 +65,7 @@ class WalletController extends Controller
                     'amount' => $request->amount,
                     'balance_before' => $user->wallet_balance,
                     'balance_after' => $user->wallet_balance, // Chưa thay đổi vì chờ duyệt
-                    'description' => 'Yêu cầu nạp tiền: ' . ($request->note ?? 'Không có ghi chú'),
+                    'description' => 'Deposit request: ' . ($request->note ?? 'No note'),
                     'status' => 'pending'
                 ]);
             });
@@ -71,12 +74,12 @@ class WalletController extends Controller
             $redirectRoute = $request->has('from_frontend') ? 'deposit.request' : 'wallet.index';
             $successMessage = $request->has('from_frontend') 
                 ? 'Deposit request submitted successfully! Our customer service team will contact you shortly.'
-                : 'Yêu cầu nạp tiền đã được gửi thành công. CSKH sẽ liên hệ với bạn sớm.';
+                : 'Deposit request submitted successfully. Customer service will contact you soon.';
 
             return redirect()->route($redirectRoute)
                 ->with('success', $successMessage);
         } catch (\Exception $e) {
-            return back()->with('error', 'Có lỗi xảy ra. Vui lòng thử lại.');
+            return back()->with('error', 'An error occurred. Please try again.');
         }
     }
 
@@ -84,50 +87,56 @@ class WalletController extends Controller
     public function withdrawForm()
     {
         $user = Auth::user();
-        return view('user.wallet.withdraw', compact('user'));
+        
+        // Kiểm tra xem user đã liên kết ngân hàng chưa
+        $hasBankInfo = !empty($user->bank_name) && !empty($user->bank_account_number) && !empty($user->bank_account_name);
+        
+        return view('user.wallet.withdraw', compact('user', 'hasBankInfo'));
     }
 
     // Xử lý yêu cầu rút tiền
     public function withdraw(Request $request)
     {
+        $user = Auth::user();
+        
+        // Kiểm tra xem user đã liên kết ngân hàng chưa
+        $hasBankInfo = !empty($user->bank_name) && !empty($user->bank_account_number) && !empty($user->bank_account_name);
+        
+        if (!$hasBankInfo) {
+            return redirect()->route('user-profile')
+                ->with('error', 'You need to link your bank information before withdrawing money. Please update your information in the Profile page.');
+        }
+
         $request->validate([
             'amount' => 'required|numeric|min:50',
-            'bank_name' => 'required|string|max:255',
-            'bank_account' => 'required|string|max:100',
-            'account_name' => 'required|string|max:255',
         ], [
             'amount.required' => 'Please enter amount',
             'amount.numeric' => 'Amount must be a number',
             'amount.min' => 'Minimum withdrawal amount is 50 USD',
-            'bank_name.required' => 'Please enter bank name',
-            'bank_account.required' => 'Please enter account number',
-            'account_name.required' => 'Please enter account holder name',
         ]);
 
-        $user = Auth::user();
-
-        // Kiểm tra số dư
+        // Check balance
         if ($user->wallet_balance < $request->amount) {
-            return back()->with('error', 'Số dư không đủ để thực hiện giao dịch. Số dư hiện tại: ' . $user->formatted_balance);
+            return back()->with('error', 'Insufficient balance to complete the transaction. Current balance: ' . $user->formatted_balance);
         }
 
         try {
             DB::transaction(function () use ($request, $user) {
-                // Tạo yêu cầu rút tiền
+                // Tạo yêu cầu rút tiền sử dụng thông tin ngân hàng từ profile
                 WithdrawalRequest::create([
                     'user_id' => $user->id,
                     'amount' => $request->amount,
-                    'bank_name' => $request->bank_name,
-                    'bank_account' => $request->bank_account,
-                    'account_name' => $request->account_name,
+                    'bank_name' => $user->bank_name,
+                    'bank_account' => $user->bank_account_number,
+                    'account_name' => $user->bank_account_name,
                     'status' => 'pending'
                 ]);
             });
 
             return redirect()->route('wallet.index')
-                ->with('success', 'Yêu cầu rút tiền đã được gửi thành công. CSKH sẽ xử lý trong 1-3 ngày làm việc.');
+                ->with('success', 'Withdrawal request submitted successfully. Customer service will process within 1-3 business days.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Có lỗi xảy ra. Vui lòng thử lại.');
+            return back()->with('error', 'An error occurred. Please try again.');
         }
     }
 }

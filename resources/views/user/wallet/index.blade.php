@@ -6,6 +6,25 @@
 <!-- Notifications -->
 @include('user.layouts.notification')
 
+@if(!$hasBankInfo)
+<!-- Bank Info Warning -->
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  <div class="d-flex align-items-center">
+    <i class="fas fa-exclamation-triangle fa-2x mr-3"></i>
+    <div>
+      <h5 class="alert-heading mb-1">Link Bank Information</h5>
+      <p class="mb-2">You need to link your bank information to be able to withdraw money from your wallet.</p>
+      <a href="{{ route('user-profile') }}" class="btn btn-warning btn-sm">
+        <i class="fas fa-user-edit mr-1"></i> Update Now
+      </a>
+    </div>
+  </div>
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+@endif
+
 <!-- Page Header -->
 <div class="d-flex align-items-center justify-content-between mb-4">
   <div>
@@ -121,10 +140,17 @@
                   <p class="text-muted">Request withdrawal from your wallet</p>
                 </div>
                 <div class="action-button">
-                  <a href="{{ route('wallet.withdraw.form') }}" class="walmart-btn walmart-btn-warning">
-                    <i class="fas fa-minus mr-2"></i>
-                    Withdraw
-                  </a>
+                  @if($hasBankInfo)
+                    <a href="{{ route('wallet.withdraw.form') }}" class="walmart-btn walmart-btn-warning">
+                      <i class="fas fa-minus mr-2"></i>
+                      Withdraw
+                    </a>
+                  @else
+                    <button class="walmart-btn walmart-btn-secondary" disabled title="Need to link bank information">
+                      <i class="fas fa-lock mr-2"></i>
+                      Withdraw
+                    </button>
+                  @endif
                 </div>
               </div>
             </div>

@@ -152,6 +152,11 @@
         })->name('file-manager');
         // user route
         Route::resource('users', 'UsersController');
+        // Additional user management routes
+        Route::post('users/{id}/change-password', 'UsersController@changePassword')->name('users.change-password');
+        Route::post('users/{id}/toggle-status', 'UsersController@toggleStatus')->name('users.toggle-status');
+        Route::get('users/{id}/details', 'UsersController@showDetails')->name('users.details');
+        Route::post('users/{id}/update-info', 'UsersController@updateInfo')->name('users.update-info');
         // Banner
         Route::resource('banner', 'BannerController');
         // Brand
@@ -178,6 +183,7 @@
         // Order
         Route::resource('/order', 'OrderController');
         Route::post('/order/search-user', [OrderController::class, 'searchUser'])->name('order.search-user');
+        Route::post('/order/search-product', [OrderController::class, 'searchProduct'])->name('order.search-product');
         // Shipping
         Route::resource('/shipping', 'ShippingController');
         // Coupon
@@ -190,6 +196,13 @@
         Route::get('/notification/{id}', [NotificationController::class, 'show'])->name('admin.notification');
         Route::get('/notifications', [NotificationController::class, 'index'])->name('all.notification');
         Route::delete('/notification/{id}', [NotificationController::class, 'delete'])->name('notification.delete');
+        
+        // Real-time Notification API Routes
+        Route::get('/api/notifications', [NotificationController::class, 'getNotifications'])->name('api.notifications');
+        Route::post('/api/notifications/mark-read', [NotificationController::class, 'markAsRead'])->name('api.notifications.mark-read');
+        Route::post('/api/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('api.notifications.mark-all-read');
+        Route::get('/api/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('api.notifications.unread-count');
+        Route::get('/api/firebase-config', [NotificationController::class, 'getFirebaseConfig'])->name('api.firebase-config');
         // Password Change
         Route::get('change-password', [AdminController::class, 'changePassword'])->name('change.password.form');
         Route::post('change-password', [AdminController::class, 'changPasswordStore'])->name('change.password');
@@ -330,12 +343,18 @@ Route::middleware(['auth', 'sub_admin'])->prefix('sub-admin')->name('sub-admin.'
     Route::get('/users/{id}', 'SubAdminController@showUser')->name('users.show');
     Route::get('/users/{id}/edit', 'SubAdminController@editUser')->name('users.edit');
     Route::put('/users/{id}', 'SubAdminController@updateUser')->name('users.update');
+    // Additional user management routes for SubAdmin
+    Route::post('/users/{id}/change-password', 'SubAdminController@changePassword')->name('users.change-password');
+    Route::post('/users/{id}/toggle-status', 'SubAdminController@toggleStatus')->name('users.toggle-status');
+    Route::get('/users/{id}/details', 'SubAdminController@showDetails')->name('users.details');
+    Route::post('/users/{id}/update-info', 'SubAdminController@updateInfo')->name('users.update-info');
     
     // Orders Management
     Route::get('/orders', 'SubAdminController@orders')->name('orders');
     Route::get('/orders/create', 'SubAdminController@createOrder')->name('orders.create');
     Route::post('/orders', 'SubAdminController@storeOrder')->name('orders.store');
     Route::post('/orders/search-user', 'SubAdminController@searchManagedUser')->name('orders.search-user');
+    Route::post('/orders/search-product', 'SubAdminController@searchProduct')->name('orders.search-product');
     Route::get('/orders/{id}', 'SubAdminController@showOrder')->name('orders.show');
     Route::get('/orders/{id}/edit', 'SubAdminController@editOrder')->name('orders.edit');
     Route::put('/orders/{id}', 'SubAdminController@updateOrder')->name('orders.update');

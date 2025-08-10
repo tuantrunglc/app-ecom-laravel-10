@@ -59,69 +59,15 @@
        <div id="order_form" style="display: none;">
          <h5 class="mb-3">Thông Tin Đơn Hàng</h5>
          
-         <div class="form-group">
-           <label for="first_name" class="col-form-label">Họ <span class="text-danger">*</span></label>
-           <input id="first_name" class="form-control" name="first_name" type="text" placeholder="Nhập họ..." value="{{old('first_name')}}" required>
-           @error('first_name')
-           <span class="text-danger">{{$message}}</span>
-           @enderror
-         </div>
-
-         <div class="form-group">
-           <label for="last_name" class="col-form-label">Tên <span class="text-danger">*</span></label>
-           <input id="last_name" class="form-control" name="last_name" type="text" placeholder="Nhập tên..." value="{{old('last_name')}}" required>
-           @error('last_name')
-           <span class="text-danger">{{$message}}</span>
-           @enderror
-         </div>
-
-         <div class="form-group">
-           <label for="email" class="col-form-label">Email <span class="text-danger">*</span></label>
-           <input id="email" class="form-control" name="email" type="email" placeholder="Nhập email..." value="{{old('email')}}" required>
-           @error('email')
-           <span class="text-danger">{{$message}}</span>
-           @enderror
-         </div>
-
-         <div class="form-group">
-           <label for="phone" class="col-form-label">Số Điện Thoại <span class="text-danger">*</span></label>
-           <input id="phone" class="form-control" name="phone" type="text" placeholder="Nhập số điện thoại..." value="{{old('phone')}}" required>
-           @error('phone')
-           <span class="text-danger">{{$message}}</span>
-           @enderror
-         </div>
-
-         <div class="form-group">
-           <label for="country" class="col-form-label">Quốc Gia <span class="text-danger">*</span></label>
-           <input id="country" class="form-control" name="country" type="text" placeholder="Nhập quốc gia..." value="{{old('country')}}" required>
-           @error('country')
-           <span class="text-danger">{{$message}}</span>
-           @enderror
-         </div>
-
-         <div class="form-group">
-           <label for="address1" class="col-form-label">Địa Chỉ 1 <span class="text-danger">*</span></label>
-           <input id="address1" class="form-control" name="address1" type="text" placeholder="Nhập địa chỉ..." value="{{old('address1')}}" required>
-           @error('address1')
-           <span class="text-danger">{{$message}}</span>
-           @enderror
-         </div>
-
-         <div class="form-group">
-           <label for="address2" class="col-form-label">Địa Chỉ 2</label>
-           <input id="address2" class="form-control" name="address2" type="text" placeholder="Nhập địa chỉ 2..." value="{{old('address2')}}">
-           @error('address2')
-           <span class="text-danger">{{$message}}</span>
-           @enderror
-         </div>
-
-         <div class="form-group">
-           <label for="post_code" class="col-form-label">Mã Bưu Điện</label>
-           <input id="post_code" class="form-control" name="post_code" type="text" placeholder="Nhập mã bưu điện..." value="{{old('post_code')}}">
-           @error('post_code')
-           <span class="text-danger">{{$message}}</span>
-           @enderror
-         </div>
+         <!-- Hidden fields for shipping information - will be auto-filled from selected user -->
+         <input type="hidden" id="first_name" name="first_name" value="">
+         <input type="hidden" id="last_name" name="last_name" value="">
+         <input type="hidden" id="email" name="email" value="">
+         <input type="hidden" id="phone" name="phone" value="N/A">
+         <input type="hidden" id="country" name="country" value="N/A">
+         <input type="hidden" id="address1" name="address1" value="N/A">
+         <input type="hidden" id="address2" name="address2" value="">
+         <input type="hidden" id="post_code" name="post_code" value="">
 
          <div class="form-group">
            <label for="shipping" class="col-form-label">Phương Thức Vận Chuyển <span class="text-danger">*</span></label>
@@ -150,6 +96,59 @@
            @enderror
          </div>
 
+         <!-- Product Selection -->
+         <hr>
+         <h6 class="text-info">Chọn Sản Phẩm</h6>
+         
+         <div class="form-group">
+           <label for="product_search" class="col-form-label">Tìm kiếm sản phẩm <span class="text-danger">*</span></label>
+           <div class="input-group">
+             <input id="product_search" class="form-control" type="text" placeholder="Nhập tên sản phẩm để tìm kiếm...">
+             <div class="input-group-append">
+               <button class="btn btn-outline-secondary" type="button" id="search_product_btn">Tìm Kiếm</button>
+             </div>
+           </div>
+         </div>
+
+         <!-- Product Search Results -->
+         <div id="product_results" style="display: none;">
+           <div class="card border-primary mb-3">
+             <div class="card-header bg-primary text-white">
+               <h6 class="mb-0">Kết Quả Tìm Kiếm</h6>
+             </div>
+             <div class="card-body" id="product_list">
+               <!-- Products will be loaded here -->
+             </div>
+           </div>
+         </div>
+
+         <!-- Selected Products -->
+         <div id="selected_products_section" style="display: none;">
+           <div class="card border-success mb-3">
+             <div class="card-header bg-success text-white">
+               <h6 class="mb-0">Sản Phẩm Đã Chọn</h6>
+             </div>
+             <div class="card-body">
+               <div class="table-responsive">
+                 <table class="table table-bordered" id="selected_products_table">
+                   <thead>
+                     <tr>
+                       <th>Sản phẩm</th>
+                       <th>Giá</th>
+                       <th>Số lượng</th>
+                       <th>Thành tiền</th>
+                       <th>Hành động</th>
+                     </tr>
+                   </thead>
+                   <tbody id="selected_products_body">
+                     <!-- Selected products will be shown here -->
+                   </tbody>
+                 </table>
+               </div>
+             </div>
+           </div>
+         </div>
+
          <div class="form-group">
            <label for="status" class="col-form-label">Trạng Thái <span class="text-danger">*</span></label>
            <select name="status" class="form-control" required>
@@ -165,30 +164,28 @@
          </div>
 
          <div class="form-group">
-           <label for="sub_total" class="col-form-label">Tổng Phụ <span class="text-danger">*</span></label>
-           <input id="sub_total" class="form-control" name="sub_total" type="number" step="0.01" placeholder="Nhập tổng phụ..." value="{{old('sub_total')}}" required>
+           <label for="total_quantity" class="col-form-label">Tổng Số Lượng</label>
+           <input id="total_quantity" class="form-control" name="quantity" type="number" readonly>
+         </div>
+
+         <div class="form-group">
+           <label for="sub_total" class="col-form-label">Tổng Phụ</label>
+           <input id="sub_total" class="form-control" name="sub_total" type="number" step="0.01" readonly>
            @error('sub_total')
            <span class="text-danger">{{$message}}</span>
            @enderror
          </div>
 
          <div class="form-group">
-           <label for="quantity" class="col-form-label">Số Lượng <span class="text-danger">*</span></label>
-           <input id="quantity" class="form-control" name="quantity" type="number" placeholder="Nhập số lượng..." value="{{old('quantity')}}" required>
-           @error('quantity')
-           <span class="text-danger">{{$message}}</span>
-           @enderror
-         </div>
-
-
-
-         <div class="form-group">
-           <label for="total_amount" class="col-form-label">Tổng Tiền <span class="text-danger">*</span></label>
-           <input id="total_amount" class="form-control" name="total_amount" type="number" step="0.01" placeholder="Nhập tổng tiền..." value="{{old('total_amount')}}" required>
+           <label for="total_amount" class="col-form-label">Tổng Tiền</label>
+           <input id="total_amount" class="form-control" name="total_amount" type="number" step="0.01" readonly>
            @error('total_amount')
            <span class="text-danger">{{$message}}</span>
            @enderror
          </div>
+
+         <!-- Hidden field for products data -->
+         <input type="hidden" id="products_data" name="products_data" value="">
 
          <div class="form-group mb-3">
            <button type="reset" class="btn btn-warning">Đặt Lại</button>
@@ -227,6 +224,8 @@
 <script src="{{asset('backend/summernote/summernote.min.js')}}"></script>
 <script>
     $(document).ready(function() {
+        var selectedProducts = [];
+        
         // User search functionality
         $('#search_user_btn').click(function() {
             var searchTerm = $('#user_search').val().trim();
@@ -263,10 +262,15 @@
                         // Set hidden user ID
                         $('#selected_user_id').val(response.user.id);
                         
-                        // Auto-fill form fields
+                        // Auto-fill hidden form fields
                         $('#first_name').val(response.user.name.split(' ')[0] || '');
                         $('#last_name').val(response.user.name.split(' ').slice(1).join(' ') || '');
                         $('#email').val(response.user.email);
+                        $('#phone').val('N/A');
+                        $('#country').val('N/A');
+                        $('#address1').val('N/A');
+                        $('#address2').val('');
+                        $('#post_code').val('');
                         
                         // Show user info and order form
                         $('#user_info').show();
@@ -301,11 +305,191 @@
             }
         });
 
-        // Auto calculate total amount (you can manually adjust this)
-        $('#sub_total').on('input', function() {
-            var subTotal = parseFloat($('#sub_total').val()) || 0;
-            // You can add shipping cost calculation here if needed
-            $('#total_amount').val(subTotal.toFixed(2));
+        // Search product functionality
+        $('#search_product_btn').click(function() {
+            var search = $('#product_search').val();
+            
+            if (!search) {
+                alert('Vui lòng nhập tên sản phẩm để tìm kiếm');
+                return;
+            }
+            
+            $.ajax({
+                url: '{{route("order.search-product")}}',
+                type: 'POST',
+                data: {
+                    search: search,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.success && response.products.length > 0) {
+                        var html = '';
+                        response.products.forEach(function(product) {
+                            var price = parseFloat(product.price);
+                            var discount = parseFloat(product.discount) || 0;
+                            var finalPrice = price - (price * discount / 100);
+                            
+                            html += '<div class="product-item border p-3 mb-2">';
+                            html += '<div class="row">';
+                            html += '<div class="col-md-2">';
+                            if (product.photo) {
+                                html += '<img src="' + product.photo + '" class="img-thumbnail" style="width: 60px; height: 60px;">';
+                            } else {
+                                html += '<div class="bg-light d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">No Image</div>';
+                            }
+                            html += '</div>';
+                            html += '<div class="col-md-6">';
+                            html += '<h6>' + product.title + '</h6>';
+                            html += '<p class="text-muted mb-1">Giá: $' + price.toFixed(2) + '</p>';
+                            if (discount > 0) {
+                                html += '<p class="text-success mb-1">Giảm giá: ' + discount + '%</p>';
+                                html += '<p class="text-primary mb-1">Giá sau giảm: $' + finalPrice.toFixed(2) + '</p>';
+                            }
+                            html += '<p class="text-info mb-0">Tồn kho: ' + product.stock + '</p>';
+                            html += '</div>';
+                            html += '<div class="col-md-4">';
+                            html += '<div class="input-group mb-2">';
+                            html += '<input type="number" class="form-control product-quantity" min="1" max="' + product.stock + '" value="1" data-product-id="' + product.id + '">';
+                            html += '<div class="input-group-append">';
+                            html += '<button class="btn btn-success add-product-btn" type="button" data-product-id="' + product.id + '" data-product-title="' + product.title + '" data-product-price="' + finalPrice + '" data-product-stock="' + product.stock + '">Thêm</button>';
+                            html += '</div>';
+                            html += '</div>';
+                            html += '</div>';
+                            html += '</div>';
+                            html += '</div>';
+                        });
+                        
+                        $('#product_list').html(html);
+                        $('#product_results').show();
+                    } else {
+                        $('#product_list').html('<p class="text-center">Không tìm thấy sản phẩm nào</p>');
+                        $('#product_results').show();
+                    }
+                },
+                error: function() {
+                    alert('Có lỗi xảy ra khi tìm kiếm sản phẩm');
+                }
+            });
+        });
+        
+        // Add product to selected list
+        $(document).on('click', '.add-product-btn', function() {
+            var productId = $(this).data('product-id');
+            var productTitle = $(this).data('product-title');
+            var productPrice = parseFloat($(this).data('product-price'));
+            var productStock = parseInt($(this).data('product-stock'));
+            var quantity = parseInt($('.product-quantity[data-product-id="' + productId + '"]').val());
+            
+            if (quantity <= 0 || quantity > productStock) {
+                alert('Số lượng không hợp lệ');
+                return;
+            }
+            
+            // Check if product already selected
+            var existingIndex = selectedProducts.findIndex(p => p.id == productId);
+            if (existingIndex >= 0) {
+                selectedProducts[existingIndex].quantity += quantity;
+            } else {
+                selectedProducts.push({
+                    id: productId,
+                    title: productTitle,
+                    price: productPrice,
+                    quantity: quantity,
+                    stock: productStock
+                });
+            }
+            
+            updateSelectedProductsDisplay();
+            calculateTotals();
+        });
+        
+        // Remove product from selected list
+        $(document).on('click', '.remove-product-btn', function() {
+            var productId = $(this).data('product-id');
+            selectedProducts = selectedProducts.filter(p => p.id != productId);
+            updateSelectedProductsDisplay();
+            calculateTotals();
+        });
+        
+        // Update quantity in selected products
+        $(document).on('change', '.selected-product-quantity', function() {
+            var productId = $(this).data('product-id');
+            var newQuantity = parseInt($(this).val());
+            var product = selectedProducts.find(p => p.id == productId);
+            
+            if (product && newQuantity > 0 && newQuantity <= product.stock) {
+                product.quantity = newQuantity;
+                updateSelectedProductsDisplay();
+                calculateTotals();
+            } else {
+                alert('Số lượng không hợp lệ');
+                $(this).val(product.quantity);
+            }
+        });
+        
+        function updateSelectedProductsDisplay() {
+            if (selectedProducts.length === 0) {
+                $('#selected_products_section').hide();
+                return;
+            }
+            
+            var html = '';
+            selectedProducts.forEach(function(product) {
+                var total = product.price * product.quantity;
+                html += '<tr>';
+                html += '<td>' + product.title + '</td>';
+                html += '<td>$' + product.price.toFixed(2) + '</td>';
+                html += '<td><input type="number" class="form-control selected-product-quantity" min="1" max="' + product.stock + '" value="' + product.quantity + '" data-product-id="' + product.id + '"></td>';
+                html += '<td>$' + total.toFixed(2) + '</td>';
+                html += '<td><button type="button" class="btn btn-danger btn-sm remove-product-btn" data-product-id="' + product.id + '">Xóa</button></td>';
+                html += '</tr>';
+            });
+            
+            $('#selected_products_body').html(html);
+            $('#selected_products_section').show();
+            
+            // Update hidden field
+            $('#products_data').val(JSON.stringify(selectedProducts));
+        }
+        
+        function calculateTotals() {
+            var totalQuantity = 0;
+            var subTotal = 0;
+            
+            selectedProducts.forEach(function(product) {
+                totalQuantity += product.quantity;
+                subTotal += product.price * product.quantity;
+            });
+            
+            $('#total_quantity').val(totalQuantity);
+            $('#sub_total').val(subTotal.toFixed(2));
+            
+            // Calculate total with shipping
+            var shippingCost = 0;
+            var selectedShipping = $('select[name="shipping"] option:selected').text();
+            if (selectedShipping) {
+                var match = selectedShipping.match(/\$(\d+(?:\.\d+)?)/);
+                if (match) {
+                    shippingCost = parseFloat(match[1]);
+                }
+            }
+            
+            var total = subTotal + shippingCost;
+            $('#total_amount').val(total.toFixed(2));
+        }
+        
+        // Auto calculate total when shipping changes
+        $('select[name="shipping"]').change(function() {
+            calculateTotals();
+        });
+        
+        // Form validation before submit
+        $('form').submit(function(e) {
+            if (selectedProducts.length === 0) {
+                e.preventDefault();
+                alert('Vui lòng chọn ít nhất một sản phẩm');
+                return false;
+            }
         });
     });
 </script>

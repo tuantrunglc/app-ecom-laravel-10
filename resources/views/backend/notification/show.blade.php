@@ -18,7 +18,7 @@
     <a class="dropdown-item d-flex align-items-center" target="_blank" href="{{route('admin.notification',$notification->id)}}">
                 <div class="mr-3">
                     <div class="icon-circle bg-primary">
-                    <i class="fas {{$notification->data['fas']}} text-white"></i>
+                    <i class="fas {{$notification->data['fas'] ?? 'fa-bell'}} text-white"></i>
                     </div>
                 </div>
                 <div>

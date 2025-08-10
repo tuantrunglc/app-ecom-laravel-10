@@ -135,4 +135,132 @@ class UsersController extends Controller
         }
         return redirect()->route('users.index');
     }
+
+    /**
+     * Change user password
+     */
+    public function changePassword(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Check permission
+        if (!auth()->user()->canManageUser($id)) {
+            return response()->json(['error' => 'Bạn không có quyền thay đổi mật khẩu user này'], 403);
+        }
+
+        $this->validate($request, [
+            'new_password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $user->password = Hash::make($request->new_password);
+        $status = $user->save();
+
+        if ($status) {
+            return response()->json(['success' => 'Đã thay đổi mật khẩu thành công']);
+        } else {
+            return response()->json(['error' => 'Có lỗi xảy ra khi thay đổi mật khẩu'], 500);
+        }
+    }
+
+    /**
+     * Toggle user account status (lock/unlock)
+     */
+    public function toggleStatus(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Check permission
+        if (!auth()->user()->canManageUser($id)) {
+            return response()->json(['error' => 'Bạn không có quyền thay đổi trạng thái user này'], 403);
+        }
+
+        // Toggle status
+        $newStatus = $user->status === 'active' ? 'inactive' : 'active';
+        $user->status = $newStatus;
+        $status = $user->save();
+
+        if ($status) {
+            $message = $newStatus === 'active' ? 'Đã mở khóa tài khoản' : 'Đã khóa tài khoản';
+            return response()->json([
+                'success' => $message,
+                'new_status' => $newStatus,
+                'status_badge' => $newStatus === 'active' 
+                    ? '<span class="badge badge-success">active</span>' 
+                    : '<span class="badge badge-warning">inactive</span>'
+            ]);
+        } else {
+            return response()->json(['error' => 'Có lỗi xảy ra khi thay đổi trạng thái'], 500);
+        }
+    }
+
+    /**
+     * Show user details for editing
+     */
+    public function showDetails($id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Check permission
+        if (!auth()->user()->canManageUser($id)) {
+            return response()->json(['error' => 'Bạn không có quyền xem thông tin user này'], 403);
+        }
+
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'status' => $user->status,
+                'photo' => $user->photo,
+                'wallet_balance' => $user->wallet_balance,
+                'birth_date' => $user->birth_date,
+                'age' => $user->age,
+                'gender' => $user->gender,
+                'address' => $user->address,
+                'bank_name' => $user->bank_name,
+                'bank_account_number' => $user->bank_account_number,
+                'bank_account_name' => $user->bank_account_name,
+                'created_at' => $user->created_at->format('d/m/Y H:i'),
+            ]
+        ]);
+    }
+
+    /**
+     * Update user information via AJAX
+     */
+    public function updateInfo(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Check permission
+        if (!auth()->user()->canManageUser($id)) {
+            return response()->json(['error' => 'Bạn không có quyền chỉnh sửa user này'], 403);
+        }
+
+        $this->validate($request, [
+            'name' => 'string|required|max:30',
+            'email' => 'string|required|email|unique:users,email,' . $id,
+            'birth_date' => 'nullable|date',
+            'age' => 'nullable|integer|min:1|max:120',
+            'gender' => 'nullable|in:male,female,other',
+            'address' => 'nullable|string|max:255',
+            'bank_name' => 'nullable|string|max:100',
+            'bank_account_number' => 'nullable|string|max:50',
+            'bank_account_name' => 'nullable|string|max:100',
+        ]);
+
+        $data = $request->only([
+            'name', 'email', 'birth_date', 'age', 'gender', 
+            'address', 'bank_name', 'bank_account_number', 'bank_account_name'
+        ]);
+
+        $status = $user->fill($data)->save();
+
+        if ($status) {
+            return response()->json(['success' => 'Đã cập nhật thông tin thành công']);
+        } else {
+            return response()->json(['error' => 'Có lỗi xảy ra khi cập nhật thông tin'], 500);
+        }
+    }
 }

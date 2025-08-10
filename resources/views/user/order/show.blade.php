@@ -51,7 +51,7 @@
             <td>{{$order->first_name}} {{$order->last_name}}</td>
             <td>{{$order->email}}</td>
             <td>{{$order->quantity}}</td>
-            <td>${{$order->shipping->price}}</td>
+            <td>${{$order->shipping ? $order->shipping->price : '0.00'}}</td>
             <td>${{number_format($order->total_amount,2)}}</td>
             <td>
                 @if($order->status=='new')
@@ -104,7 +104,7 @@
                           $shipping_charge=DB::table('shippings')->where('id',$order->shipping_id)->pluck('price');
                       @endphp
                         <td>Shipping Charge</td>
-                        <td> :${{$order->shipping->price}}</td>
+                        <td> :${{$order->shipping ? $order->shipping->price : '0.00'}}</td>
                     </tr>
                     <tr>
                         <td>Total Amount</td>
@@ -188,7 +188,7 @@
           </div>
           <div class="info-item">
             <span class="info-label">Shipping Charge:</span>
-            <span class="info-value">${{number_format($order->shipping->price, 2)}}</span>
+            <span class="info-value">${{number_format($order->shipping ? $order->shipping->price : 0, 2)}}</span>
           </div>
           <div class="info-item">
             <span class="info-label">Payment Method:</span>

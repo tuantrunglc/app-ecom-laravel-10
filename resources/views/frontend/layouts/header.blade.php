@@ -89,27 +89,19 @@
 .walmart-search-input {
     width: 100%;
     height: 100%;
-    padding: 0 20px 0 50px;
+    padding: 0 20px;
     border: none;
     background: transparent;
     font-size: 16px;
     color: #333;
     outline: none;
     font-weight: 400;
+    position: relative;
+    z-index: 1;
+    box-sizing: border-box;
 }
 
-.search-input-wrapper::before {
-    content: '\f002';
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    position: absolute;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #999;
-    font-size: 16px;
-    z-index: 1;
-}
+
 
 .walmart-search-input::placeholder {
     color: #999;
@@ -194,12 +186,7 @@
     
     .walmart-search-input {
         font-size: 15px;
-        padding: 0 15px 0 45px;
-    }
-    
-    .search-input-wrapper::before {
-        left: 15px;
-        font-size: 14px;
+        padding: 0 15px;
     }
     
     .walmart-search-btn {
@@ -241,15 +228,10 @@
     
     .walmart-search-input {
         font-size: 14px;
-        padding: 0 12px 0 40px;
+        padding: 0 12px;
     }
     
     .walmart-search-input::placeholder {
-        font-size: 13px;
-    }
-    
-    .search-input-wrapper::before {
-        left: 12px;
         font-size: 13px;
     }
     
@@ -287,15 +269,10 @@
     
     .walmart-search-input {
         font-size: 13px;
-        padding: 0 10px 0 35px;
+        padding: 0 10px;
     }
     
     .walmart-search-input::placeholder {
-        font-size: 12px;
-    }
-    
-    .search-input-wrapper::before {
-        left: 10px;
         font-size: 12px;
     }
     
@@ -373,7 +350,7 @@
                             @csrf
                             <div class="walmart-search-wrapper">
                                 <div class="search-input-wrapper">
-                                    <input name="search" placeholder="Search products..." type="search" class="walmart-search-input" autocomplete="off">
+                                    <input name="search" type="search" class="walmart-search-input" autocomplete="off">
                                 </div>
                                 <button class="walmart-search-btn" type="submit">
                                     <i class="fas fa-search"></i>

@@ -14,7 +14,34 @@
                 <div class="alert alert-info">
                     <h6><i class="fas fa-wallet"></i> Current Balance: <strong>{{ $user->formatted_balance }}</strong></h6>
                 </div>
+
+                @if(!$hasBankInfo)
+                <!-- Bank Info Required Alert -->
+                <div class="alert alert-warning">
+                    <h5><i class="fas fa-exclamation-triangle"></i> Bank Information Required</h5>
+                    <p class="mb-3">You need to link your bank information before you can withdraw money. This helps ensure the safety and security of your transactions.</p>
+                    <a href="{{ route('user-profile') }}" class="btn btn-primary">
+                        <i class="fas fa-user-edit"></i> Update Bank Information
+                    </a>
+                </div>
+                @else
+                <!-- Bank Info Display -->
+                <div class="alert alert-success">
+                    <h6><i class="fas fa-university"></i> Linked Bank Information:</h6>
+                    <ul class="mb-0">
+                        <li><strong>Bank:</strong> {{ $user->bank_name }}</li>
+                        <li><strong>Account Number:</strong> {{ $user->bank_account_number }}</li>
+                        <li><strong>Account Holder:</strong> {{ $user->bank_account_name }}</li>
+                    </ul>
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i> 
+                        To change bank information, please update in your 
+                        <a href="{{ route('user-profile') }}">Profile page</a>
+                    </small>
+                </div>
+                @endif
                 
+                @if($hasBankInfo)
                 <form method="post" action="{{ route('wallet.withdraw') }}">
                     @csrf
                     
@@ -38,39 +65,7 @@
                         </small>
                     </div>
 
-                    <div class="form-group">
-                        <label for="bank_name">Bank Name <span class="text-danger">*</span></label>
-                        <input id="bank_name" type="text" class="form-control @error('bank_name') is-invalid @enderror" 
-                               name="bank_name" value="{{ old('bank_name') }}" placeholder="e.g: Vietcombank, BIDV, Techcombank..." required>
-                        @error('bank_name')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
-                    </div>
 
-                    <div class="form-group">
-                        <label for="bank_account">Account Number <span class="text-danger">*</span></label>
-                        <input id="bank_account" type="text" class="form-control @error('bank_account') is-invalid @enderror" 
-                               name="bank_account" value="{{ old('bank_account') }}" placeholder="Enter account number" required>
-                        @error('bank_account')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label for="account_name">Account Holder Name <span class="text-danger">*</span></label>
-                        <input id="account_name" type="text" class="form-control @error('account_name') is-invalid @enderror" 
-                               name="account_name" value="{{ old('account_name') }}" placeholder="Account holder name (as per ID card)" required>
-                        @error('account_name')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
-                        <small class="form-text text-muted">Name must match the bank account</small>
-                    </div>
 
                     <div class="form-group">
                         <button type="submit" class="btn btn-warning btn-lg">
@@ -81,6 +76,7 @@
                         </a>
                     </div>
                 </form>
+                @endif
             </div>
             
             <div class="col-md-4">
@@ -156,35 +152,19 @@ $(document).ready(function() {
             return false;
         }
         
-        // Check bank information
-        if (!$('#bank_name').val().trim()) {
-            e.preventDefault();
-            alert('Please enter bank name');
-            $('#bank_name').focus();
-            return false;
-        }
-        
-        if (!$('#bank_account').val().trim()) {
-            e.preventDefault();
-            alert('Please enter account number');
-            $('#bank_account').focus();
-            return false;
-        }
-        
-        if (!$('#account_name').val().trim()) {
-            e.preventDefault();
-            alert('Please enter account holder name');
-            $('#account_name').focus();
-            return false;
-        }
-        
+        @if($hasBankInfo)
         let confirmMsg = 'Are you sure you want to withdraw $' + amount.toFixed(2) + ' to account:\n';
-        confirmMsg += 'Bank: ' + $('#bank_name').val() + '\n';
-        confirmMsg += 'Account: ' + $('#bank_account').val() + '\n';
-        confirmMsg += 'Holder: ' + $('#account_name').val() + '\n\n';
+        confirmMsg += 'Bank: {{ $user->bank_name }}\n';
+        confirmMsg += 'Account Number: {{ $user->bank_account_number }}\n';
+        confirmMsg += 'Account Holder: {{ $user->bank_account_name }}\n\n';
         confirmMsg += 'Note: Cannot cancel after submitting request!';
         
         return confirm(confirmMsg);
+        @else
+        e.preventDefault();
+        alert('Please link your bank information before withdrawing money!');
+        return false;
+        @endif
     });
 });
 </script>

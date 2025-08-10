@@ -11,7 +11,7 @@ class Order extends Model
         return $this->hasMany('App\Models\Cart','order_id','id');
     }
     public static function getAllOrder($id){
-        return Order::with('cart_info')->find($id);
+        return Order::with(['cart_info', 'shipping'])->find($id);
     }
     public static function countActiveOrder(){
         $data=Order::count();

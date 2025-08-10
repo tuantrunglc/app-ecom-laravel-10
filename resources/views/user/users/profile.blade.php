@@ -1,6 +1,6 @@
 @extends('user.layouts.master')
 
-@section('title','Admin Profile')
+@section('title','User Profile')
 
 @section('main-content')
 
@@ -13,7 +13,7 @@
    <div class="card-header py-3">
      <h4 class=" font-weight-bold">Profile</h4>
      <ul class="breadcrumbs">
-         <li><a href="{{route('admin')}}" style="color:#999">Dashboard</a></li>
+         <li><a href="{{route('user')}}" style="color:#999">Dashboard</a></li>
          <li><a href="" class="active text-primary">Profile Page</a></li>
      </ul>
    </div>
@@ -31,7 +31,17 @@
                     <div class="card-body mt-4 ml-2">
                       <h5 class="card-title text-left"><small><i class="fas fa-user"></i> {{$profile->name}}</small></h5>
                       <p class="card-text text-left"><small><i class="fas fa-envelope"></i> {{$profile->email}}</small></p>
-                      <p class="card-text text-left"><small class="text-muted"><i class="fas fa-hammer"></i> {{$profile->role}}</small></p>
+                      @if($profile->age)
+                      <p class="card-text text-left"><small><i class="fas fa-birthday-cake"></i> {{$profile->age}} years old</small></p>
+                      @endif
+                      @if($profile->gender)
+                      <p class="card-text text-left"><small><i class="fas fa-venus-mars"></i> 
+                        @if($profile->gender == 'male') Male
+                        @elseif($profile->gender == 'female') Female
+                        @else Other
+                        @endif
+                      </small></p>
+                      @endif
                     </div>
                   </div>
             </div>
@@ -69,18 +79,70 @@
                         @enderror
                       </div>
                       <div class="form-group">
-                          <label for="role" class="col-form-label">Role</label>
-                          <select name="role" class="form-control">
-                              <option value="">-----Select Role-----</option>
-                                  <option value="admin" {{(($profile->role=='admin')? 'selected' : '')}}>Admin</option>
-                                  <option value="user" {{(($profile->role=='user')? 'selected' : '')}}>User</option>
-                          </select>
-                        @error('role')
-                        <span class="text-danger">{{$message}}</span>
-                        @enderror
-                        </div>
+                          <label for="birth_date" class="col-form-label">Birth Date</label>
+                          <input id="birth_date" type="date" name="birth_date" value="{{$profile->birth_date}}" class="form-control">
+                          @error('birth_date')
+                          <span class="text-danger">{{$message}}</span>
+                          @enderror
+                      </div>
 
-                        <button type="submit" class="btn btn-success btn-sm">Update</button>
+                      <div class="form-group">
+                          <label for="age" class="col-form-label">Age</label>
+                          <input id="age" type="number" name="age" placeholder="Enter age" value="{{$profile->age}}" class="form-control" min="1" max="120">
+                          @error('age')
+                          <span class="text-danger">{{$message}}</span>
+                          @enderror
+                      </div>
+
+                      <div class="form-group">
+                          <label for="gender" class="col-form-label">Gender</label>
+                          <select name="gender" class="form-control">
+                              <option value="">-----Select Gender-----</option>
+                              <option value="male" {{(($profile->gender=='male')? 'selected' : '')}}>Male</option>
+                              <option value="female" {{(($profile->gender=='female')? 'selected' : '')}}>Female</option>
+                              <option value="other" {{(($profile->gender=='other')? 'selected' : '')}}>Other</option>
+                          </select>
+                          @error('gender')
+                          <span class="text-danger">{{$message}}</span>
+                          @enderror
+                      </div>
+
+                      <div class="form-group">
+                          <label for="address" class="col-form-label">Address</label>
+                          <textarea id="address" name="address" placeholder="Enter your address" class="form-control" rows="3">{{$profile->address}}</textarea>
+                          @error('address')
+                          <span class="text-danger">{{$message}}</span>
+                          @enderror
+                      </div>
+
+                      <hr>
+                      <h5 class="mb-3"><i class="fas fa-university"></i> Bank Information</h5>
+                      
+                      <div class="form-group">
+                          <label for="bank_name" class="col-form-label">Bank Name</label>
+                          <input id="bank_name" type="text" name="bank_name" placeholder="Enter bank name" value="{{$profile->bank_name}}" class="form-control">
+                          @error('bank_name')
+                          <span class="text-danger">{{$message}}</span>
+                          @enderror
+                      </div>
+
+                      <div class="form-group">
+                          <label for="bank_account_number" class="col-form-label">Account Number</label>
+                          <input id="bank_account_number" type="text" name="bank_account_number" placeholder="Enter account number" value="{{$profile->bank_account_number}}" class="form-control">
+                          @error('bank_account_number')
+                          <span class="text-danger">{{$message}}</span>
+                          @enderror
+                      </div>
+
+                      <div class="form-group">
+                          <label for="bank_account_name" class="col-form-label">Account Holder Name</label>
+                          <input id="bank_account_name" type="text" name="bank_account_name" placeholder="Enter account holder name" value="{{$profile->bank_account_name}}" class="form-control">
+                          @error('bank_account_name')
+                          <span class="text-danger">{{$message}}</span>
+                          @enderror
+                      </div>
+
+                      <button type="submit" class="btn btn-success btn-sm">Update Profile</button>
                 </form>
             </div>
         </div>
@@ -129,5 +191,21 @@
 <script src="/vendor/laravel-filemanager/js/stand-alone-button.js"></script>
 <script>
     $('#lfm').filemanager('image');
+    
+    // Auto calculate age when birth date is selected
+    $('#birth_date').on('change', function() {
+        var birthDate = new Date($(this).val());
+        var today = new Date();
+        var age = today.getFullYear() - birthDate.getFullYear();
+        var monthDiff = today.getMonth() - birthDate.getMonth();
+        
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        
+        if (age >= 0 && age <= 120) {
+            $('#age').val(age);
+        }
+    });
 </script>
 @endpush
