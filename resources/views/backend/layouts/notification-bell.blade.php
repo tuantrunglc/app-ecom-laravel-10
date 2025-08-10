@@ -81,15 +81,57 @@
 <meta name="user-id" content="{{ Auth::id() }}">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
-{{-- Include required CSS --}}
-<link rel="stylesheet" href="{{ asset('css/notifications.css') }}">
+{{-- Simple notification bell styling --}}
+<style>
+.sound-toggle:hover i {
+    color: #007bff !important;
+}
+.badge-counter {
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+</style>
 
 {{-- Include Firebase SDK --}}
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-{{-- Include notification scripts --}}
-<script src="{{ asset('js/generate-sounds.js') }}"></script>
-<script src="{{ asset('js/firebase-config.js') }}"></script>
-<script src="{{ asset('js/notification-manager.js') }}"></script>
-<script src="{{ asset('js/admin-notifications.js') }}"></script>
+{{-- Include notification sounds --}}
+<script src="{{ asset('js/notification-sounds.js') }}"></script>
+
+{{-- Simple sound controls --}}
+<script>
+$(document).ready(function() {
+    // Xử lý nút bật/tắt âm thanh
+    $('#sound-toggle').on('click', function(e) {
+        e.preventDefault();
+        const isEnabled = window.notificationSounds.toggle();
+        const icon = $(this).find('i');
+        
+        if (isEnabled) {
+            icon.removeClass('fa-volume-mute').addClass('fa-volume-up');
+            window.notificationSounds.playSuccess(); // Test sound
+        } else {
+            icon.removeClass('fa-volume-up').addClass('fa-volume-mute');
+        }
+    });
+    
+    // Xử lý điều khiển âm lượng
+    $('#volume-control').on('input', function() {
+        const volume = parseFloat($(this).val());
+        window.notificationSounds.setVolume(volume);
+    });
+    
+    // Cập nhật UI ban đầu
+    const soundToggleIcon = $('#sound-toggle i');
+    if (window.notificationSounds.isEnabled()) {
+        soundToggleIcon.removeClass('fa-volume-mute').addClass('fa-volume-up');
+    } else {
+        soundToggleIcon.removeClass('fa-volume-up').addClass('fa-volume-mute');
+    }
+});
+</script>
