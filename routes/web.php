@@ -157,6 +157,11 @@
         Route::post('users/{id}/toggle-status', 'UsersController@toggleStatus')->name('users.toggle-status');
         Route::get('users/{id}/details', 'UsersController@showDetails')->name('users.details');
         Route::post('users/{id}/update-info', 'UsersController@updateInfo')->name('users.update-info');
+        
+        // Withdrawal Password Routes
+        Route::post('users/{id}/create-withdrawal-password', 'UsersController@createWithdrawalPassword')->name('users.create-withdrawal-password');
+        Route::post('users/{id}/change-withdrawal-password', 'UsersController@changeWithdrawalPassword')->name('users.change-withdrawal-password');
+        Route::post('users/{id}/verify-withdrawal-password', 'UsersController@verifyWithdrawalPassword')->name('users.verify-withdrawal-password');
         // Banner
         Route::resource('banner', 'BannerController');
         // Brand
@@ -234,6 +239,10 @@
         // Password Change
         Route::get('change-password', [HomeController::class, 'changePassword'])->name('user.change.password.form');
         Route::post('change-password', [HomeController::class, 'changPasswordStore'])->name('change.password');
+
+        // Withdrawal Password Management
+        Route::post('create-withdrawal-password', [HomeController::class, 'createWithdrawalPassword'])->name('user.create-withdrawal-password');
+        Route::post('verify-withdrawal-password', [HomeController::class, 'verifyWithdrawalPassword'])->name('user.verify-withdrawal-password');
 
     });
 

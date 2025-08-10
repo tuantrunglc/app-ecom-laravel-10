@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\ProductReview;
 use App\Models\PostComment;
 use App\Rules\MatchOldPassword;
+use App\Rules\WithdrawalPinRule;
 use Hash;
 
 class HomeController extends Controller
@@ -251,5 +252,75 @@ class HomeController extends Controller
         return redirect()->route('user')->with('success','Password successfully changed');
     }
 
-    
+    /**
+     * Tạo mật khẩu rút tiền cho user
+     */
+    public function createWithdrawalPassword(Request $request)
+    {
+        $user = auth()->user();
+        
+        $request->validate([
+            'withdrawal_password' => ['required', new WithdrawalPinRule],
+            'withdrawal_password_confirmation' => 'required|same:withdrawal_password'
+        ]);
+        
+        // Kiểm tra user đã có mật khẩu rút tiền chưa
+        if ($user->hasWithdrawalPassword()) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'You already have a withdrawal password. Please contact admin if you need to change it.'
+            ]);
+        }
+        
+        $user->setWithdrawalPassword($request->withdrawal_password);
+        
+        return response()->json([
+            'success' => true, 
+            'message' => 'Withdrawal password created successfully!'
+        ]);
+    }
+
+    /**
+     * Thay đổi mật khẩu rút tiền - CHỈ ADMIN MỚI ĐƯỢC PHÉP
+     * User không thể tự thay đổi mật khẩu rút tiền
+     */
+    public function changeWithdrawalPassword(Request $request)
+    {
+        return response()->json([
+            'success' => false, 
+            'message' => 'You do not have permission to change withdrawal password. Please contact admin if you need assistance.'
+        ], 403);
+    }
+
+    /**
+     * Xác thực mật khẩu rút tiền
+     */
+    public function verifyWithdrawalPassword(Request $request)
+    {
+        $user = auth()->user();
+        
+        $request->validate([
+            'withdrawal_password' => 'required'
+        ]);
+        
+        if (!$user->hasWithdrawalPassword()) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'You have not created a withdrawal password yet!',
+                'need_create' => true
+            ]);
+        }
+        
+        if (!$user->checkWithdrawalPassword($request->withdrawal_password)) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Incorrect withdrawal password!'
+            ]);
+        }
+        
+        return response()->json([
+            'success' => true, 
+            'message' => 'Verification successful!'
+        ]);
+    }
 }

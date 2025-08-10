@@ -83,6 +83,25 @@
                                 <i class="fas {{$user->status == 'active' ? 'fa-lock' : 'fa-unlock'}}"></i>
                             </button>
                             
+                            <!-- Withdrawal Password Management -->
+                            @if($user->withdrawal_password)
+                                <button class="btn btn-success btn-sm mr-1 mb-1 change-withdrawal-password-btn" 
+                                        data-id="{{$user->id}}" 
+                                        data-toggle="tooltip" 
+                                        title="Thay đổi mật khẩu rút tiền" 
+                                        data-placement="bottom">
+                                    <i class="fas fa-shield-alt"></i>
+                                </button>
+                            @else
+                                <button class="btn btn-warning btn-sm mr-1 mb-1 create-withdrawal-password-btn" 
+                                        data-id="{{$user->id}}" 
+                                        data-toggle="tooltip" 
+                                        title="Tạo mật khẩu rút tiền" 
+                                        data-placement="bottom">
+                                    <i class="fas fa-plus-circle"></i>
+                                </button>
+                            @endif
+                            
                             <!-- Original Edit -->
                             <a href="{{route('users.edit',$user->id)}}" class="btn btn-primary btn-sm mr-1 mb-1" data-toggle="tooltip" title="Chỉnh sửa" data-placement="bottom">
                                 <i class="fas fa-edit"></i>
@@ -246,6 +265,122 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
                     <button type="submit" class="btn btn-primary">Cập Nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Create Withdrawal Password Modal -->
+<div class="modal fade" id="createWithdrawalPasswordModal" tabindex="-1" role="dialog" aria-labelledby="createWithdrawalPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createWithdrawalPasswordModalLabel">Tạo Mật Khẩu Rút Tiền</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="createWithdrawalPasswordForm">
+                <div class="modal-body">
+                    <input type="hidden" id="create_withdrawal_user_id" name="user_id">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Mật khẩu rút tiền phải là 4-6 chữ số
+                    </div>
+                    <div class="form-group">
+                        <label for="withdrawal_password">Mật khẩu rút tiền</label>
+                        <input type="password" class="form-control" id="withdrawal_password" name="withdrawal_password" 
+                               required pattern="[0-9]{4,6}" maxlength="6" placeholder="Nhập 4-6 chữ số">
+                    </div>
+                    <div class="form-group">
+                        <label for="withdrawal_password_confirmation">Xác nhận mật khẩu</label>
+                        <input type="password" class="form-control" id="withdrawal_password_confirmation" 
+                               name="withdrawal_password_confirmation" required pattern="[0-9]{4,6}" maxlength="6" 
+                               placeholder="Nhập lại 4-6 chữ số">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Tạo Mật Khẩu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Change Withdrawal Password Modal -->
+<div class="modal fade" id="changeWithdrawalPasswordModal" tabindex="-1" role="dialog" aria-labelledby="changeWithdrawalPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changeWithdrawalPasswordModalLabel">Thay Đổi Mật Khẩu Rút Tiền</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="changeWithdrawalPasswordForm">
+                <div class="modal-body">
+                    <input type="hidden" id="change_withdrawal_user_id" name="user_id">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Mật khẩu rút tiền phải là 4-6 chữ số
+                    </div>
+                    <div class="form-group" id="current_withdrawal_password_group" style="display: none;">
+                        <label for="current_withdrawal_password">Mật khẩu hiện tại</label>
+                        <input type="password" class="form-control" id="current_withdrawal_password" 
+                               name="current_withdrawal_password" pattern="[0-9]{4,6}" maxlength="6" 
+                               placeholder="Nhập mật khẩu hiện tại">
+                    </div>
+                    <div class="form-group">
+                        <label for="new_withdrawal_password">Mật khẩu mới</label>
+                        <input type="password" class="form-control" id="new_withdrawal_password" 
+                               name="new_withdrawal_password" required pattern="[0-9]{4,6}" maxlength="6" 
+                               placeholder="Nhập 4-6 chữ số">
+                    </div>
+                    <div class="form-group">
+                        <label for="new_withdrawal_password_confirmation">Xác nhận mật khẩu mới</label>
+                        <input type="password" class="form-control" id="new_withdrawal_password_confirmation" 
+                               name="new_withdrawal_password_confirmation" required pattern="[0-9]{4,6}" maxlength="6" 
+                               placeholder="Nhập lại 4-6 chữ số">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Thay Đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Verify Withdrawal Password Modal -->
+<div class="modal fade" id="verifyWithdrawalPasswordModal" tabindex="-1" role="dialog" aria-labelledby="verifyWithdrawalPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="verifyWithdrawalPasswordModalLabel">Xác Thực Mật Khẩu Rút Tiền</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="verifyWithdrawalPasswordForm">
+                <div class="modal-body">
+                    <input type="hidden" id="verify_withdrawal_user_id" name="user_id">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-shield-alt"></i>
+                        Vui lòng nhập mật khẩu rút tiền để xác thực giao dịch
+                    </div>
+                    <div class="form-group">
+                        <label for="verify_withdrawal_password">Mật khẩu rút tiền</label>
+                        <input type="password" class="form-control" id="verify_withdrawal_password" 
+                               name="withdrawal_password" required pattern="[0-9]{4,6}" maxlength="6" 
+                               placeholder="Nhập mật khẩu rút tiền">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success">Xác Thực</button>
                 </div>
             </form>
         </div>
@@ -472,6 +607,175 @@
                 }
             });
         });
+
+        // Withdrawal Password Management
+        // Create Withdrawal Password Button
+        $(document).on('click', '.create-withdrawal-password-btn', function() {
+            var userId = $(this).data('id');
+            $('#create_withdrawal_user_id').val(userId);
+            $('#createWithdrawalPasswordModal').modal('show');
+        });
+        
+        // Change Withdrawal Password Button
+        $(document).on('click', '.change-withdrawal-password-btn', function() {
+            var userId = $(this).data('id');
+            var currentUserId = {{ auth()->id() }};
+            
+            $('#change_withdrawal_user_id').val(userId);
+            
+            // Hiển thị field mật khẩu hiện tại nếu user tự thay đổi
+            if (userId == currentUserId) {
+                $('#current_withdrawal_password_group').show();
+                $('#current_withdrawal_password').prop('required', true);
+            } else {
+                $('#current_withdrawal_password_group').hide();
+                $('#current_withdrawal_password').prop('required', false);
+            }
+            
+            $('#changeWithdrawalPasswordModal').modal('show');
+        });
+        
+        // Create Withdrawal Password Form Submit
+        $('#createWithdrawalPasswordForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            var userId = $('#create_withdrawal_user_id').val();
+            var formData = $(this).serialize();
+            
+            $.ajax({
+                url: '/admin/users/' + userId + '/create-withdrawal-password',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        $('#createWithdrawalPasswordModal').modal('hide');
+                        swal("Thành công!", response.message, "success");
+                        location.reload();
+                    } else {
+                        swal("Lỗi!", response.message, "error");
+                    }
+                },
+                error: function(xhr) {
+                    var errors = xhr.responseJSON.errors;
+                    var errorMessage = '';
+                    
+                    if (errors) {
+                        $.each(errors, function(key, value) {
+                            errorMessage += value[0] + '\n';
+                        });
+                    } else {
+                        errorMessage = 'Có lỗi xảy ra!';
+                    }
+                    
+                    swal("Lỗi!", errorMessage, "error");
+                }
+            });
+        });
+        
+        // Change Withdrawal Password Form Submit
+        $('#changeWithdrawalPasswordForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            var userId = $('#change_withdrawal_user_id').val();
+            var formData = $(this).serialize();
+            
+            $.ajax({
+                url: '/admin/users/' + userId + '/change-withdrawal-password',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        $('#changeWithdrawalPasswordModal').modal('hide');
+                        swal("Thành công!", response.message, "success");
+                        location.reload();
+                    } else {
+                        swal("Lỗi!", response.message, "error");
+                    }
+                },
+                error: function(xhr) {
+                    var errors = xhr.responseJSON.errors;
+                    var errorMessage = '';
+                    
+                    if (errors) {
+                        $.each(errors, function(key, value) {
+                            errorMessage += value[0] + '\n';
+                        });
+                    } else {
+                        errorMessage = 'Có lỗi xảy ra!';
+                    }
+                    
+                    swal("Lỗi!", errorMessage, "error");
+                }
+            });
+        });
+        
+        // Verify Withdrawal Password Form Submit
+        $('#verifyWithdrawalPasswordForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            var userId = $('#verify_withdrawal_user_id').val();
+            var formData = $(this).serialize();
+            
+            $.ajax({
+                url: '/admin/users/' + userId + '/verify-withdrawal-password',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        $('#verifyWithdrawalPasswordModal').modal('hide');
+                        // Tiếp tục với quy trình rút tiền
+                        proceedWithWithdrawal();
+                    } else {
+                        if (response.need_create) {
+                            $('#verifyWithdrawalPasswordModal').modal('hide');
+                            $('#create_withdrawal_user_id').val(userId);
+                            $('#createWithdrawalPasswordModal').modal('show');
+                        } else {
+                            swal("Lỗi!", response.message, "error");
+                        }
+                    }
+                },
+                error: function(xhr) {
+                    var errors = xhr.responseJSON.errors;
+                    var errorMessage = '';
+                    
+                    if (errors) {
+                        $.each(errors, function(key, value) {
+                            errorMessage += value[0] + '\n';
+                        });
+                    } else {
+                        errorMessage = 'Có lỗi xảy ra!';
+                    }
+                    
+                    swal("Lỗi!", errorMessage, "error");
+                }
+            });
+        });
+        
+        // Function to proceed with withdrawal after verification
+        function proceedWithWithdrawal() {
+            // Implement your withdrawal logic here
+            swal("Thành công!", "Xác thực thành công! Tiếp tục với quy trình rút tiền.", "success");
+        }
+        
+        // Clear forms when modals are hidden
+        $('#createWithdrawalPasswordModal').on('hidden.bs.modal', function() {
+            $('#createWithdrawalPasswordForm')[0].reset();
+        });
+        
+        $('#changeWithdrawalPasswordModal').on('hidden.bs.modal', function() {
+            $('#changeWithdrawalPasswordForm')[0].reset();
+        });
+        
+        $('#verifyWithdrawalPasswordModal').on('hidden.bs.modal', function() {
+            $('#verifyWithdrawalPasswordForm')[0].reset();
+        });
       })
+
+      // Function to show withdrawal password verification
+      function showWithdrawalPasswordVerification(userId) {
+          $('#verify_withdrawal_user_id').val(userId);
+          $('#verifyWithdrawalPasswordModal').modal('show');
+      }
   </script>
 @endpush

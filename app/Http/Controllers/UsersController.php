@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\User;
+use App\Rules\WithdrawalPinRule;
 class UsersController extends Controller
 {
     /**
@@ -262,5 +263,109 @@ class UsersController extends Controller
         } else {
             return response()->json(['error' => 'Có lỗi xảy ra khi cập nhật thông tin'], 500);
         }
+    }
+
+    /**
+     * Tạo mật khẩu rút tiền
+     */
+    public function createWithdrawalPassword(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Kiểm tra quyền
+        if (!auth()->user()->canManageUser($id) && auth()->id() != $id) {
+            return response()->json(['success' => false, 'message' => 'Không có quyền truy cập'], 403);
+        }
+        
+        $request->validate([
+            'withdrawal_password' => ['required', new WithdrawalPinRule],
+            'withdrawal_password_confirmation' => 'required|same:withdrawal_password'
+        ]);
+        
+        $user->setWithdrawalPassword($request->withdrawal_password);
+        
+        return response()->json([
+            'success' => true, 
+            'message' => 'Tạo mật khẩu rút tiền thành công!'
+        ]);
+    }
+
+    /**
+     * Thay đổi mật khẩu rút tiền
+     */
+    public function changeWithdrawalPassword(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Kiểm tra quyền
+        if (!auth()->user()->canManageUser($id) && auth()->id() != $id) {
+            return response()->json(['success' => false, 'message' => 'Không có quyền truy cập'], 403);
+        }
+        
+        $rules = [
+            'new_withdrawal_password' => ['required', new WithdrawalPinRule],
+            'new_withdrawal_password_confirmation' => 'required|same:new_withdrawal_password'
+        ];
+        
+        // Nếu user tự thay đổi, yêu cầu mật khẩu cũ
+        if (auth()->id() == $id) {
+            $rules['current_withdrawal_password'] = 'required';
+        }
+        
+        $request->validate($rules);
+        
+        // Kiểm tra mật khẩu cũ nếu user tự thay đổi
+        if (auth()->id() == $id) {
+            if (!$user->checkWithdrawalPassword($request->current_withdrawal_password)) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Mật khẩu rút tiền hiện tại không đúng!'
+                ]);
+            }
+        }
+        
+        $user->setWithdrawalPassword($request->new_withdrawal_password);
+        
+        return response()->json([
+            'success' => true, 
+            'message' => 'Thay đổi mật khẩu rút tiền thành công!'
+        ]);
+    }
+
+    /**
+     * Xác thực mật khẩu rút tiền
+     */
+    public function verifyWithdrawalPassword(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Kiểm tra quyền
+        if (auth()->id() != $id) {
+            return response()->json(['success' => false, 'message' => 'Không có quyền truy cập'], 403);
+        }
+        
+        $request->validate([
+            'withdrawal_password' => 'required'
+        ]);
+        
+        if (!$user->hasWithdrawalPassword()) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Bạn chưa tạo mật khẩu rút tiền!',
+                'need_create' => true
+            ]);
+        }
+        
+        if (!$user->checkWithdrawalPassword($request->withdrawal_password)) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Mật khẩu rút tiền không đúng!'
+            ]);
+        }
+        
+        return response()->json([
+            'success' => true, 
+            'message' => 'Xác thực thành công!'
+        ]);
     }
 }

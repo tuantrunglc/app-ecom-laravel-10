@@ -160,6 +160,24 @@
                     </label>
                   </div>
                 </div>
+
+                <div class="form-group">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="notification_new_deposit" value="1" id="notification_new_deposit" {{old('notification_new_deposit', $subAdmin->subAdminSettings->notification_new_deposit) ? 'checked' : ''}}>
+                    <label class="form-check-label" for="notification_new_deposit">
+                      Nhận thông báo Nạp tiền mới
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="notification_new_withdrawal" value="1" id="notification_new_withdrawal" {{old('notification_new_withdrawal', $subAdmin->subAdminSettings->notification_new_withdrawal) ? 'checked' : ''}}>
+                    <label class="form-check-label" for="notification_new_withdrawal">
+                      Nhận thông báo Rút tiền mới
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

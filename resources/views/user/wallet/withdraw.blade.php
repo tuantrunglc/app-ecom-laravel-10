@@ -65,7 +65,34 @@
                         </small>
                     </div>
 
-
+                    <div class="form-group">
+                        <label for="withdrawal_password">Withdrawal Password <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input id="withdrawal_password" type="password" class="form-control @error('withdrawal_password') is-invalid @enderror" 
+                                   name="withdrawal_password" placeholder="Enter 4-6 digit withdrawal password" 
+                                   pattern="[0-9]{4,6}" maxlength="6" required>
+                            @if(!$user->hasWithdrawalPassword())
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-info" id="createWithdrawalPasswordBtn" data-toggle="tooltip" title="Create withdrawal password">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            @endif
+                        </div>
+                        @error('withdrawal_password')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                        <small class="form-text text-muted">
+                            <i class="fas fa-shield-alt"></i> 
+                            @if($user->hasWithdrawalPassword())
+                                Enter your 4-6 digit withdrawal password for security verification
+                            @else
+                                <span class="text-warning">You don't have a withdrawal password yet. Click the + button to create one. <strong>Note: You can only create it once!</strong></span>
+                            @endif
+                        </small>
+                    </div>
 
                     <div class="form-group">
                         <button type="submit" class="btn btn-warning btn-lg">
@@ -120,6 +147,49 @@
         </div>
     </div>
 </div>
+
+<!-- Create Withdrawal Password Modal -->
+<div class="modal fade" id="createWithdrawalPasswordModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Withdrawal Password</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form id="createWithdrawalPasswordForm">
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Important:</strong> You can only create withdrawal password ONCE! Make sure to remember it as you cannot change it later.
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Create a 4-6 digit PIN for withdrawal security
+                    </div>
+                    <div class="form-group">
+                        <label for="modal_withdrawal_password">Withdrawal Password</label>
+                        <input type="password" class="form-control" id="modal_withdrawal_password" 
+                               name="withdrawal_password" required pattern="[0-9]{4,6}" maxlength="6" 
+                               placeholder="Enter 4-6 digits">
+                    </div>
+                    <div class="form-group">
+                        <label for="modal_withdrawal_password_confirmation">Confirm Password</label>
+                        <input type="password" class="form-control" id="modal_withdrawal_password_confirmation" 
+                               name="withdrawal_password_confirmation" required pattern="[0-9]{4,6}" maxlength="6" 
+                               placeholder="Confirm 4-6 digits">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -165,6 +235,59 @@ $(document).ready(function() {
         alert('Please link your bank information before withdrawing money!');
         return false;
         @endif
+    });
+
+    // CSRF Token setup
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    // Create Withdrawal Password Button
+    $('#createWithdrawalPasswordBtn').on('click', function() {
+        $('#createWithdrawalPasswordModal').modal('show');
+    });
+
+    // Create Withdrawal Password Form Submit
+    $('#createWithdrawalPasswordForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        var formData = $(this).serialize();
+        
+        $.ajax({
+            url: '{{ route("user.create-withdrawal-password") }}',
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                if (response.success) {
+                    $('#createWithdrawalPasswordModal').modal('hide');
+                    alert('Success: ' + response.message);
+                    location.reload();
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function(xhr) {
+                var errors = xhr.responseJSON.errors;
+                var errorMessage = '';
+                
+                if (errors) {
+                    $.each(errors, function(key, value) {
+                        errorMessage += value[0] + '\n';
+                    });
+                } else {
+                    errorMessage = 'An error occurred!';
+                }
+                
+                alert('Error: ' + errorMessage);
+            }
+        });
+    });
+
+    // Clear form when modal is hidden
+    $('#createWithdrawalPasswordModal').on('hidden.bs.modal', function() {
+        $('#createWithdrawalPasswordForm')[0].reset();
     });
 });
 </script>

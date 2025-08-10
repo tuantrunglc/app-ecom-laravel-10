@@ -123,6 +123,14 @@
                         <i class="fas fa-{{ $subAdmin->subAdminSettings->notification_new_order ? 'check text-success' : 'times text-danger' }}"></i>
                         Thông báo Đơn hàng mới
                     </li>
+                    <li>
+                        <i class="fas fa-{{ $subAdmin->subAdminSettings->notification_new_deposit ? 'check text-success' : 'times text-danger' }}"></i>
+                        Thông báo Nạp tiền mới
+                    </li>
+                    <li>
+                        <i class="fas fa-{{ $subAdmin->subAdminSettings->notification_new_withdrawal ? 'check text-success' : 'times text-danger' }}"></i>
+                        Thông báo Rút tiền mới
+                    </li>
                 </ul>
             </div>
         </div>

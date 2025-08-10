@@ -7,6 +7,9 @@ use App\Models\WalletTransaction;
 use App\Models\WithdrawalRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\StatusNotification;
+use App\User;
 
 class WalletController extends Controller
 {
@@ -57,9 +60,10 @@ class WalletController extends Controller
         $user = Auth::user();
 
         try {
-            DB::transaction(function () use ($request, $user) {
+            $transaction = null;
+            DB::transaction(function () use ($request, $user, &$transaction) {
                 // Tạo yêu cầu nạp tiền với trạng thái pending
-                WalletTransaction::create([
+                $transaction = WalletTransaction::create([
                     'user_id' => $user->id,
                     'type' => 'deposit',
                     'amount' => $request->amount,
@@ -69,6 +73,9 @@ class WalletController extends Controller
                     'status' => 'pending'
                 ]);
             });
+
+            // Send notification to admins and sub-admins
+            $this->sendDepositNotification($transaction, $user);
 
             // Check if request came from frontend or dashboard
             $redirectRoute = $request->has('from_frontend') ? 'deposit.request' : 'wallet.index';
@@ -109,11 +116,23 @@ class WalletController extends Controller
 
         $request->validate([
             'amount' => 'required|numeric|min:50',
+            'withdrawal_password' => 'required',
         ], [
             'amount.required' => 'Please enter amount',
             'amount.numeric' => 'Amount must be a number',
             'amount.min' => 'Minimum withdrawal amount is 50 USD',
+            'withdrawal_password.required' => 'Withdrawal password is required',
         ]);
+
+        // Kiểm tra có mật khẩu rút tiền chưa
+        if (!$user->hasWithdrawalPassword()) {
+            return back()->with('error', 'You need to create a withdrawal password first. Please contact admin or create one in your profile.');
+        }
+
+        // Xác thực mật khẩu rút tiền
+        if (!$user->checkWithdrawalPassword($request->withdrawal_password)) {
+            return back()->with('error', 'Invalid withdrawal password. Please try again.');
+        }
 
         // Check balance
         if ($user->wallet_balance < $request->amount) {
@@ -121,9 +140,10 @@ class WalletController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($request, $user) {
+            $withdrawalRequest = null;
+            DB::transaction(function () use ($request, $user, &$withdrawalRequest) {
                 // Tạo yêu cầu rút tiền sử dụng thông tin ngân hàng từ profile
-                WithdrawalRequest::create([
+                $withdrawalRequest = WithdrawalRequest::create([
                     'user_id' => $user->id,
                     'amount' => $request->amount,
                     'bank_name' => $user->bank_name,
@@ -133,10 +153,101 @@ class WalletController extends Controller
                 ]);
             });
 
+            // Send notification to admins and sub-admins
+            $this->sendWithdrawalNotification($withdrawalRequest, $user);
+
             return redirect()->route('wallet.index')
                 ->with('success', 'Withdrawal request submitted successfully. Customer service will process within 1-3 business days.');
         } catch (\Exception $e) {
             return back()->with('error', 'An error occurred. Please try again.');
+        }
+    }
+
+    /**
+     * Get list of users who should receive deposit notifications
+     */
+    private function getDepositNotificationRecipients($user)
+    {
+        $recipients = collect();
+
+        // Always notify all admins
+        $admins = User::where('role', 'admin')->where('status', 'active')->get();
+        $recipients = $recipients->merge($admins);
+
+        // If user has a parent sub-admin, notify them if they have deposit notification enabled
+        if ($user->parent_sub_admin_id) {
+            $subAdmin = User::where('id', $user->parent_sub_admin_id)
+                           ->where('role', 'sub_admin')
+                           ->where('status', 'active')
+                           ->first();
+            
+            if ($subAdmin && $subAdmin->subAdminSettings && $subAdmin->subAdminSettings->notification_new_deposit) {
+                $recipients->push($subAdmin);
+            }
+        }
+
+        return $recipients;
+    }
+
+    /**
+     * Get list of users who should receive withdrawal notifications
+     */
+    private function getWithdrawalNotificationRecipients($user)
+    {
+        $recipients = collect();
+
+        // Always notify all admins
+        $admins = User::where('role', 'admin')->where('status', 'active')->get();
+        $recipients = $recipients->merge($admins);
+
+        // If user has a parent sub-admin, notify them if they have withdrawal notification enabled
+        if ($user->parent_sub_admin_id) {
+            $subAdmin = User::where('id', $user->parent_sub_admin_id)
+                           ->where('role', 'sub_admin')
+                           ->where('status', 'active')
+                           ->first();
+            
+            if ($subAdmin && $subAdmin->subAdminSettings && $subAdmin->subAdminSettings->notification_new_withdrawal) {
+                $recipients->push($subAdmin);
+            }
+        }
+
+        return $recipients;
+    }
+
+    /**
+     * Send deposit notification to admins and sub-admins
+     */
+    private function sendDepositNotification($transaction, $user)
+    {
+        $recipients = $this->getDepositNotificationRecipients($user);
+
+        if ($recipients->isNotEmpty()) {
+            $details = [
+                'title' => 'New Deposit Request - $' . number_format($transaction->amount, 2) . ' from ' . $user->name,
+                'actionURL' => route('admin.wallet.deposits'),
+                'fas' => 'fas fa-plus-circle'
+            ];
+
+            Notification::send($recipients, new StatusNotification($details));
+        }
+    }
+
+    /**
+     * Send withdrawal notification to admins and sub-admins
+     */
+    private function sendWithdrawalNotification($withdrawalRequest, $user)
+    {
+        $recipients = $this->getWithdrawalNotificationRecipients($user);
+
+        if ($recipients->isNotEmpty()) {
+            $details = [
+                'title' => 'New Withdrawal Request - $' . number_format($withdrawalRequest->amount, 2) . ' from ' . $user->name,
+                'actionURL' => route('admin.wallet.withdrawals'),
+                'fas' => 'fas fa-minus-circle'
+            ];
+
+            Notification::send($recipients, new StatusNotification($details));
         }
     }
 }

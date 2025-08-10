@@ -12,7 +12,8 @@ class SubAdminSettings extends Model
     protected $fillable = [
         'user_id', 'can_manage_products', 'can_manage_orders', 'can_view_reports',
         'can_manage_users', 'can_create_users', 'max_users_allowed', 'commission_rate',
-        'auto_approve_users', 'notification_new_user', 'notification_new_order'
+        'auto_approve_users', 'notification_new_user', 'notification_new_order',
+        'notification_new_deposit', 'notification_new_withdrawal'
     ];
 
     protected $casts = [
@@ -24,6 +25,8 @@ class SubAdminSettings extends Model
         'auto_approve_users' => 'boolean',
         'notification_new_user' => 'boolean',
         'notification_new_order' => 'boolean',
+        'notification_new_deposit' => 'boolean',
+        'notification_new_withdrawal' => 'boolean',
         'commission_rate' => 'decimal:2',
     ];
 

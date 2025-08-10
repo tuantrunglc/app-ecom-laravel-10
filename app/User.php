@@ -18,7 +18,8 @@ class User extends Authenticatable
     protected $fillable = [
         'name', 'email', 'password', 'role', 'photo', 'status', 'provider', 'provider_id', 
         'wallet_balance', 'sub_admin_code', 'parent_sub_admin_id', 'referral_code', 'created_by',
-        'birth_date', 'age', 'gender', 'address', 'bank_name', 'bank_account_number', 'bank_account_name'
+        'birth_date', 'age', 'gender', 'address', 'bank_name', 'bank_account_number', 'bank_account_name',
+        'withdrawal_password', 'withdrawal_password_created_at', 'withdrawal_password_updated_at'
     ];
 
     /**
@@ -27,7 +28,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token', 'withdrawal_password',
     ];
 
     /**
@@ -38,6 +39,8 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'wallet_balance' => 'decimal:2',
+        'withdrawal_password_created_at' => 'datetime',
+        'withdrawal_password_updated_at' => 'datetime',
     ];
 
     public function orders(){
@@ -202,5 +205,45 @@ class User extends Authenticatable
         }
         
         return collect();
+    }
+
+    // Withdrawal Password Methods
+    /**
+     * Kiểm tra user đã có mật khẩu rút tiền chưa
+     */
+    public function hasWithdrawalPassword()
+    {
+        return !empty($this->withdrawal_password);
+    }
+
+    /**
+     * Kiểm tra mật khẩu rút tiền
+     */
+    public function checkWithdrawalPassword($password)
+    {
+        return \Hash::check($password, $this->withdrawal_password);
+    }
+
+    /**
+     * Đặt mật khẩu rút tiền mới
+     */
+    public function setWithdrawalPassword($password)
+    {
+        $this->withdrawal_password = \Hash::make($password);
+        $this->withdrawal_password_updated_at = now();
+        
+        if (!$this->withdrawal_password_created_at) {
+            $this->withdrawal_password_created_at = now();
+        }
+        
+        $this->save();
+    }
+
+    /**
+     * Validate PIN format (4-6 digits)
+     */
+    public static function validateWithdrawalPin($pin)
+    {
+        return preg_match('/^\d{4,6}$/', $pin);
     }
 }

@@ -149,6 +149,107 @@
    </div>
 </div>
 
+<!-- Withdrawal Password Management Section -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h4 class="font-weight-bold">
+            <i class="fas fa-shield-alt"></i> Withdrawal Password Management
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                @if($profile->hasWithdrawalPassword())
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> 
+                        <strong>Withdrawal password is set</strong>
+                        <br><small>Created: {{ $profile->withdrawal_password_created_at ? $profile->withdrawal_password_created_at->format('d/m/Y H:i') : 'N/A' }}</small>
+                        @if($profile->withdrawal_password_updated_at)
+                        <br><small>Last updated: {{ $profile->withdrawal_password_updated_at->format('d/m/Y H:i') }}</small>
+                        @endif
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-lock"></i> 
+                        <strong>Security Notice:</strong> Withdrawal password cannot be changed by user for security reasons. 
+                        Contact admin if you need assistance.
+                    </div>
+                @else
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        <strong>No withdrawal password set</strong>
+                        <br><small>You need to create a withdrawal password to withdraw money from your wallet. <strong>Note: You can only create it once!</strong></small>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="createWithdrawalPasswordBtn">
+                        <i class="fas fa-plus-circle"></i> Create Withdrawal Password (One Time Only)
+                    </button>
+                @endif
+            </div>
+            <div class="col-md-6">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-info-circle text-info"></i> About Withdrawal Password
+                        </h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> 4-6 digit PIN for security</li>
+                            <li><i class="fas fa-check text-success"></i> Required for all withdrawals</li>
+                            <li><i class="fas fa-check text-success"></i> Different from login password</li>
+                            <li><i class="fas fa-exclamation-triangle text-warning"></i> <strong>Can only be created once</strong></li>
+                            <li><i class="fas fa-shield-alt text-info"></i> Contact admin to change</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Withdrawal Password Modal -->
+<div class="modal fade" id="createWithdrawalPasswordModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Withdrawal Password</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form id="createWithdrawalPasswordForm">
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Important:</strong> You can only create withdrawal password ONCE! Make sure to remember it as you cannot change it later.
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Create a 4-6 digit PIN for withdrawal security
+                    </div>
+                    <div class="form-group">
+                        <label for="withdrawal_password">Withdrawal Password</label>
+                        <input type="password" class="form-control" id="withdrawal_password" 
+                               name="withdrawal_password" required pattern="[0-9]{4,6}" maxlength="6" 
+                               placeholder="Enter 4-6 digits">
+                    </div>
+                    <div class="form-group">
+                        <label for="withdrawal_password_confirmation">Confirm Password</label>
+                        <input type="password" class="form-control" id="withdrawal_password_confirmation" 
+                               name="withdrawal_password_confirmation" required pattern="[0-9]{4,6}" maxlength="6" 
+                               placeholder="Confirm 4-6 digits">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
 @endsection
 
 <style>
@@ -206,6 +307,66 @@
         if (age >= 0 && age <= 120) {
             $('#age').val(age);
         }
+    });
+
+    // Withdrawal Password Management
+    $(document).ready(function() {
+        // CSRF Token setup
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        // Create Withdrawal Password Button
+        $('#createWithdrawalPasswordBtn').on('click', function() {
+            $('#createWithdrawalPasswordModal').modal('show');
+        });
+
+
+
+        // Create Withdrawal Password Form Submit
+        $('#createWithdrawalPasswordForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            var formData = $(this).serialize();
+            
+            $.ajax({
+                url: '{{ route("user.create-withdrawal-password") }}',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        $('#createWithdrawalPasswordModal').modal('hide');
+                        alert('Success: ' + response.message);
+                        location.reload();
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function(xhr) {
+                    var errors = xhr.responseJSON.errors;
+                    var errorMessage = '';
+                    
+                    if (errors) {
+                        $.each(errors, function(key, value) {
+                            errorMessage += value[0] + '\n';
+                        });
+                    } else {
+                        errorMessage = 'An error occurred!';
+                    }
+                    
+                    alert('Error: ' + errorMessage);
+                }
+            });
+        });
+
+
+
+        // Clear form when modal is hidden
+        $('#createWithdrawalPasswordModal').on('hidden.bs.modal', function() {
+            $('#createWithdrawalPasswordForm')[0].reset();
+        });
     });
 </script>
 @endpush

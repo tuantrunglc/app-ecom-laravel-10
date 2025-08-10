@@ -74,6 +74,8 @@ class AdminSubAdminsController extends Controller
                 'auto_approve_users' => $request->boolean('auto_approve_users', true),
                 'notification_new_user' => $request->boolean('notification_new_user', true),
                 'notification_new_order' => $request->boolean('notification_new_order', true),
+                'notification_new_deposit' => $request->boolean('notification_new_deposit', true),
+                'notification_new_withdrawal' => $request->boolean('notification_new_withdrawal', true),
             ]);
 
             // Tạo Stats record
@@ -163,6 +165,8 @@ class AdminSubAdminsController extends Controller
                 'auto_approve_users' => $request->boolean('auto_approve_users'),
                 'notification_new_user' => $request->boolean('notification_new_user'),
                 'notification_new_order' => $request->boolean('notification_new_order'),
+                'notification_new_deposit' => $request->boolean('notification_new_deposit'),
+                'notification_new_withdrawal' => $request->boolean('notification_new_withdrawal'),
             ]);
 
             DB::commit();
