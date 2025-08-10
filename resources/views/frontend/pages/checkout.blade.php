@@ -2,6 +2,60 @@
 
 @section('title','Checkout page')
 
+@push('styles')
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    /* Select2 custom styling to match form design */
+    .select2-container .select2-selection--single {
+        height: 50px !important;
+        border: 1px solid #ddd !important;
+        border-radius: 0 !important;
+        padding: 12px 15px !important;
+        background-color: #fff !important;
+        font-size: 14px !important;
+        line-height: 26px !important;
+    }
+    
+    .select2-container .select2-selection--single .select2-selection__rendered {
+        padding-left: 0 !important;
+        padding-right: 20px !important;
+        color: #666 !important;
+    }
+    
+    .select2-container .select2-selection--single .select2-selection__arrow {
+        height: 48px !important;
+        right: 10px !important;
+    }
+    
+    .select2-dropdown {
+        border: 1px solid #ddd !important;
+        border-radius: 0 !important;
+    }
+    
+    .select2-container--open .select2-selection--single {
+        border-color: #007bff !important;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3) !important;
+    }
+    
+    .select2-search--dropdown .select2-search__field {
+        border: 1px solid #ddd !important;
+        border-radius: 0 !important;
+        padding: 10px !important;
+        font-size: 14px !important;
+    }
+    
+    .select2-results__option {
+        padding: 10px 15px !important;
+        font-size: 14px !important;
+    }
+    
+    .select2-results__option--highlighted {
+        background-color: #007bff !important;
+    }
+</style>
+@endpush
+
 @section('main-content')
 
     <!-- Breadcrumbs -->
@@ -73,7 +127,7 @@
                                     <div class="col-lg-6 col-md-6 col-12">
                                         <div class="form-group">
                                             <label>Country<span>*</span></label>
-                                            <select name="country" id="country">
+                                            <select name="country" id="country" class="country-search">
                                                 <option value="AF">Afghanistan</option>
                                                 <option value="AX">Åland Islands</option>
                                                 <option value="AL">Albania</option>
@@ -309,6 +363,7 @@
                                                 <option value="UY">Uruguay</option>
                                                 <option value="UM">U.S. Minor Outlying Islands</option>
                                                 <option value="VI">U.S. Virgin Islands</option>
+                                                <option value="US">United States</option>
                                                 <option value="UZ">Uzbekistan</option>
                                                 <option value="VU">Vanuatu</option>
                                                 <option value="VA">Vatican City</option>
