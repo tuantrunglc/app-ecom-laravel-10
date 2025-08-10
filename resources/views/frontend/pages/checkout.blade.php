@@ -7,35 +7,55 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
     /* Select2 custom styling to match form design */
+    .select2-container {
+        width: 100% !important;
+    }
+    
     .select2-container .select2-selection--single {
         height: 50px !important;
         border: 1px solid #ddd !important;
         border-radius: 0 !important;
-        padding: 12px 15px !important;
         background-color: #fff !important;
         font-size: 14px !important;
-        line-height: 26px !important;
+        display: flex !important;
+        align-items: center !important;
+        padding: 0 15px !important;
+        transition: border-color 0.3s ease !important;
     }
     
     .select2-container .select2-selection--single .select2-selection__rendered {
-        padding-left: 0 !important;
-        padding-right: 20px !important;
+        padding: 0 !important;
+        line-height: 26px !important;
         color: #666 !important;
+        font-family: inherit !important;
     }
     
     .select2-container .select2-selection--single .select2-selection__arrow {
         height: 48px !important;
         right: 10px !important;
+        top: 1px !important;
+    }
+    
+    .select2-container .select2-selection--single .select2-selection__arrow b {
+        border-color: #666 transparent transparent transparent !important;
+        border-style: solid !important;
+        border-width: 5px 4px 0 4px !important;
     }
     
     .select2-dropdown {
         border: 1px solid #ddd !important;
         border-radius: 0 !important;
+        font-size: 14px !important;
     }
     
     .select2-container--open .select2-selection--single {
-        border-color: #007bff !important;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3) !important;
+        border-color: #F7941D !important;
+        box-shadow: 0 0 5px rgba(247, 148, 29, 0.3) !important;
+    }
+    
+    .select2-container--open .select2-selection--single .select2-selection__arrow b {
+        border-color: transparent transparent #666 transparent !important;
+        border-width: 0 4px 5px 4px !important;
     }
     
     .select2-search--dropdown .select2-search__field {
@@ -43,15 +63,31 @@
         border-radius: 0 !important;
         padding: 10px !important;
         font-size: 14px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
     }
     
     .select2-results__option {
         padding: 10px 15px !important;
         font-size: 14px !important;
+        line-height: 1.4 !important;
     }
     
     .select2-results__option--highlighted {
-        background-color: #007bff !important;
+        background-color: #F7941D !important;
+        color: #fff !important;
+    }
+    
+    .select2-results__option--selected {
+        background-color: #f8f9fa !important;
+        color: #333 !important;
+    }
+    
+    /* Focus state to match other inputs */
+    .select2-container--focus .select2-selection--single {
+        border-color: #F7941D !important;
+        outline: none !important;
+        box-shadow: 0 0 5px rgba(247, 148, 29, 0.3) !important;
     }
 </style>
 @endpush
@@ -692,8 +728,13 @@
 	<script src="{{asset('frontend/js/nice-select/js/jquery.nice-select.min.js')}}"></script>
 	<script src="{{ asset('frontend/js/select2/js/select2.min.js') }}"></script>
 	<script>
-		$(document).ready(function() { $("select.select2").select2(); });
-  		$('select.nice-select').niceSelect();
+		$(document).ready(function() { 
+			// Initialize Select2 for country dropdown
+			$("select.select2").select2(); 
+			
+			// Initialize nice-select only for selects with nice-select class
+			$('select.nice-select').niceSelect();
+		});
 	</script>
 	<script>
 		function showMe(box){
