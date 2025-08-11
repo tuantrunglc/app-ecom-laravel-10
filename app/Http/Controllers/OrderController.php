@@ -384,7 +384,7 @@ class OrderController extends Controller
             if($currentBalance < $totalAmount){
                 $shortfall = $totalAmount - $currentBalance;
                 
-                // Send Firebase real-time notification to user about insufficient wallet balance
+                // Send Firebase notification to user about insufficient wallet balance
                 $this->firebaseService->sendInsufficientWalletNotification(
                     $payingUser, 
                     $currentBalance, 
@@ -392,7 +392,7 @@ class OrderController extends Controller
                     $shortfall
                 );
                 
-                // Also send FCM push notification if user has FCM token
+                // Also send traditional notification as backup
                 if ($payingUser->fcm_token) {
                     $this->sendFCMNotification(
                         $payingUser->fcm_token,
@@ -400,38 +400,6 @@ class OrderController extends Controller
                         'Your balance: $' . number_format($currentBalance, 2) . ', Required: $' . number_format($totalAmount, 2) . '. Please add $' . number_format($shortfall, 2) . ' to your wallet.',
                         ['actionURL' => route('wallet.index')]
                     );
-                }
-                
-                // Also send traditional notification as backup
-                try {
-                    $details = [
-                        'title' => 'Order Failed - Insufficient Wallet Balance - Your balance: $' . number_format($currentBalance, 2) . ', Required: $' . number_format($totalAmount, 2) . '. Please add $' . number_format($shortfall, 2) . ' to your wallet.',
-                        'actionURL' => route('wallet.index'),
-                        'fas' => 'fas fa-exclamation-triangle'
-                    ];
-                    
-                    \Log::info('Sending wallet insufficient notification', [
-                        'user_id' => $payingUser->id,
-                        'user_email' => $payingUser->email,
-                        'current_balance' => $currentBalance,
-                        'required_amount' => $totalAmount,
-                        'shortfall' => $shortfall,
-                        'details' => $details
-                    ]);
-                    
-                    // Send notification directly to user
-                    $payingUser->notify(new StatusNotification($details));
-                    
-                    \Log::info('Wallet insufficient notification sent successfully', [
-                        'user_id' => $payingUser->id
-                    ]);
-                    
-                } catch (\Exception $e) {
-                    \Log::error('Failed to send wallet insufficient notification', [
-                        'user_id' => $payingUser->id ?? null,
-                        'error' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString()
-                    ]);
                 }
                 
                 // Different flash message for admin vs user
@@ -763,59 +731,5 @@ class OrderController extends Controller
         $subAdminStats->commission_earned += $commissionAmount;
         $subAdminStats->last_updated = now();
         $subAdminStats->save();
-    }
-
-    /**
-     * Send FCM notification to user
-     */
-    private function sendFCMNotification($fcmToken, $title, $body, $data = [])
-    {
-        try {
-            $url = 'https://fcm.googleapis.com/fcm/send';
-            $serverKey = config('firebase.server_key'); // You need to add this to firebase config
-            
-            $notification = [
-                'title' => $title,
-                'body' => $body,
-                'icon' => asset('frontend/images/notification-icon.png'),
-                'click_action' => $data['actionURL'] ?? url('/')
-            ];
-
-            $payload = [
-                'to' => $fcmToken,
-                'notification' => $notification,
-                'data' => $data
-            ];
-
-            $headers = [
-                'Authorization: key=' . $serverKey,
-                'Content-Type: application/json',
-            ];
-
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-
-            $result = curl_exec($ch);
-            curl_close($ch);
-
-            \Log::info('FCM notification sent', [
-                'title' => $title,
-                'body' => substr($body, 0, 100) . '...',
-                'result' => $result
-            ]);
-
-            return $result;
-            
-        } catch (\Exception $e) {
-            \Log::error('FCM notification send error:', [
-                'error' => $e->getMessage(),
-                'title' => $title
-            ]);
-        }
     }
 }
