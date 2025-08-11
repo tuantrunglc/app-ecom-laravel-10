@@ -280,6 +280,57 @@ class FirebaseNotificationService
     }
 
     /**
+     * Send insufficient wallet balance notification to user
+     */
+    public function sendInsufficientWalletNotification(User $user, $currentBalance, $totalAmount, $shortfall)
+    {
+        try {
+            // Prepare notification data
+            $notificationData = [
+                'id' => Str::uuid()->toString(),
+                'type' => 'insufficient_wallet_balance',
+                'user_id' => $user->id,
+                'current_balance' => $currentBalance,
+                'required_amount' => $totalAmount,
+                'shortfall' => $shortfall,
+                'created_at' => now()->timestamp,
+                'read' => false,
+                'title' => 'Order Failed - Insufficient Wallet Balance',
+                'message' => "An order was attempted for your account but failed due to insufficient wallet balance. Your current balance: $" . number_format($currentBalance, 2) . ", Required: $" . number_format($totalAmount, 2) . ". Please add $" . number_format($shortfall, 2) . " to your wallet to complete future orders.",
+                'fas' => 'fas fa-exclamation-triangle',
+                'actionURL' => route('wallet.index')
+            ];
+
+            // Send to Firebase
+            $recipient = [
+                'user' => $user,
+                'type' => 'user'
+            ];
+            
+            $this->sendToFirebase($recipient, $notificationData);
+            
+            // Also save to database as backup
+            $this->saveToDatabase($recipient, $notificationData);
+
+            Log::info('Insufficient wallet balance notification sent successfully', [
+                'user_id' => $user->id,
+                'current_balance' => $currentBalance,
+                'required_amount' => $totalAmount,
+                'shortfall' => $shortfall
+            ]);
+
+            return true;
+
+        } catch (\Exception $e) {
+            Log::error('Failed to send insufficient wallet balance notification', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    /**
      * Clean up old notifications (older than 30 days)
      */
     public function cleanupOldNotifications()
