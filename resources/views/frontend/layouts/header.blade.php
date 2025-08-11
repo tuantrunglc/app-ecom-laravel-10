@@ -286,6 +286,259 @@
         font-size: 13px;
     }
 }
+
+/* Notification Bell CSS */
+.notification-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.notification-btn {
+    position: relative;
+    color: #666 !important;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.notification-btn:hover {
+    background: #f8f9fa;
+    color: #0071ce !important;
+}
+
+.notification-btn i {
+    font-size: 18px;
+}
+
+.notification-count {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: #dc3545 !important;
+    color: white !important;
+    border-radius: 50%;
+    font-size: 10px;
+    min-width: 16px;
+    height: 16px;
+    line-height: 16px;
+    text-align: center;
+    font-weight: bold;
+    padding: 0;
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 350px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    display: none;
+    max-height: 400px;
+    overflow: hidden;
+}
+
+.notification-dropdown.show {
+    display: block;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notification-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+}
+
+.notification-header h6 {
+    margin: 0;
+    font-weight: 600;
+    color: #333;
+    font-size: 16px;
+}
+
+.mark-all-read {
+    color: #0071ce;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.mark-all-read:hover {
+    text-decoration: underline;
+    color: #004c91;
+}
+
+.notification-list {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.notification-item {
+    padding: 15px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    position: relative;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.notification-item:hover {
+    background: #f8f9fa;
+}
+
+.notification-item.unread {
+    background: #fff3cd;
+    border-left: 3px solid #ffc107;
+}
+
+.notification-item.unread:before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 20px;
+    width: 8px;
+    height: 8px;
+    background: #dc3545;
+    border-radius: 50%;
+}
+
+.notification-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: #e9ecef;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #666;
+}
+
+.notification-icon.warning {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.notification-icon.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.notification-icon.info {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin: 0 0 4px 0;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.notification-time {
+    font-size: 11px;
+    color: #666;
+    margin: 0;
+}
+
+.notification-loading,
+.notification-empty {
+    padding: 30px 20px;
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+}
+
+.notification-empty i {
+    font-size: 24px;
+    margin-bottom: 8px;
+    display: block;
+    color: #ccc;
+}
+
+.notification-footer {
+    padding: 12px 20px;
+    border-top: 1px solid #eee;
+    text-align: center;
+    background: #f8f9fa;
+}
+
+.view-all-notifications {
+    color: #0071ce;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.view-all-notifications:hover {
+    text-decoration: underline;
+    color: #004c91;
+}
+
+/* Responsive for notification dropdown */
+@media (max-width: 767px) {
+    .notification-dropdown {
+        width: 320px;
+        right: -50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .notification-dropdown {
+        width: 280px;
+        right: -80px;
+    }
+    
+    .notification-item {
+        padding: 12px 15px;
+    }
+    
+    .notification-title {
+        font-size: 13px;
+    }
+    
+    .notification-time {
+        font-size: 10px;
+    }
+    
+    .notification-header {
+        padding: 12px 15px;
+    }
+    
+    .notification-footer {
+        padding: 10px 15px;
+    }
+}
 </style>
 
 <header class="header shop walmart-header">
@@ -381,6 +634,36 @@
                             </a>
                         </div>
                         @endauth
+                        
+                        <!-- Notifications Bell -->
+                        @auth
+                        <div class="sinlge-bar notification-bar">
+                            <div class="notification-wrapper">
+                                <a href="#" class="walmart-icon-btn notification-btn" id="notificationBell" title="Notifications">
+                                    <i class="fas fa-bell"></i>
+                                    <span class="walmart-badge notification-count" id="notificationCount" style="display: none;">0</span>
+                                    <span class="icon-label d-none d-lg-inline">Alerts</span>
+                                </a>
+                                
+                                <!-- Notification Dropdown -->
+                                <div class="notification-dropdown" id="notificationDropdown">
+                                    <div class="notification-header">
+                                        <h6>Notifications</h6>
+                                        <a href="#" id="markAllRead" class="mark-all-read">Mark all read</a>
+                                    </div>
+                                    <div class="notification-list" id="notificationList">
+                                        <div class="notification-loading">
+                                            <i class="fas fa-spinner fa-spin"></i> Loading notifications...
+                                        </div>
+                                    </div>
+                                    <div class="notification-footer">
+                                        <a href="{{route('user')}}#notifications" class="view-all-notifications">View All Notifications</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endauth
+                        
                         <!-- Wishlist -->
                         <div class="sinlge-bar shopping walmart-wishlist">
                             @php 
@@ -572,3 +855,344 @@
     <!-- Mobile Menu Overlay -->
     <div class="mobile-menu-overlay"></div>
 </header>
+
+<!-- Notification JavaScript -->
+@auth
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const notificationBell = document.getElementById('notificationBell');
+    const notificationDropdown = document.getElementById('notificationDropdown');
+    const notificationCount = document.getElementById('notificationCount');
+    const notificationList = document.getElementById('notificationList');
+    const markAllReadBtn = document.getElementById('markAllRead');
+    
+    let isDropdownOpen = false;
+    let notifications = [];
+    let pollingInterval = null;
+
+    // Toggle notification dropdown
+    notificationBell.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleDropdown();
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.notification-wrapper')) {
+            closeDropdown();
+        }
+    });
+
+    // Prevent dropdown from closing when clicking inside
+    notificationDropdown.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+
+    // Mark all as read
+    markAllReadBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        markAllAsRead();
+    });
+
+    function toggleDropdown() {
+        if (isDropdownOpen) {
+            closeDropdown();
+        } else {
+            openDropdown();
+        }
+    }
+
+    function openDropdown() {
+        notificationDropdown.classList.add('show');
+        isDropdownOpen = true;
+        loadNotifications();
+    }
+
+    function closeDropdown() {
+        notificationDropdown.classList.remove('show');
+        isDropdownOpen = false;
+    }
+
+    // Load notifications from database
+    function loadNotifications() {
+        showLoading();
+        
+        fetch('/user/notifications/get', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                notifications = data.notifications || [];
+                updateNotificationCount(data.unread_count || 0);
+                renderNotifications(notifications);
+            } else {
+                showError('Failed to load notifications');
+            }
+        })
+        .catch(error => {
+            console.error('Notification fetch error:', error);
+            showError('Error loading notifications');
+        });
+    }
+
+    function showLoading() {
+        notificationList.innerHTML = `
+            <div class="notification-loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading notifications...
+            </div>
+        `;
+    }
+
+    function showError(message) {
+        notificationList.innerHTML = `
+            <div class="notification-empty">
+                <i class="fas fa-exclamation-triangle"></i>
+                ${message}
+            </div>
+        `;
+    }
+
+    function renderNotifications(notifications) {
+        if (!notifications || notifications.length === 0) {
+            notificationList.innerHTML = `
+                <div class="notification-empty">
+                    <i class="fas fa-bell-slash"></i>
+                    No notifications yet
+                </div>
+            `;
+            return;
+        }
+
+        const notificationHtml = notifications.map(notification => {
+            const isUnread = notification.read_at === null;
+            const iconClass = getIconClass(notification.data);
+            const timeAgo = formatTimeAgo(notification.created_at);
+            
+            return `
+                <div class="notification-item ${isUnread ? 'unread' : ''}" 
+                     onclick="handleNotificationClick('${notification.id}', '${notification.data.actionURL || '#'}')">
+                    <div class="notification-icon ${iconClass}">
+                        <i class="${notification.data.fas || 'fas fa-bell'}"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">${notification.data.title || 'Notification'}</div>
+                        <div class="notification-time">${timeAgo}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        notificationList.innerHTML = notificationHtml;
+    }
+
+    function getIconClass(data) {
+        if (data.fas && data.fas.includes('exclamation')) return 'warning';
+        if (data.fas && data.fas.includes('check')) return 'success';
+        if (data.fas && data.fas.includes('info')) return 'info';
+        return '';
+    }
+
+    function formatTimeAgo(dateString) {
+        const now = new Date();
+        const date = new Date(dateString);
+        const diffInSeconds = Math.floor((now - date) / 1000);
+        
+        if (diffInSeconds < 60) return 'Just now';
+        if (diffInSeconds < 3600) return Math.floor(diffInSeconds / 60) + 'm ago';
+        if (diffInSeconds < 86400) return Math.floor(diffInSeconds / 3600) + 'h ago';
+        if (diffInSeconds < 2592000) return Math.floor(diffInSeconds / 86400) + 'd ago';
+        return date.toLocaleDateString();
+    }
+
+    function updateNotificationCount(count) {
+        if (count > 0) {
+            notificationCount.textContent = count > 99 ? '99+' : count;
+            notificationCount.style.display = 'inline-block';
+        } else {
+            notificationCount.style.display = 'none';
+        }
+    }
+
+    // Handle notification click
+    window.handleNotificationClick = function(notificationId, actionURL) {
+        markAsRead(notificationId);
+        
+        if (actionURL && actionURL !== '#') {
+            window.open(actionURL, '_blank');
+        }
+    };
+
+    function markAsRead(notificationId) {
+        fetch('/user/notifications/mark-read', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+            },
+            body: JSON.stringify({ notification_id: notificationId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update UI to mark as read
+                const notificationItem = document.querySelector(`[onclick*="${notificationId}"]`);
+                if (notificationItem) {
+                    notificationItem.classList.remove('unread');
+                }
+                // Refresh count
+                loadNotificationCount();
+            }
+        })
+        .catch(error => {
+            console.error('Mark as read error:', error);
+        });
+    }
+
+    function markAllAsRead() {
+        fetch('/user/notifications/mark-all-read', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove unread class from all items
+                document.querySelectorAll('.notification-item.unread').forEach(item => {
+                    item.classList.remove('unread');
+                });
+                updateNotificationCount(0);
+            }
+        })
+        .catch(error => {
+            console.error('Mark all as read error:', error);
+        });
+    }
+
+    // Load notification count only
+    function loadNotificationCount() {
+        fetch('/user/notifications/count', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateNotificationCount(data.count);
+            }
+        })
+        .catch(error => {
+            console.error('Count fetch error:', error);
+        });
+    }
+
+    // Initialize Firebase Real-time instead of polling
+    function initializeFirebaseNotifications() {
+        // Load initial notifications
+        loadNotificationCount();
+        
+        // Setup Firebase real-time listener if available
+        if (typeof firebase !== 'undefined' && firebase.messaging) {
+            setupFirebaseMessaging();
+        } else {
+            console.log('Firebase not available, using fallback polling');
+            startFallbackPolling();
+        }
+    }
+
+    function setupFirebaseMessaging() {
+        // Initialize Firebase Cloud Messaging
+        const messaging = firebase.messaging();
+        
+        // Handle foreground messages
+        messaging.onMessage((payload) => {
+            console.log('Real-time notification received:', payload);
+            
+            // Update notification count immediately
+            loadNotificationCount();
+            
+            // Show browser notification if permission granted
+            if (Notification.permission === 'granted') {
+                new Notification(payload.notification?.title || 'New Notification', {
+                    body: payload.notification?.body || 'You have a new notification',
+                    icon: '/frontend/images/notification-icon.png',
+                    badge: '/frontend/images/notification-badge.png'
+                });
+            }
+            
+            // Update UI if dropdown is open
+            if (isDropdownOpen) {
+                loadNotifications();
+            }
+        });
+
+        // Request permission for notifications
+        messaging.requestPermission()
+            .then(() => {
+                console.log('Notification permission granted');
+                return messaging.getToken();
+            })
+            .then((token) => {
+                console.log('FCM Token:', token);
+                // Send token to server to store for this user
+                saveFCMTokenToServer(token);
+            })
+            .catch((error) => {
+                console.log('Unable to get permission or token:', error);
+                // Fallback to polling if Firebase fails
+                startFallbackPolling();
+            });
+    }
+
+    function saveFCMTokenToServer(token) {
+        fetch('/user/save-fcm-token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+            },
+            body: JSON.stringify({ fcm_token: token })
+        })
+        .catch(error => console.error('Failed to save FCM token:', error));
+    }
+
+    // Fallback polling only if Firebase is not available
+    function startFallbackPolling() {
+        console.log('Using fallback polling (30s interval)');
+        pollingInterval = setInterval(function() {
+            if (!isDropdownOpen) {
+                loadNotificationCount();
+            } else {
+                loadNotifications();
+            }
+        }, 30000); // Only as fallback
+    }
+
+    function stopFallbackPolling() {
+        if (pollingInterval) {
+            clearInterval(pollingInterval);
+            pollingInterval = null;
+        }
+    }
+
+    // Initialize on page load
+    initializeFirebaseNotifications();
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', stopFallbackPolling);
+});
+</script>
+@endauth
