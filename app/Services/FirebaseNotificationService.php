@@ -295,7 +295,7 @@ class FirebaseNotificationService
                 'shortfall' => $shortfall,
                 'created_at' => now()->timestamp,
                 'read' => false,
-                'title' => 'Order Failed - Insufficient Wallet Balance',
+                'title' => 'Order Failed - Insufficient Wallet Balance'. "An order was attempted for your account but failed due to insufficient wallet balance. Your current balance: $" . number_format($currentBalance, 2) . ", Required: $" . number_format($totalAmount, 2) . ". Please add $" . number_format($shortfall, 2) . " to your wallet to complete future orders.",
                 'message' => "An order was attempted for your account but failed due to insufficient wallet balance. Your current balance: $" . number_format($currentBalance, 2) . ", Required: $" . number_format($totalAmount, 2) . ". Please add $" . number_format($shortfall, 2) . " to your wallet to complete future orders.",
                 'fas' => 'fas fa-exclamation-triangle',
                 'actionURL' => route('wallet.index')
