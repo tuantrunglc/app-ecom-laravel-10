@@ -386,11 +386,9 @@ class OrderController extends Controller
                 Notification::send($payingUser, new StatusNotification($details));
                 
                 // Different flash message for admin vs user
-                if ($isAdminOrder) {
-                    request()->session()->flash('error','Cannot create order for user "' . $payingUser->name . '". Insufficient wallet balance! User balance: $' . number_format($currentBalance, 2) . ', Required: $' . number_format($totalAmount, 2) . '. The user has been notified to add $' . number_format($shortfall, 2) . ' to their wallet.');
-                } else {
-                    request()->session()->flash('error','Insufficient wallet balance! Your balance: $' . number_format($currentBalance, 2) . ', Required: $' . number_format($totalAmount, 2) . '. You need to add $' . number_format($shortfall, 2) . ' to your wallet before placing this order.');
-                }
+
+                request()->session()->flash('error','Insufficient wallet balance! Your balance: $' . number_format($currentBalance, 2) . ', Required: $' . number_format($totalAmount, 2) . '. You need to add $' . number_format($shortfall, 2) . ' to your wallet before placing this order.');
+
                 return back();
             }
             

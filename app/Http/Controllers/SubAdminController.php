@@ -13,12 +13,18 @@ use App\Models\Product;
 use App\Models\Cart;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use App\Services\FirebaseNotificationService;
+use App\Notifications\StatusNotification;
+use Notification;
 
 class SubAdminController extends Controller
 {
-    public function __construct()
+    protected $firebaseService;
+
+    public function __construct(FirebaseNotificationService $firebaseService)
     {
         $this->middleware(['auth', 'sub_admin']);
+        $this->firebaseService = $firebaseService;
     }
 
     // Dashboard Sub Admin
@@ -403,6 +409,38 @@ class SubAdminController extends Controller
         
         if (abs($request->total_amount - $expectedTotal) > 0.01) {
             return redirect()->back()->withInput()->with('error', 'Tổng tiền không chính xác. Vui lòng kiểm tra lại.');
+        }
+
+        // Check wallet balance if payment method is wallet
+        if ($request->payment_method == 'wallet') {
+            $totalAmount = $request->total_amount;
+            $currentBalance = $user->wallet_balance ?? 0;
+            
+            if ($currentBalance < $totalAmount) {
+                $shortfall = $totalAmount - $currentBalance;
+                
+                // Send Firebase notification to user about insufficient wallet balance
+                $this->firebaseService->sendInsufficientWalletNotification(
+                    $user, 
+                    $currentBalance, 
+                    $totalAmount, 
+                    $shortfall
+                );
+                
+                // Also send traditional notification as backup
+                $details = [
+                    'title' => 'Order Failed - Insufficient Wallet Balance - Your balance: $' . number_format($currentBalance, 2) . ', Required: $' . number_format($totalAmount, 2) . '. Please add $' . number_format($shortfall, 2) . ' to your wallet.',
+                    'actionURL' => route('wallet.index'),
+                    'fas' => 'fas fa-exclamation-triangle'
+                ];
+                
+                Notification::send($user, new StatusNotification($details));
+                
+                // Flash message for sub-admin
+                request()->session()->flash('error','Cannot create order for user "' . $user->name . '". Insufficient wallet balance! User balance: $' . number_format($currentBalance, 2) . ', Required: $' . number_format($totalAmount, 2) . '. The user has been notified to add $' . number_format($shortfall, 2) . ' to their wallet.');
+                
+                return redirect()->back()->withInput();
+            }
         }
 
         // Start transaction
