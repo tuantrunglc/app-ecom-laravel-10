@@ -393,13 +393,36 @@ class OrderController extends Controller
                 );
                 
                 // Also send traditional notification as backup
-                $details = [
-                    'title' => 'Order Failed - Insufficient Wallet Balance - Your balance: $' . number_format($currentBalance, 2) . ', Required: $' . number_format($totalAmount, 2) . '. Please add $' . number_format($shortfall, 2) . ' to your wallet.',
-                    'actionURL' => route('wallet.index'),
-                    'fas' => 'fas fa-exclamation-triangle'
-                ];
-                
-                Notification::send($payingUser, new StatusNotification($details));
+                try {
+                    $details = [
+                        'title' => 'Order Failed - Insufficient Wallet Balance - Your balance: $' . number_format($currentBalance, 2) . ', Required: $' . number_format($totalAmount, 2) . '. Please add $' . number_format($shortfall, 2) . ' to your wallet.',
+                        'actionURL' => route('wallet.index'),
+                        'fas' => 'fas fa-exclamation-triangle'
+                    ];
+                    
+                    \Log::info('Sending wallet insufficient notification', [
+                        'user_id' => $payingUser->id,
+                        'user_email' => $payingUser->email,
+                        'current_balance' => $currentBalance,
+                        'required_amount' => $totalAmount,
+                        'shortfall' => $shortfall,
+                        'details' => $details
+                    ]);
+                    
+                    // Send notification directly to user
+                    $payingUser->notify(new StatusNotification($details));
+                    
+                    \Log::info('Wallet insufficient notification sent successfully', [
+                        'user_id' => $payingUser->id
+                    ]);
+                    
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send wallet insufficient notification', [
+                        'user_id' => $payingUser->id ?? null,
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                }
                 
                 // Different flash message for admin vs user
 

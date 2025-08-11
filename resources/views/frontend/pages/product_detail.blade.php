@@ -90,7 +90,7 @@
 														<i class="fa fa-percent"></i> Commission: {{$product_detail->commission}}%
 													</p>
 												@endif
-												<p class="description">{!!($product_detail->summary)!!}</p>
+												<p class="description">{!!($product_detail->summary ?? '')!!}</p>
 											</div>
 											<!--/ End Description -->
 											<!-- Color -->
@@ -159,8 +159,10 @@
 													</button>
 												</form>
 
+												@if($product_detail->cat_info)
 												<p class="cat">Category :<a href="{{route('product-cat',$product_detail->cat_info['slug'])}}">{{$product_detail->cat_info['title']}}</a></p>
-												@if($product_detail->sub_cat_info)
+												@endif
+												@if($product_detail->sub_cat_info && $product_detail->cat_info)
 												<p class="cat mt-1">Sub Category :<a href="{{route('product-sub-cat',[$product_detail->cat_info['slug'],$product_detail->sub_cat_info['slug']])}}">{{$product_detail->sub_cat_info['title']}}</a></p>
 												@endif
 												<p class="availability">Stock : @if($product_detail->stock>0)<span class="badge badge-success">{{$product_detail->stock}}</span>@else <span class="badge badge-danger">{{$product_detail->stock}}</span>  @endif</p>
