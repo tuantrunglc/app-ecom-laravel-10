@@ -791,6 +791,7 @@ class SubAdminController extends Controller
             'birth_date' => 'nullable|date',
             'age' => 'nullable|integer|min:1|max:120',
             'gender' => 'nullable|in:male,female,other',
+            'wallet_balance' => 'nullable|numeric|min:0',
             'address' => 'nullable|string|max:255',
             'bank_name' => 'nullable|string|max:100',
             'bank_account_number' => 'nullable|string|max:50',
@@ -798,7 +799,7 @@ class SubAdminController extends Controller
         ]);
 
         $data = $request->only([
-            'name', 'email', 'birth_date', 'age', 'gender', 
+            'name', 'email', 'birth_date', 'age', 'gender', 'wallet_balance',
             'address', 'bank_name', 'bank_account_number', 'bank_account_name'
         ]);
 

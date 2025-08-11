@@ -181,7 +181,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="edit_wallet_balance">Số dư ví</label>
-                                <input type="text" class="form-control" id="edit_wallet_balance" name="wallet_balance" readonly>
+                                <input type="number" class="form-control" id="edit_wallet_balance" name="wallet_balance" step="0.01" min="0">
                             </div>
                         </div>
                     </div>
