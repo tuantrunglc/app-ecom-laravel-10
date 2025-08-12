@@ -1,5 +1,7 @@
 <!-- Meta Tag -->
 @yield('meta')
+<!-- CSRF Token -->
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <!-- Title Tag  -->
 <title>@yield('title')</title>
 <!-- Favicon -->
@@ -47,6 +49,27 @@
 <!-- Walmart Theme JavaScript -->
 <script src="{{asset('frontend/js/walmart-theme.js')}}" defer></script>
 <script type='text/javascript' src='https://platform-api.sharethis.com/js/sharethis.js#property=5f2e5abf393162001291e431&product=inline-share-buttons' async='async'></script>
+
+<!-- Firebase SDK -->
+@auth
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
+<script>
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "{{ config('firebase.api_key') }}",
+    authDomain: "{{ config('firebase.auth_domain') }}",
+    databaseURL: "{{ config('firebase.database_url') }}",
+    projectId: "{{ config('firebase.project_id') }}",
+    storageBucket: "{{ config('firebase.storage_bucket') }}",
+    messagingSenderId: "{{ config('firebase.messaging_sender_id') }}",
+    appId: "{{ config('firebase.app_id') }}"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+</script>
+@endauth
 <style>
     /* Multilevel dropdown */
     .dropdown-submenu {

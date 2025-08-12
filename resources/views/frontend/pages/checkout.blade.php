@@ -3,107 +3,41 @@
 @section('title','Checkout page')
 
 @push('styles')
-<!-- Select2 CSS -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
-    /* Select2 custom styling to match form design */
-    .select2-container {
-        width: 100% !important;
+    /* Checkout page styling */
+    .checkout .order-details {
+        background: #fff;
+        padding: 30px;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-top: 20px;
     }
     
-    .select2-container .select2-selection--single {
-        height: 50px !important;
-        border: 1px solid #ddd !important;
-        border-radius: 0 !important;
-        background-color: #fff !important;
-        font-size: 14px !important;
-        display: flex !important;
-        align-items: center !important;
-        padding: 0 15px !important;
-        transition: border-color 0.3s ease !important;
+    .checkout .single-widget h2 {
+        font-size: 20px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #F7941D;
     }
     
-    .select2-container .select2-selection--single .select2-selection__rendered {
-        padding: 0 !important;
-        line-height: 26px !important;
-        color: #666 !important;
-        font-family: inherit !important;
+    .checkout-title {
+        text-align: center;
+        margin-bottom: 30px;
     }
     
-    .select2-container .select2-selection--single .select2-selection__arrow {
-        height: 48px !important;
-        right: 10px !important;
-        top: 1px !important;
+    .checkout-title h2 {
+        font-size: 28px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
     }
     
-    .select2-container .select2-selection--single .select2-selection__arrow b {
-        border-color: #666 transparent transparent transparent !important;
-        border-style: solid !important;
-        border-width: 5px 4px 0 4px !important;
-    }
-    
-    .select2-dropdown {
-        border: 1px solid #ddd !important;
-        border-radius: 0 !important;
-        font-size: 14px !important;
-    }
-    
-    .select2-container--open .select2-selection--single {
-        border-color: #F7941D !important;
-        box-shadow: 0 0 5px rgba(247, 148, 29, 0.3) !important;
-    }
-    
-    .select2-container--open .select2-selection--single .select2-selection__arrow b {
-        border-color: transparent transparent #666 transparent !important;
-        border-width: 0 4px 5px 4px !important;
-    }
-    
-    .select2-search--dropdown .select2-search__field {
-        border: 1px solid #ddd !important;
-        border-radius: 0 !important;
-        padding: 10px !important;
-        font-size: 14px !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
-    
-    .select2-results__option {
-        padding: 10px 15px !important;
-        font-size: 14px !important;
-        line-height: 1.4 !important;
-    }
-    
-    .select2-results__option--highlighted {
-        background-color: #F7941D !important;
-        color: #fff !important;
-    }
-    
-    .select2-results__option--selected {
-        background-color: #f8f9fa !important;
-        color: #333 !important;
-    }
-    
-    /* Focus state to match other inputs */
-    .select2-container--focus .select2-selection--single {
-        border-color: #F7941D !important;
-        outline: none !important;
-        box-shadow: 0 0 5px rgba(247, 148, 29, 0.3) !important;
-    }
-    
-    /* Hide any nice-select wrapper for country dropdown */
-    #country + .nice-select {
-        display: none !important;
-    }
-    
-    /* Target country form group specifically */
-    .form-group .nice-select[data-original="#country"] {
-        display: none !important;
-    }
-    
-    /* Ensure original country select is visible when using Select2 */
-    #country.select2 {
-        display: block !important;
-        visibility: visible !important;
+    .checkout-title p {
+        color: #666;
+        font-size: 16px;
     }
 </style>
 @endpush
@@ -130,462 +64,138 @@
     <!-- Start Checkout -->
     <section class="shop checkout section">
         <div class="container">
-                <form class="form" method="POST" action="{{route('cart.order')}}">
-                    @csrf
-                    <div class="row"> 
-
-                        <div class="col-lg-8 col-12">
-                            <div class="checkout-form">
-                                <h2>Make Your Checkout Here</h2>
-                                <p>Please register in order to checkout more quickly</p>
-                                <!-- Form -->
-                                <div class="row">
-                                    <div class="col-lg-6 col-md-6 col-12">
-                                        <div class="form-group">
-                                            <label>First Name<span>*</span></label>
-                                            <input type="text" name="first_name" placeholder="" value="{{old('first_name')}}" value="{{old('first_name')}}">
-                                            @error('first_name')
-                                                <span class='text-danger'>{{$message}}</span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-12">
-                                        <div class="form-group">
-                                            <label>Last Name<span>*</span></label>
-                                            <input type="text" name="last_name" placeholder="" value="{{old('lat_name')}}">
-                                            @error('last_name')
-                                                <span class='text-danger'>{{$message}}</span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-12">
-                                        <div class="form-group">
-                                            <label>Email Address<span>*</span></label>
-                                            <input type="email" name="email" placeholder="" value="{{old('email')}}">
-                                            @error('email')
-                                                <span class='text-danger'>{{$message}}</span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-12">
-                                        <div class="form-group">
-                                            <label>Phone Number <span>*</span></label>
-                                            <input type="number" name="phone" placeholder="" required value="{{old('phone')}}">
-                                            @error('phone')
-                                                <span class='text-danger'>{{$message}}</span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-12">
-                                        <div class="form-group">
-                                            <label>Country<span>*</span></label>
-                                            <select name="country" id="country" class="select2">
-                                                <option value="AF">Afghanistan</option>
-                                                <option value="AX">Åland Islands</option>
-                                                <option value="AL">Albania</option>
-                                                <option value="DZ">Algeria</option>
-                                                <option value="AS">American Samoa</option>
-                                                <option value="AD">Andorra</option>
-                                                <option value="AO">Angola</option>
-                                                <option value="AI">Anguilla</option>
-                                                <option value="AQ">Antarctica</option>
-                                                <option value="AG">Antigua and Barbuda</option>
-                                                <option value="AR">Argentina</option>
-                                                <option value="AM">Armenia</option>
-                                                <option value="AW">Aruba</option>
-                                                <option value="AU">Australia</option>
-                                                <option value="AT">Austria</option>
-                                                <option value="AZ">Azerbaijan</option>
-                                                <option value="BS">Bahamas</option>
-                                                <option value="BH">Bahrain</option>
-                                                <option value="BD">Bangladesh</option>
-                                                <option value="BB">Barbados</option>
-                                                <option value="BY">Belarus</option>
-                                                <option value="BE">Belgium</option>
-                                                <option value="BZ">Belize</option>
-                                                <option value="BJ">Benin</option>
-                                                <option value="BM">Bermuda</option>
-                                                <option value="BT">Bhutan</option>
-                                                <option value="BO">Bolivia</option>
-                                                <option value="BA">Bosnia and Herzegovina</option>
-                                                <option value="BW">Botswana</option>
-                                                <option value="BV">Bouvet Island</option>
-                                                <option value="BR">Brazil</option>
-                                                <option value="IO">British Indian Ocean Territory</option>
-                                                <option value="VG">British Virgin Islands</option>
-                                                <option value="BN">Brunei</option>
-                                                <option value="BG">Bulgaria</option>
-                                                <option value="BF">Burkina Faso</option>
-                                                <option value="BI">Burundi</option>
-                                                <option value="KH">Cambodia</option>
-                                                <option value="CM">Cameroon</option>
-                                                <option value="CA">Canada</option>
-                                                <option value="CV">Cape Verde</option>
-                                                <option value="KY">Cayman Islands</option>
-                                                <option value="CF">Central African Republic</option>
-                                                <option value="TD">Chad</option>
-                                                <option value="CL">Chile</option>
-                                                <option value="CN">China</option>
-                                                <option value="CX">Christmas Island</option>
-                                                <option value="CC">Cocos [Keeling] Islands</option>
-                                                <option value="CO">Colombia</option>
-                                                <option value="KM">Comoros</option>
-                                                <option value="CG">Congo - Brazzaville</option>
-                                                <option value="CD">Congo - Kinshasa</option>
-                                                <option value="CK">Cook Islands</option>
-                                                <option value="CR">Costa Rica</option>
-                                                <option value="CI">Côte d’Ivoire</option>
-                                                <option value="HR">Croatia</option>
-                                                <option value="CU">Cuba</option>
-                                                <option value="CY">Cyprus</option>
-                                                <option value="CZ">Czech Republic</option>
-                                                <option value="DK">Denmark</option>
-                                                <option value="DJ">Djibouti</option>
-                                                <option value="DM">Dominica</option>
-                                                <option value="DO">Dominican Republic</option>
-                                                <option value="EC">Ecuador</option>
-                                                <option value="EG">Egypt</option>
-                                                <option value="SV">El Salvador</option>
-                                                <option value="GQ">Equatorial Guinea</option>
-                                                <option value="ER">Eritrea</option>
-                                                <option value="EE">Estonia</option>
-                                                <option value="ET">Ethiopia</option>
-                                                <option value="FK">Falkland Islands</option>
-                                                <option value="FO">Faroe Islands</option>
-                                                <option value="FJ">Fiji</option>
-                                                <option value="FI">Finland</option>
-                                                <option value="FR">France</option>
-                                                <option value="GF">French Guiana</option>
-                                                <option value="PF">French Polynesia</option>
-                                                <option value="TF">French Southern Territories</option>
-                                                <option value="GA">Gabon</option>
-                                                <option value="GM">Gambia</option>
-                                                <option value="GE">Georgia</option>
-                                                <option value="DE">Germany</option>
-                                                <option value="GH">Ghana</option>
-                                                <option value="GI">Gibraltar</option>
-                                                <option value="GR">Greece</option>
-                                                <option value="GL">Greenland</option>
-                                                <option value="GD">Grenada</option>
-                                                <option value="GP">Guadeloupe</option>
-                                                <option value="GU">Guam</option>
-                                                <option value="GT">Guatemala</option>
-                                                <option value="GG">Guernsey</option>
-                                                <option value="GN">Guinea</option>
-                                                <option value="GW">Guinea-Bissau</option>
-                                                <option value="GY">Guyana</option>
-                                                <option value="HT">Haiti</option>
-                                                <option value="HM">Heard Island and McDonald Islands</option>
-                                                <option value="HN">Honduras</option>
-                                                <option value="HK">Hong Kong SAR China</option>
-                                                <option value="HU">Hungary</option>
-                                                <option value="IS">Iceland</option>
-                                                <option value="IN">India</option>
-                                                <option value="ID">Indonesia</option>
-                                                <option value="IR">Iran</option>
-                                                <option value="IQ">Iraq</option>
-                                                <option value="IE">Ireland</option>
-                                                <option value="IM">Isle of Man</option>
-                                                <option value="IL">Israel</option>
-                                                <option value="IT">Italy</option>
-                                                <option value="JM">Jamaica</option>
-                                                <option value="JP">Japan</option>
-                                                <option value="JE">Jersey</option>
-                                                <option value="JO">Jordan</option>
-                                                <option value="KZ">Kazakhstan</option>
-                                                <option value="KE">Kenya</option>
-                                                <option value="KI">Kiribati</option>
-                                                <option value="KW">Kuwait</option>
-                                                <option value="KG">Kyrgyzstan</option>
-                                                <option value="LA">Laos</option>
-                                                <option value="LV">Latvia</option>
-                                                <option value="LB">Lebanon</option>
-                                                <option value="LS">Lesotho</option>
-                                                <option value="LR">Liberia</option>
-                                                <option value="LY">Libya</option>
-                                                <option value="LI">Liechtenstein</option>
-                                                <option value="LT">Lithuania</option>
-                                                <option value="LU">Luxembourg</option>
-                                                <option value="MO">Macau SAR China</option>
-                                                <option value="MK">Macedonia</option>
-                                                <option value="MG">Madagascar</option>
-                                                <option value="MW">Malawi</option>
-                                                <option value="MY">Malaysia</option>
-                                                <option value="MV">Maldives</option>
-                                                <option value="ML">Mali</option>
-                                                <option value="MT">Malta</option>
-                                                <option value="MH">Marshall Islands</option>
-                                                <option value="MQ">Martinique</option>
-                                                <option value="MR">Mauritania</option>
-                                                <option value="MU">Mauritius</option>
-                                                <option value="YT">Mayotte</option>
-                                                <option value="MX">Mexico</option>
-                                                <option value="FM">Micronesia</option>
-                                                <option value="MD">Moldova</option>
-                                                <option value="MC">Monaco</option>
-                                                <option value="MN">Mongolia</option>
-                                                <option value="ME">Montenegro</option>
-                                                <option value="MS">Montserrat</option>
-                                                <option value="MA">Morocco</option>
-                                                <option value="MZ">Mozambique</option>
-                                                <option value="MM">Myanmar [Burma]</option>
-                                                <option value="NA">Namibia</option>
-                                                <option value="NR">Nauru</option>
-                                                <option value="NP" selected="selected">Nepal</option>
-                                                <option value="NL">Netherlands</option>
-                                                <option value="AN">Netherlands Antilles</option>
-                                                <option value="NC">New Caledonia</option>
-                                                <option value="NZ">New Zealand</option>
-                                                <option value="NI">Nicaragua</option>
-                                                <option value="NE">Niger</option>
-                                                <option value="NG">Nigeria</option>
-                                                <option value="NU">Niue</option>
-                                                <option value="NF">Norfolk Island</option>
-                                                <option value="MP">Northern Mariana Islands</option>
-                                                <option value="KP">North Korea</option>
-                                                <option value="NO">Norway</option>
-                                                <option value="OM">Oman</option>
-                                                <option value="PK">Pakistan</option>
-                                                <option value="PW">Palau</option>
-                                                <option value="PS">Palestinian Territories</option>
-                                                <option value="PA">Panama</option>
-                                                <option value="PG">Papua New Guinea</option>
-                                                <option value="PY">Paraguay</option>
-                                                <option value="PE">Peru</option>
-                                                <option value="PH">Philippines</option>
-                                                <option value="PN">Pitcairn Islands</option>
-                                                <option value="PL">Poland</option>
-                                                <option value="PT">Portugal</option>
-                                                <option value="PR">Puerto Rico</option>
-                                                <option value="QA">Qatar</option>
-                                                <option value="RE">Réunion</option>
-                                                <option value="RO">Romania</option>
-                                                <option value="RU">Russia</option>
-                                                <option value="RW">Rwanda</option>
-                                                <option value="BL">Saint Barthélemy</option>
-                                                <option value="SH">Saint Helena</option>
-                                                <option value="KN">Saint Kitts and Nevis</option>
-                                                <option value="LC">Saint Lucia</option>
-                                                <option value="MF">Saint Martin</option>
-                                                <option value="PM">Saint Pierre and Miquelon</option>
-                                                <option value="VC">Saint Vincent and the Grenadines</option>
-                                                <option value="WS">Samoa</option>
-                                                <option value="SM">San Marino</option>
-                                                <option value="ST">São Tomé and Príncipe</option>
-                                                <option value="SA">Saudi Arabia</option>
-                                                <option value="SN">Senegal</option>
-                                                <option value="RS">Serbia</option>
-                                                <option value="SC">Seychelles</option>
-                                                <option value="SL">Sierra Leone</option>
-                                                <option value="SG">Singapore</option>
-                                                <option value="SK">Slovakia</option>
-                                                <option value="SI">Slovenia</option>
-                                                <option value="SB">Solomon Islands</option>
-                                                <option value="SO">Somalia</option>
-                                                <option value="ZA">South Africa</option>
-                                                <option value="GS">South Georgia</option>
-                                                <option value="KR">South Korea</option>
-                                                <option value="ES">Spain</option>
-                                                <option value="LK">Sri Lanka</option>
-                                                <option value="SD">Sudan</option>
-                                                <option value="SR">Suriname</option>
-                                                <option value="SJ">Svalbard and Jan Mayen</option>
-                                                <option value="SZ">Swaziland</option>
-                                                <option value="SE">Sweden</option>
-                                                <option value="CH">Switzerland</option>
-                                                <option value="SY">Syria</option>
-                                                <option value="TW">Taiwan</option>
-                                                <option value="TJ">Tajikistan</option>
-                                                <option value="TZ">Tanzania</option>
-                                                <option value="TH">Thailand</option>
-                                                <option value="TL">Timor-Leste</option>
-                                                <option value="TG">Togo</option>
-                                                <option value="TK">Tokelau</option>
-                                                <option value="TO">Tonga</option>
-                                                <option value="TT">Trinidad and Tobago</option>
-                                                <option value="TN">Tunisia</option>
-                                                <option value="TR">Turkey</option>
-                                                <option value="TM">Turkmenistan</option>
-                                                <option value="TC">Turks and Caicos Islands</option>
-                                                <option value="TV">Tuvalu</option>
-                                                <option value="UG">Uganda</option>
-                                                <option value="UA">Ukraine</option>
-                                                <option value="AE">United Arab Emirates</option>
-                                                <option value="Uk">United Kingdom</option>
-                                                <option value="UY">Uruguay</option>
-                                                <option value="UM">U.S. Minor Outlying Islands</option>
-                                                <option value="VI">U.S. Virgin Islands</option>
-                                                <option value="US">United States</option>
-                                                <option value="UZ">Uzbekistan</option>
-                                                <option value="VU">Vanuatu</option>
-                                                <option value="VA">Vatican City</option>
-                                                <option value="VE">Venezuela</option>
-                                                <option value="VN">Vietnam</option>
-                                                <option value="WF">Wallis and Futuna</option>
-                                                <option value="EH">Western Sahara</option>
-                                                <option value="YE">Yemen</option>
-                                                <option value="ZM">Zambia</option>
-                                                <option value="ZW">Zimbabwe</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-12">
-                                        <div class="form-group">
-                                            <label>Address Line 1<span>*</span></label>
-                                            <input type="text" name="address1" placeholder="" value="{{old('address1')}}">
-                                            @error('address1')
-                                                <span class='text-danger'>{{$message}}</span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-12">
-                                        <div class="form-group">
-                                            <label>Address Line 2</label>
-                                            <input type="text" name="address2" placeholder="" value="{{old('address2')}}">
-                                            @error('address2')
-                                                <span class='text-danger'>{{$message}}</span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-12">
-                                        <div class="form-group">
-                                            <label>Postal Code</label>
-                                            <input type="text" name="post_code" placeholder="" value="{{old('post_code')}}">
-                                            @error('post_code')
-                                                <span class='text-danger'>{{$message}}</span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    
-                                </div>
-                                <!--/ End Form -->
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-12">
-                            <div class="order-details">
-                                <!-- Order Widget -->
-                                <div class="single-widget">
-                                    @if(isset($isBuyNow) && $isBuyNow && isset($buyNowItem))
-                                        <!-- Buy Now Order Summary -->
-                                        <h2>ORDER SUMMARY</h2>
-                                        <div class="content">
-                                            <!-- Buy Now Product Details -->
-                                            <div class="buy-now-product mb-3 p-3" style="background: #f8f9fa; border-radius: 8px;">
-                                                <div class="row align-items-center">
-                                                    <div class="col-3">
-                                                        @php 
-                                                            $photo = explode(',', $buyNowItem['photo']);
-                                                        @endphp
-                                                        <img src="{{$photo[0]}}" alt="{{$buyNowItem['title']}}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
-                                                    </div>
-                                                    <div class="col-9">
-                                                        <h6 class="mb-1">{{$buyNowItem['title']}}</h6>
-                                                        <small class="text-muted">Quantity: {{$buyNowItem['quantity']}}</small><br>
-                                                        <small class="text-muted">Price: ${{number_format($buyNowItem['discount_price'], 2)}}</small>
-                                                    </div>
+            <div class="checkout-title">
+                <h2>Complete Your Order</h2>
+                <p>Review your order details and proceed with payment</p>
+            </div>
+            <form class="form" method="POST" action="{{route('cart.order')}}">
+                @csrf
+                <div class="row justify-content-center"> 
+                    <div class="col-lg-6 col-md-8 col-12">
+                        <div class="order-details">
+                            <!-- Order Widget -->
+                            <div class="single-widget">
+                                @if(isset($isBuyNow) && $isBuyNow && isset($buyNowItem))
+                                    <!-- Buy Now Order Summary -->
+                                    <h2>ORDER SUMMARY</h2>
+                                    <div class="content">
+                                        <!-- Buy Now Product Details -->
+                                        <div class="buy-now-product mb-3 p-3" style="background: #f8f9fa; border-radius: 8px;">
+                                            <div class="row align-items-center">
+                                                <div class="col-3">
+                                                    @php 
+                                                        $photo = explode(',', $buyNowItem['photo']);
+                                                    @endphp
+                                                    <img src="{{$photo[0]}}" alt="{{$buyNowItem['title']}}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+                                                </div>
+                                                <div class="col-9">
+                                                    <h6 class="mb-1">{{$buyNowItem['title']}}</h6>
+                                                    <small class="text-muted">Quantity: {{$buyNowItem['quantity']}}</small><br>
+                                                    <small class="text-muted">Price: ${{number_format($buyNowItem['discount_price'], 2)}}</small>
                                                 </div>
                                             </div>
+                                        </div>
+                                        
+                                        <ul>
+                                            <li class="order_subtotal" data-price="{{$buyNowItem['amount']}}">Subtotal<span>${{number_format($buyNowItem['amount'],2)}}</span></li>
+                                            <li class="shipping">
+                                                Shipping Cost
+                                                @if(count(Helper::shipping())>0)
+                                                    <select name="shipping" class="nice-select">
+                                                        <option value="">Select your address</option>
+                                                        @foreach(Helper::shipping() as $shipping)
+                                                        <option value="{{$shipping->id}}" class="shippingOption" data-price="{{$shipping->price}}">{{$shipping->type}}: ${{$shipping->price}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                @else 
+                                                    <span>Free</span>
+                                                @endif
+                                            </li>
                                             
-                                            <ul>
-                                                <li class="order_subtotal" data-price="{{$buyNowItem['amount']}}">Subtotal<span>${{number_format($buyNowItem['amount'],2)}}</span></li>
-                                                <li class="shipping">
-                                                    Shipping Cost
-                                                    @if(count(Helper::shipping())>0)
-                                                        <select name="shipping" class="nice-select">
-                                                            <option value="">Select your address</option>
-                                                            @foreach(Helper::shipping() as $shipping)
-                                                            <option value="{{$shipping->id}}" class="shippingOption" data-price="{{$shipping->price}}">{{$shipping->type}}: ${{$shipping->price}}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    @else 
-                                                        <span>Free</span>
-                                                    @endif
-                                                </li>
-                                                
-                                                @if(session('coupon'))
-                                                <li class="coupon_price" data-price="{{session('coupon')['value']}}">You Save<span>${{number_format(session('coupon')['value'],2)}}</span></li>
-                                                @endif
-                                                @php
-                                                    $total_amount = $buyNowItem['amount'];
-                                                    if(session('coupon')){
-                                                        $total_amount = $total_amount - session('coupon')['value'];
-                                                    }
-                                                @endphp
-                                                <li class="last" id="order_total_price">Total<span>${{number_format($total_amount,2)}}</span></li>
-                                            </ul>
-                                            <!-- Hidden inputs for Buy Now -->
-                                            <input type="hidden" name="buy_now_mode" value="1">
-                                            <input type="hidden" name="buy_now_product_id" value="{{$buyNowItem['product_id']}}">
-                                            <input type="hidden" name="buy_now_quantity" value="{{$buyNowItem['quantity']}}">
-                                            <input type="hidden" name="buy_now_amount" value="{{$buyNowItem['amount']}}">
-                                        </div>
-                                    @else
-                                        <!-- Regular Cart Summary -->
-                                        <h2>CART TOTALS</h2>
-                                        <div class="content">
-                                            <ul>
-                                                <li class="order_subtotal" data-price="{{Helper::totalCartPrice()}}">Cart Subtotal<span>${{number_format(Helper::totalCartPrice(),2)}}</span></li>
-                                                <li class="shipping">
-                                                    Shipping Cost
-                                                    @if(count(Helper::shipping())>0 && Helper::cartCount()>0)
-                                                        <select name="shipping" class="nice-select">
-                                                            <option value="">Select your address</option>
-                                                            @foreach(Helper::shipping() as $shipping)
-                                                            <option value="{{$shipping->id}}" class="shippingOption" data-price="{{$shipping->price}}">{{$shipping->type}}: ${{$shipping->price}}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    @else 
-                                                        <span>Free</span>
-                                                    @endif
-                                                </li>
-                                                
-                                                @if(session('coupon'))
-                                                <li class="coupon_price" data-price="{{session('coupon')['value']}}">You Save<span>${{number_format(session('coupon')['value'],2)}}</span></li>
-                                                @endif
-                                                @php
-                                                    $total_amount=Helper::totalCartPrice();
-                                                    if(session('coupon')){
-                                                        $total_amount=$total_amount-session('coupon')['value'];
-                                                    }
-                                                @endphp
-                                                @if(session('coupon'))
-                                                    <li class="last"  id="order_total_price">Total<span>${{number_format($total_amount,2)}}</span></li>
-                                                @else
-                                                    <li class="last"  id="order_total_price">Total<span>${{number_format($total_amount,2)}}</span></li>
-                                                @endif
-                                            </ul>
-                                        </div>
-                                    @endif
-                                </div>
-                                <!--/ End Order Widget -->
-                                <!-- Order Widget -->
-                                <div class="single-widget">
-                                    <h2>Payments</h2>
+                                            @if(session('coupon'))
+                                            <li class="coupon_price" data-price="{{session('coupon')['value']}}">You Save<span>${{number_format(session('coupon')['value'],2)}}</span></li>
+                                            @endif
+                                            @php
+                                                $total_amount = $buyNowItem['amount'];
+                                                if(session('coupon')){
+                                                    $total_amount = $total_amount - session('coupon')['value'];
+                                                }
+                                            @endphp
+                                            <li class="last" id="order_total_price">Total<span>${{number_format($total_amount,2)}}</span></li>
+                                        </ul>
+                                        <!-- Hidden inputs for Buy Now -->
+                                        <input type="hidden" name="buy_now_mode" value="1">
+                                        <input type="hidden" name="buy_now_product_id" value="{{$buyNowItem['product_id']}}">
+                                        <input type="hidden" name="buy_now_quantity" value="{{$buyNowItem['quantity']}}">
+                                        <input type="hidden" name="buy_now_amount" value="{{$buyNowItem['amount']}}">
+                                    </div>
+                                @else
+                                    <!-- Regular Cart Summary -->
+                                    <h2>CART TOTALS</h2>
                                     <div class="content">
-                                        <div class="checkbox">
-                                            <form-group>
-                                                <input name="payment_method" type="radio" value="wallet" checked required> 
-                                                <label> Wallet Payment (Balance: ${{number_format(auth()->user()->wallet_balance ?? 0, 2)}})</label>
-                                                <div id="wallet-error" class="text-danger mt-2" style="display: none;"></div>
-                                            </form-group>
+                                        <ul>
+                                            <li class="order_subtotal" data-price="{{Helper::totalCartPrice()}}">Cart Subtotal<span>${{number_format(Helper::totalCartPrice(),2)}}</span></li>
+                                            <li class="shipping">
+                                                Shipping Cost
+                                                @if(count(Helper::shipping())>0 && Helper::cartCount()>0)
+                                                    <select name="shipping" class="nice-select">
+                                                        <option value="">Select your address</option>
+                                                        @foreach(Helper::shipping() as $shipping)
+                                                        <option value="{{$shipping->id}}" class="shippingOption" data-price="{{$shipping->price}}">{{$shipping->type}}: ${{$shipping->price}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                @else 
+                                                    <span>Free</span>
+                                                @endif
+                                            </li>
                                             
-                                        </div>
+                                            @if(session('coupon'))
+                                            <li class="coupon_price" data-price="{{session('coupon')['value']}}">You Save<span>${{number_format(session('coupon')['value'],2)}}</span></li>
+                                            @endif
+                                            @php
+                                                $total_amount=Helper::totalCartPrice();
+                                                if(session('coupon')){
+                                                    $total_amount=$total_amount-session('coupon')['value'];
+                                                }
+                                            @endphp
+                                            @if(session('coupon'))
+                                                <li class="last"  id="order_total_price">Total<span>${{number_format($total_amount,2)}}</span></li>
+                                            @else
+                                                <li class="last"  id="order_total_price">Total<span>${{number_format($total_amount,2)}}</span></li>
+                                            @endif
+                                        </ul>
                                     </div>
-                                </div>
-                                <!--/ End Order Widget -->
-                                <!-- Button Widget -->
-                                <div class="single-widget get-button">
-                                    <div class="content">
-                                        <div class="button">
-                                            <button type="submit" class="btn">proceed to checkout</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--/ End Button Widget -->
+                                @endif
                             </div>
+                            <!--/ End Order Widget -->
+                            <!-- Order Widget -->
+                            <div class="single-widget">
+                                <h2>Payments</h2>
+                                <div class="content">
+                                    <div class="checkbox">
+                                        <form-group>
+                                            <input name="payment_method" type="radio" value="wallet" checked required> 
+                                            <label> Wallet Payment (Balance: ${{number_format(auth()->user()->wallet_balance ?? 0, 2)}})</label>
+                                            <div id="wallet-error" class="text-danger mt-2" style="display: none;"></div>
+                                        </form-group>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <!--/ End Order Widget -->
+                            <!-- Button Widget -->
+                            <div class="single-widget get-button">
+                                <div class="content">
+                                    <div class="button">
+                                        <button type="submit" class="btn">proceed to checkout</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--/ End Button Widget -->
                         </div>
                     </div>
-                </form>
+                </div>
+            </form>
         </div>
     </section>
     <!--/ End Checkout -->
@@ -742,48 +352,14 @@
 @endpush
 @push('scripts')
 	<script src="{{asset('frontend/js/nice-select/js/jquery.nice-select.min.js')}}"></script>
-	<script src="{{ asset('frontend/js/select2/js/select2.min.js') }}"></script>
 	<script>
 		$(document).ready(function() { 
-			// First destroy any existing nice-select on country dropdown
-			$('#country').removeClass('nice-select');
-			if ($('#country').next('.nice-select').length > 0) {
-				$('#country').next('.nice-select').remove();
-				$('#country').show();
-			}
-			
-			// Initialize Select2 for country dropdown
-			$("select.select2").select2(); 
-			
-			// Initialize nice-select only for selects with nice-select class (excluding select2)
-			$('select.nice-select').not('.select2').niceSelect();
-		});
-		
-		// Prevent any other scripts from applying nice-select to country
-		$(document).on('DOMNodeInserted', function() {
-			if ($('#country').next('.nice-select').length > 0) {
-				$('#country').next('.nice-select').remove();
-				$('#country').show();
-			}
+			// Initialize nice-select for shipping dropdown
+			$('select.nice-select').niceSelect();
 		});
 	</script>
-	<script>
-		function showMe(box){
-			var checkbox=document.getElementById('shipping').style.display;
-			// alert(checkbox);
-			var vis= 'none';
-			if(checkbox=="none"){
-				vis='block';
-			}
-			if(checkbox=="block"){
-				vis="none";
-			}
-			document.getElementById(box).style.display=vis;
-		}
-	</script>
-	<!-- This script is replaced by the combined script below -->
 	
-	<!-- Combined Shipping and Wallet Balance Script -->
+	<!-- Shipping and Wallet Balance Script -->
 	<script>
 		$(document).ready(function(){
 			// Wallet balance from server

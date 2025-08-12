@@ -29,7 +29,7 @@
 <!-- Order Status Card -->
 <div class="walmart-card mb-4">
   <div class="card-body">
-    @if($order)
+
     <table class="table table-striped table-hover">
       <thead>
         <tr>

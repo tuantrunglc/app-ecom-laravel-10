@@ -244,6 +244,13 @@
         Route::post('create-withdrawal-password', [HomeController::class, 'createWithdrawalPassword'])->name('user.create-withdrawal-password');
         Route::post('verify-withdrawal-password', [HomeController::class, 'verifyWithdrawalPassword'])->name('user.verify-withdrawal-password');
 
+        // Notification routes for frontend users
+        Route::get('/notifications/get', [NotificationController::class, 'getUserNotifications'])->name('user.notifications.get');
+        Route::post('/notifications/mark-read', [NotificationController::class, 'markAsRead'])->name('user.notifications.mark-read');
+        Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('user.notifications.mark-all-read');
+        Route::get('/notifications/count', [NotificationController::class, 'getUnreadCount'])->name('user.notifications.count');
+        Route::post('/save-fcm-token', [NotificationController::class, 'saveFCMToken'])->name('user.save-fcm-token');
+
     });
 
     Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {

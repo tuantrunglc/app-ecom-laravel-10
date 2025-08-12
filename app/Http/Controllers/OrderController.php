@@ -177,16 +177,8 @@ class OrderController extends Controller
                     'products_data'=>'required|string'
                 ]);
             } else {
-                // Frontend order validation
+                // Frontend order validation - simplified, no customer info required
                 $this->validate($request,[
-                    'first_name'=>'string|required',
-                    'last_name'=>'string|required',
-                    'address1'=>'string|required',
-                    'address2'=>'string|nullable',
-                    'country'=>'string|required',
-                    'phone'=>'string|required',
-                    'post_code'=>'string|nullable',
-                    'email'=>'string|required|email',
                     'shipping'=>'nullable|exists:shippings,id',
                     'payment_method'=>'required|in:wallet'
                 ]);
@@ -305,6 +297,18 @@ class OrderController extends Controller
             }
         } elseif ($isBuyNow) {
             $order_data['user_id'] = $request->user()->id;
+            
+            // Auto-fill customer information from authenticated user
+            $user = $request->user();
+            $order_data['first_name'] = $user->name ?? '';
+            $order_data['last_name'] = '';
+            $order_data['email'] = $user->email ?? '';
+            $order_data['phone'] = $user->phone ?? '';
+            $order_data['address1'] = $user->address ?? '';
+            $order_data['address2'] = '';
+            $order_data['country'] = $user->country ?? '';
+            $order_data['post_code'] = $user->post_code ?? '';
+            
             // For Buy Now orders, use session data
             $buyNowItem = session('buy_now');
             $order_data['sub_total'] = $buyNowItem['amount'];
@@ -324,6 +328,18 @@ class OrderController extends Controller
             }
         } else {
             $order_data['user_id'] = $request->user()->id;
+            
+            // Auto-fill customer information from authenticated user
+            $user = $request->user();
+            $order_data['first_name'] = $user->name ?? '';
+            $order_data['last_name'] = '';
+            $order_data['email'] = $user->email ?? '';
+            $order_data['phone'] = $user->phone ?? '';
+            $order_data['address1'] = $user->address ?? '';
+            $order_data['address2'] = '';
+            $order_data['country'] = $user->country ?? '';
+            $order_data['post_code'] = $user->post_code ?? '';
+            
             // For regular orders, calculate from cart
             $order_data['sub_total'] = Helper::totalCartPrice();
             $order_data['quantity'] = Helper::cartCount();
@@ -377,13 +393,14 @@ class OrderController extends Controller
                 );
                 
                 // Also send traditional notification as backup
-                $details = [
-                    'title' => 'Order Failed - Insufficient Wallet Balance - Your balance: $' . number_format($currentBalance, 2) . ', Required: $' . number_format($totalAmount, 2) . '. Please add $' . number_format($shortfall, 2) . ' to your wallet.',
-                    'actionURL' => route('wallet.index'),
-                    'fas' => 'fas fa-exclamation-triangle'
-                ];
-                
-                Notification::send($payingUser, new StatusNotification($details));
+                if ($payingUser->fcm_token) {
+                    $this->sendFCMNotification(
+                        $payingUser->fcm_token,
+                        'Insufficient Wallet Balance',
+                        'Your balance: $' . number_format($currentBalance, 2) . ', Required: $' . number_format($totalAmount, 2) . '. Please add $' . number_format($shortfall, 2) . ' to your wallet.',
+                        ['actionURL' => route('wallet.index')]
+                    );
+                }
                 
                 // Different flash message for admin vs user
 
