@@ -435,9 +435,6 @@ class SubAdminController extends Controller
                 ];
                                 
                 // Flash message for sub-admin
-                request()->session()->flash('error','Cannot create order for user "' . $user->name . '". Insufficient wallet balance! User balance: $' . number_format($currentBalance, 2) . ', Required: $' . number_format($totalAmount, 2) . '. The user has been notified to add $' . number_format($shortfall, 2) . ' to their wallet.');
-                
-                return redirect()->back()->withInput();
             }
         }
 
