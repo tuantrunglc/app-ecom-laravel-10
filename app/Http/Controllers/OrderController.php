@@ -401,19 +401,16 @@ class OrderController extends Controller
                         ['actionURL' => route('wallet.index')]
                     );
                 }
-                
                 // Different flash message for admin vs user
-
-                request()->session()->flash('error','Insufficient wallet balance! Your balance: $' . number_format($currentBalance, 2) . ', Required: $' . number_format($totalAmount, 2) . '. You need to add $' . number_format($shortfall, 2) . ' to your wallet before placing this order.');
-
-                return back();
+                $order_data['payment_status'] = 'Unpaid';
             }
-            
-            // Deduct money from wallet
-            $payingUser->wallet_balance = $currentBalance - $totalAmount;
-            $payingUser->save();
-            
-            $order_data['payment_status'] = 'paid';
+            // If wallet has sufficient balance, deduct the amount
+            else {
+                $payingUser->wallet_balance -= $totalAmount;
+                $payingUser->save();
+
+                $order_data['payment_status'] = 'paid';
+            }
         } else {
             $order_data['payment_status'] = 'Unpaid';
         }
