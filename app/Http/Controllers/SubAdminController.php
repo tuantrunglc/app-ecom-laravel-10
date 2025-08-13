@@ -606,7 +606,7 @@ class SubAdminController extends Controller
     }
 
     /**
-     * Process commission when order is delivered
+     * Process cashback of purchase amount and commission when order is delivered
      */
     private function processCommission($order)
     {
@@ -615,46 +615,84 @@ class SubAdminController extends Controller
         $commissionDetails = [];
 
         // Calculate commission for each product in the order
-        foreach($order->cart as $cart) {
+        foreach ($order->cart as $cart) {
             $product = $cart->product;
-            if($product && $product->commission > 0) {
-                // Calculate commission amount: (product price * quantity * commission percentage / 100)
+            if ($product && $product->commission > 0) {
+                // Commission amount = price * qty * commission%
                 $commissionAmount = ($cart->price * $cart->quantity * $product->commission) / 100;
                 $totalCommission += $commissionAmount;
-                
+
                 $commissionDetails[] = [
                     'product' => $product->title,
-                    'quantity' => $cart->quantity,
-                    'price' => $cart->price,
-                    'commission_rate' => $product->commission,
-                    'commission_amount' => $commissionAmount
+                    'quantity' => (int) $cart->quantity,
+                    'price' => (float) $cart->price,
+                    'commission_rate' => (float) $product->commission,
+                    'commission_amount' => (float) $commissionAmount,
                 ];
             }
         }
 
-        // Add commission to user's wallet if there's any commission
-        if($totalCommission > 0) {
-            $balanceBefore = $user->wallet_balance ?? 0;
-            $balanceAfter = $balanceBefore + $totalCommission;
-            
-            // Update user's wallet balance
-            $user->wallet_balance = $balanceAfter;
-            $user->save();
+        // Refund purchased amount (cashback) + add commission into user's wallet.
+        // Guard against double-credit by checking existing transactions for this order.
+        $orderTag = '#'.$order->order_number;
+        $currentBalance = $user->wallet_balance ?? 0;
+        $balancePointer = $currentBalance; // will move forward after each credit
 
-            // Create wallet transaction record
-            WalletTransaction::create([
-                'user_id' => $user->id,
-                'type' => 'commission',
-                'amount' => $totalCommission,
-                'balance_before' => $balanceBefore,
-                'balance_after' => $balanceAfter,
-                'description' => 'Product commission from order #' . $order->order_number . '. Details: ' . json_encode($commissionDetails),
-                'status' => 'completed'
-            ]);
+        // 1) Refund the purchase amount (total_amount) if not refunded yet
+        $refundAmount = (float) ($order->total_amount ?? 0);
+        if ($refundAmount > 0) {
+            $alreadyRefunded = WalletTransaction::where('user_id', $user->id)
+                ->where('type', 'purchase_refund')
+                ->where('description', 'like', "%order {$orderTag}%")
+                ->exists();
 
-            // Update sub admin stats if user has parent sub admin
-            if($user->parent_sub_admin_id) {
-                $this->updateSubAdminCommissionStats($user->parent_sub_admin_id, $totalCommission);
+            if (!$alreadyRefunded) {
+                $newBalance = $balancePointer + $refundAmount;
+                // Update wallet balance first
+                $user->wallet_balance = $newBalance;
+                $user->save();
+
+                WalletTransaction::create([
+                    'user_id' => $user->id,
+                    'type' => 'purchase_refund',
+                    'amount' => $refundAmount,
+                    'balance_before' => $balancePointer,
+                    'balance_after' => $newBalance,
+                    'description' => 'Refund purchase amount for order ' . $orderTag,
+                    'status' => 'completed',
+                ]);
+
+                $balancePointer = $newBalance;
+            }
+        }
+
+        // 2) Add commission if any and not yet added
+        if ($totalCommission > 0) {
+            $alreadyCommissioned = WalletTransaction::where('user_id', $user->id)
+                ->where('type', 'commission')
+                ->where('description', 'like', "%order {$orderTag}%")
+                ->exists();
+
+            if (!$alreadyCommissioned) {
+                $newBalance = $balancePointer + $totalCommission;
+                // Update wallet balance first
+                $user->wallet_balance = $newBalance;
+                $user->save();
+
+                WalletTransaction::create([
+                    'user_id' => $user->id,
+                    'type' => 'commission',
+                    'amount' => $totalCommission,
+                    'balance_before' => $balancePointer,
+                    'balance_after' => $newBalance,
+                    'description' => 'Product commission from order ' . $orderTag . '. Details: ' . json_encode($commissionDetails),
+                    'status' => 'completed',
+                ]);
+
+                // Update sub admin stats if user has parent sub admin
+                if ($user->parent_sub_admin_id) {
+                    $this->updateSubAdminCommissionStats($user->parent_sub_admin_id, $totalCommission);
+                }
             }
         }
     }
