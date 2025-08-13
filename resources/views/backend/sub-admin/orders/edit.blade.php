@@ -16,30 +16,13 @@
       @method('PUT')
 
       <div class="form-group">
-        <label for="status">Status</label>
+        <label for="status">Status :</label>
         <select name="status" id="status" class="form-control">
-          <option value="pending" {{ in_array($order->status, ['processing','shipped','delivered','cancelled','returned']) ? 'disabled' : '' }} {{ $order->status=='pending'?'selected':'' }}>Pending</option>
-          <option value="processing" {{ in_array($order->status, ['shipped','delivered','cancelled','returned']) ? 'disabled' : '' }} {{ $order->status=='processing'?'selected':'' }}>Processing</option>
-          <option value="shipped" {{ in_array($order->status, ['delivered','cancelled','returned']) ? 'disabled' : '' }} {{ $order->status=='shipped'?'selected':'' }}>Shipped</option>
-          <option value="delivered" {{ in_array($order->status, ['cancelled','returned']) ? 'disabled' : '' }} {{ $order->status=='delivered'?'selected':'' }}>Delivered</option>
-          <option value="cancelled" {{ $order->status=='delivered' ? 'disabled' : '' }} {{ in_array($order->status, ['cancel','cancelled']) ? 'selected' : '' }}>Cancelled</option>
-          <option value="returned" {{ $order->status=='delivered' ? 'disabled' : '' }} {{ $order->status=='returned'?'selected':'' }}>Returned</option>
+          <option value="new" {{($order->status=='delivered' || $order->status=="process" || $order->status=="cancel") ? 'disabled' : ''}}  {{(($order->status=='new')? 'selected' : '')}}>New</option>
+          <option value="process" {{($order->status=='delivered'|| $order->status=="cancel") ? 'disabled' : ''}}  {{(($order->status=='process')? 'selected' : '')}}>Process</option>
+          <option value="delivered" {{($order->status=="cancel") ? 'disabled' : ''}}  {{(($order->status=='delivered')? 'selected' : '')}}>Delivered</option>
+          <option value="cancel" {{($order->status=='delivered') ? 'disabled' : ''}}  {{(($order->status=='cancel')? 'selected' : '')}}>Cancel</option>
         </select>
-      </div>
-
-      <div class="form-group">
-        <label for="tracking_number">Tracking Number</label>
-        <input type="text" id="tracking_number" name="tracking_number" class="form-control" value="{{ old('tracking_number', $order->tracking_number) }}" placeholder="e.g., 1Z999AA10123456784">
-      </div>
-
-      <div class="form-group">
-        <label for="notes">Notes</label>
-        <textarea id="notes" name="notes" class="form-control" rows="3" placeholder="Additional info for this order">{{ old('notes', $order->notes) }}</textarea>
-      </div>
-
-      <div class="form-group">
-        <label for="cancel_reason">Cancel Reason (required if status = cancelled)</label>
-        <textarea id="cancel_reason" name="cancel_reason" class="form-control" rows="2" placeholder="Why is this order cancelled?">{{ old('cancel_reason', $order->cancel_reason) }}</textarea>
       </div>
 
       <button type="submit" class="btn btn-primary">Update</button>

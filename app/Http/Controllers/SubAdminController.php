@@ -170,10 +170,7 @@ class SubAdminController extends Controller
         $order = $this->authorizeOrderAccess($orderId);
 
         $this->validate($request, [
-            'status' => 'required|in:pending,processing,shipped,delivered,cancelled,returned',
-            'tracking_number' => 'nullable|string|max:255',
-            'notes' => 'nullable|string|max:1000',
-            'cancel_reason' => 'required_if:status,cancelled|string|max:500',
+            'status' => 'required|in:new,process,delivered,cancel',
         ]);
 
         // Kiểm tra logic chuyển trạng thái
@@ -185,9 +182,6 @@ class SubAdminController extends Controller
         
         $order->update([
             'status' => $request->status,
-            'tracking_number' => $request->tracking_number,
-            'notes' => $request->notes,
-            'cancel_reason' => $request->cancel_reason,
         ]);
 
         // Process commission if order status changed to delivered
@@ -532,12 +526,10 @@ class SubAdminController extends Controller
     private function canUpdateOrderStatus($currentStatus, $newStatus)
     {
         $allowedTransitions = [
-            'pending' => ['processing', 'cancelled'],
-            'processing' => ['shipped', 'cancelled'],
-            'shipped' => ['delivered'],
-            'delivered' => ['returned'],
-            'cancelled' => [],
-            'returned' => []
+            'new' => ['process', 'cancel'],
+            'process' => ['delivered', 'cancel'],
+            'delivered' => [],
+            'cancel' => [],
         ];
 
         return in_array($newStatus, $allowedTransitions[$currentStatus] ?? []);
