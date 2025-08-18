@@ -27,6 +27,7 @@
     <link href="{{asset('css/walmart-components.css')}}" rel="stylesheet">
     <link href="{{asset('css/walmart-responsive.css')}}" rel="stylesheet">
     <link href="{{asset('css/mobile-menu-fix.css')}}" rel="stylesheet">
+    <link href="{{asset('css/debug-temp.css')}}" rel="stylesheet">
     
     <!-- Legacy Bootstrap for compatibility -->
     <link href="{{asset('backend/css/sb-admin-2.min.css')}}" rel="stylesheet">
