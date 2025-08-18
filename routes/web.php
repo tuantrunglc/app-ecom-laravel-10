@@ -393,6 +393,9 @@ Route::middleware(['auth'])->prefix('chat')->name('chat.')->group(function () {
     Route::post('/upload-image', [App\Http\Controllers\ChatController::class, 'uploadImage'])->name('upload.image');
     Route::get('/api/conversations', [App\Http\Controllers\ChatController::class, 'getConversations'])->name('api.conversations');
     
+    // Notify backend to create DB notification for new chat message (Method B)
+    Route::post('/notify-new-message', [App\Http\Controllers\ChatNotifyController::class, 'store'])->name('notify');
+    
     // Test routes for debugging
     Route::get('/test', function() {
         return view('chat.test');

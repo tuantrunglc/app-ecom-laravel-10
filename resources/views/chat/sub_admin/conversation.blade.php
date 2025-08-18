@@ -458,7 +458,7 @@
             timestamp: Date.now()
         };
 
-        fetch('/api/chat/notify-new-message', {
+        fetch('/chat/notify-new-message', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
