@@ -23,6 +23,7 @@
     $new_orders = $orders->where('status', 'new')->count();
     $processing_orders = $orders->where('status', 'process')->count();
     $delivered_orders = $orders->where('status', 'delivered')->count();
+    $has_delivered_orders = $delivered_orders > 0;
 @endphp
 
 <!-- Order Stats -->
@@ -109,6 +110,9 @@
               <th>Items</th>
               <th>Shipping</th>
               <th>Total</th>
+              @if($has_delivered_orders)
+              <th>Commission</th>
+              @endif
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -137,6 +141,19 @@
               <td data-label="Total">
                 <div class="font-weight-bold text-lg">${{number_format($order->total_amount,2)}}</div>
               </td>
+              @if($has_delivered_orders)
+              <td data-label="Commission">
+                @if($order->status == 'delivered')
+                  @if(isset($commissions[$order->order_number]))
+                    <div class="font-weight-bold text-success">${{number_format($commissions[$order->order_number], 2)}}</div>
+                  @else
+                    <span class="text-muted">-</span>
+                  @endif
+                @else
+                  <span class="text-muted">-</span>
+                @endif
+              </td>
+              @endif
               <td data-label="Status">
                 @if($order->status=='new')
                   <span class="status-badge new">New</span>
@@ -149,24 +166,11 @@
                 @endif
               </td>
               <td data-label="Actions">
-                <div class="d-flex align-items-center">
-                  <a href="{{route('user.order.show',$order->id)}}" 
-                     class="walmart-btn walmart-btn-warning walmart-btn-icon mr-2" 
-                     data-toggle="tooltip" title="View Details">
-                    <i class="fas fa-eye"></i>
-                  </a>
-                  <form method="POST" action="{{route('user.order.delete',[$order->id])}}" class="d-inline">
-                    @csrf
-                    @method('delete')
-                    <button type="button" 
-                            class="walmart-btn walmart-btn-danger walmart-btn-icon dltBtn" 
-                            data-id="{{$order->id}}" 
-                            data-toggle="tooltip" 
-                            title="Delete Order">
-                      <i class="fas fa-trash-alt"></i>
-                    </button>
-                  </form>
-                </div>
+                <a href="{{route('user.order.show',$order->id)}}" 
+                   class="walmart-btn walmart-btn-warning walmart-btn-icon" 
+                   data-toggle="tooltip" title="View Details">
+                  <i class="fas fa-eye"></i>
+                </a>
               </td>
             </tr>
             @endforeach
@@ -252,6 +256,11 @@
   font-size: var(--text-sm);
 }
 
+/* Commission styling */
+.text-success {
+  color: #28a745 !important;
+}
+
 /* Responsive table improvements */
 @media (max-width: 767.98px) {
   .stats-card h3 {
@@ -267,6 +276,16 @@
   .card-header .d-flex {
     width: 100%;
     justify-content: flex-start;
+  }
+  
+  /* Mobile responsive for commission column */
+  .walmart-table td[data-label="Commission"] {
+    text-align: right;
+  }
+  
+  .walmart-table td[data-label="Commission"]:before {
+    content: "Commission: ";
+    font-weight: bold;
   }
 }
 </style>
@@ -303,40 +322,7 @@ $(document).ready(function(){
     }
   });
   
-  // Delete confirmation with SweetAlert
-  $('.dltBtn').click(function(e){
-    e.preventDefault();
-    var form = $(this).closest('form');
-    var dataID = $(this).data('id');
-    
-    swal({
-      title: "Delete Order?",
-      text: "Are you sure you want to delete this order? This action cannot be undone!",
-      icon: "warning",
-      buttons: {
-        cancel: {
-          text: "Cancel",
-          value: null,
-          visible: true,
-          className: "btn-secondary",
-          closeModal: true,
-        },
-        confirm: {
-          text: "Yes, Delete",
-          value: true,
-          visible: true,
-          className: "btn-danger",
-          closeModal: true
-        }
-      },
-      dangerMode: true,
-    })
-    .then((willDelete) => {
-      if (willDelete) {
-        form.submit();
-      }
-    });
-  });
+
   
   // Initialize tooltips
   $('[data-toggle="tooltip"]').tooltip();

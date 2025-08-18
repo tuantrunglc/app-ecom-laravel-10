@@ -64,94 +64,17 @@
                   <span class="badge badge-danger">{{$order->status}}</span>
                 @endif
             </td>
-            <td>
-                <form method="POST" action="{{route('order.destroy',[$order->id])}}">
-                  @csrf
-                  @method('delete')
-                      <button class="btn btn-danger btn-sm dltBtn" data-id={{$order->id}} style="height:30px; width:30px;border-radius:50%" data-toggle="tooltip" data-placement="bottom" title="Delete"><i class="fas fa-trash-alt"></i></button>
-                </form>
-            </td>
 
         </tr>
       </tbody>
     </table>
-
-    <section class="confirmation_part section_padding">
-      <div class="order_boxes">
-        <div class="row">
-          <div class="col-lg-6 col-lx-4">
-            <div class="order-info">
-              <h4 class="text-center pb-4">ORDER INFORMATION</h4>
-              <table class="table">
-                    <tr class="">
-                        <td>Order Number</td>
-                        <td> : {{$order->order_number}}</td>
-                    </tr>
-                    <tr>
-                        <td>Order Date</td>
-                        <td> : {{$order->created_at->format('D d M, Y')}} at {{$order->created_at->format('g : i a')}} </td>
-                    </tr>
-                    <tr>
-                        <td>Quantity</td>
-                        <td> : {{$order->quantity}}</td>
-                    </tr>
-                    <tr>
-                        <td>Order Status</td>
-                        <td> : {{$order->status}}</td>
-                    </tr>
-                    <tr>
-                      @php
-                          $shipping_charge=DB::table('shippings')->where('id',$order->shipping_id)->pluck('price');
-                      @endphp
-                        <td>Shipping Charge</td>
-                        <td> :${{$order->shipping ? $order->shipping->price : '0.00'}}</td>
-                    </tr>
-                    <tr>
-                        <td>Total Amount</td>
-                        <td> : $ {{number_format($order->total_amount,2)}}</td>
-                    </tr>
-                    <tr>
-                      <td>Payment Method</td>
-                      <td> : @if($order->payment_method=='wallet') Wallet Payment @elseif($order->payment_method=='cod') Cash on Delivery @else Paypal @endif</td>
-                    </tr>
-                    <tr>
-                        <td>Payment Status</td>
-                        <td> : {{$order->payment_status}}</td>
-                    </tr>
-              </table>
-            </div>
-          </div>
-          <div>
-            <h4 class="mb-1">Order #{{$order->order_number}}</h4>
-            <p class="text-muted mb-2">Placed on {{$order->created_at->format('F d, Y')}} at {{$order->created_at->format('g:i A')}}</p>
-            <div>
-              @if($order->status=='new')
-                <span class="status-badge new">New Order</span>
-              @elseif($order->status=='process')
-                <span class="status-badge process">Processing</span>
-              @elseif($order->status=='delivered')
-                <span class="status-badge delivered">Delivered</span>
-              @else
-                <span class="status-badge cancelled">{{ucfirst($order->status)}}</span>
-              @endif
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4 text-md-right">
-        <div class="order-total">
-          <h2 class="text-walmart-blue mb-0">${{number_format($order->total_amount,2)}}</h2>
-          <p class="text-muted mb-0">Total Amount</p>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 
 <!-- Order Information -->
 <div class="row">
-  <div class="col-lg-6 mb-4">
-    <div class="walmart-card h-100">
+  <div class="col-12 mb-4">
+    <div class="walmart-card">
       <div class="card-header">
         <h4 class="card-title">
           <i class="fas fa-info-circle mr-2"></i>
@@ -196,7 +119,7 @@
               @if($order->payment_method=='cod') 
                 <i class="fas fa-money-bill-wave mr-1"></i>Cash on Delivery 
               @else 
-                <i class="fab fa-paypal mr-1"></i>PayPal 
+                <i class="fab fa-paypal mr-1"></i>Wallet Payment 
               @endif
             </span>
           </div>
@@ -219,64 +142,7 @@
     </div>
   </div>
 
-  <div class="col-lg-6 mb-4">
-    <div class="walmart-card h-100">
-      <div class="card-header">
-        <h4 class="card-title">
-          <i class="fas fa-shipping-fast mr-2"></i>
-          Shipping Information
-        </h4>
-      </div>
-      <div class="card-body">
-        <div class="shipping-info-list">
-          <div class="info-item">
-            <span class="info-label">Full Name:</span>
-            <span class="info-value font-weight-bold">{{$order->first_name}} {{$order->last_name}}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Email:</span>
-            <span class="info-value">
-              <a href="mailto:{{$order->email}}" class="text-walmart-blue">{{$order->email}}</a>
-            </span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Phone:</span>
-            <span class="info-value">
-              <a href="tel:{{$order->phone}}" class="text-walmart-blue">{{$order->phone}}</a>
-            </span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Address:</span>
-            <span class="info-value">{{$order->address1}}@if($order->address2), {{$order->address2}}@endif</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Country:</span>
-            <span class="info-value">{{$order->country}}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Post Code:</span>
-            <span class="info-value">{{$order->post_code}}</span>
-          </div>
-        </div>
-        
-        <!-- Shipping Address Card -->
-        <div class="shipping-address-card mt-4 p-3 bg-light rounded">
-          <h6 class="font-weight-bold mb-2">
-            <i class="fas fa-map-marker-alt mr-2"></i>
-            Delivery Address
-          </h6>
-          <address class="mb-0">
-            <strong>{{$order->first_name}} {{$order->last_name}}</strong><br>
-            {{$order->address1}}<br>
-            @if($order->address2){{$order->address2}}<br>@endif
-            {{$order->country}} {{$order->post_code}}<br>
-            <i class="fas fa-phone mr-1"></i>{{$order->phone}}<br>
-            <i class="fas fa-envelope mr-1"></i>{{$order->email}}
-          </address>
-        </div>
-      </div>
-    </div>
-  </div>
+
 </div>
 
 <!-- Order Actions -->
@@ -298,14 +164,7 @@
       </button>
       @endif
       
-      <form method="POST" action="{{route('user.order.delete',[$order->id])}}" class="d-inline">
-        @csrf
-        @method('delete')
-        <button type="button" class="walmart-btn walmart-btn-danger dltBtn" data-id="{{$order->id}}">
-          <i class="fas fa-trash-alt mr-2"></i>
-          Delete Order
-        </button>
-      </form>
+
     </div>
   </div>
 </div>
@@ -355,19 +214,7 @@
   flex: 1;
 }
 
-.shipping-address-card {
-  background: var(--gray-50);
-  border: 1px solid var(--border-light);
-}
 
-.shipping-address-card address {
-  font-style: normal;
-  line-height: 1.6;
-}
-
-.h-100 {
-  height: 100% !important;
-}
 
 .gap-2 {
   gap: 0.5rem;
@@ -483,40 +330,7 @@ $(document).ready(function(){
     }
   });
   
-  // Delete confirmation
-  $('.dltBtn').click(function(e){
-    e.preventDefault();
-    var form = $(this).closest('form');
-    var dataID = $(this).data('id');
-    
-    swal({
-      title: "Delete Order?",
-      text: "Are you sure you want to delete this order? This action cannot be undone!",
-      icon: "warning",
-      buttons: {
-        cancel: {
-          text: "Cancel",
-          value: null,
-          visible: true,
-          className: "btn-secondary",
-          closeModal: true,
-        },
-        confirm: {
-          text: "Yes, Delete",
-          value: true,
-          visible: true,
-          className: "btn-danger",
-          closeModal: true
-        }
-      },
-      dangerMode: true,
-    })
-    .then((willDelete) => {
-      if (willDelete) {
-        form.submit();
-      }
-    });
-  });
+
   
   // Initialize tooltips
   $('[data-toggle="tooltip"]').tooltip();

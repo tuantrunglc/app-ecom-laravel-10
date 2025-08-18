@@ -82,31 +82,30 @@ class HomeController extends Controller
     // Order
     public function orderIndex(){
         $orders=Order::with('shipping')->orderBy('id','DESC')->where('user_id',auth()->user()->id)->paginate(10);
-        return view('user.order.index')->with('orders',$orders);
-    }
-    public function userOrderDelete($id)
-    {
-        $order=Order::with('shipping')->find($id);
-        if($order){
-           if($order->status=="process" || $order->status=='delivered' || $order->status=='cancel'){
-                return redirect()->back()->with('error','You can not delete this order now');
-           }
-           else{
-                $status=$order->delete();
-                if($status){
-                    request()->session()->flash('success','Order Successfully deleted');
+        
+        // Get commission data for delivered orders
+        $orderNumbers = $orders->where('status', 'delivered')->pluck('order_number')->toArray();
+        $commissions = [];
+        
+        if (!empty($orderNumbers)) {
+            $walletTransactions = \App\Models\WalletTransaction::where('user_id', auth()->user()->id)
+                ->where('type', 'commission')
+                ->where('status', 'completed')
+                ->get();
+            
+            foreach ($walletTransactions as $transaction) {
+                foreach ($orderNumbers as $orderNumber) {
+                    if (strpos($transaction->description, $orderNumber) !== false) {
+                        $commissions[$orderNumber] = $transaction->amount;
+                        break;
+                    }
                 }
-                else{
-                    request()->session()->flash('error','Order can not deleted');
-                }
-                return redirect()->route('user.order.index');
-           }
+            }
         }
-        else{
-            request()->session()->flash('error','Order can not found');
-            return redirect()->back();
-        }
+        
+        return view('user.order.index')->with('orders',$orders)->with('commissions', $commissions);
     }
+
 
     public function orderShow($id)
     {

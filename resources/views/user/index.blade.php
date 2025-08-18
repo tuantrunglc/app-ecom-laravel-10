@@ -184,25 +184,11 @@
                     @endif
                   </td>
                   <td data-label="Actions">
-                    <div class="d-flex">
-                      <a href="{{route('user.order.show', $order->id)}}" 
-                         class="walmart-btn walmart-btn-warning walmart-btn-icon mr-2" 
-                         data-toggle="tooltip" title="View Order">
-                        <i class="fas fa-eye"></i>
-                      </a>
-                      <form method="POST" action="{{route('user.order.delete', $order->id)}}" class="d-inline">
-                        @csrf 
-                        @method('delete')
-                        <button type="submit" 
-                                class="walmart-btn walmart-btn-danger walmart-btn-icon dltBtn" 
-                                data-id="{{$order->id}}" 
-                                data-toggle="tooltip" 
-                                title="Delete Order"
-                                onclick="return confirm('Are you sure you want to delete this order?')">
-                          <i class="fas fa-trash-alt"></i>
-                        </button>
-                      </form>
-                    </div>
+                    <a href="{{route('user.order.show', $order->id)}}" 
+                       class="walmart-btn walmart-btn-warning walmart-btn-icon" 
+                       data-toggle="tooltip" title="View Order">
+                      <i class="fas fa-eye"></i>
+                    </a>
                   </td>
                 </tr>
                 @endforeach
