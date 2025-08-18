@@ -33,7 +33,7 @@ class NotificationController extends Controller
             if (!$targetUrl) {
                 $convId = $data['conversation_id'] ?? ($data['conversationId'] ?? null);
                 if ($convId) {
-                    $targetUrl = url('/chat?conversationId=' . $convId);
+                    $targetUrl = url('/chat/conversation/' . $convId);
                 } else {
                     // Fallback to chat system if it looks like a chat notification
                     $type = strtolower($data['type'] ?? '');
