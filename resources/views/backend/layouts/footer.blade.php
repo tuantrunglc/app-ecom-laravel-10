@@ -58,6 +58,29 @@
 
   @stack('scripts')
 
+  <!-- Fallback: Ensure sidebar toggle works on mobile -->
+  <script>
+    (function($){
+      $(function(){
+        // Bind click handlers if not already bound
+        $(document).off('click.zcSidebar', '#sidebarToggleTop').on('click.zcSidebar', '#sidebarToggleTop', function(){
+          $('body').toggleClass('sidebar-toggled');
+          $('.sidebar').toggleClass('toggled');
+          if ($('.sidebar').hasClass('toggled')) {
+            $('.sidebar .collapse').collapse('hide');
+          }
+        });
+        $(document).off('click.zcSidebar', '#sidebarToggle').on('click.zcSidebar', '#sidebarToggle', function(){
+          $('body').toggleClass('sidebar-toggled');
+          $('.sidebar').toggleClass('toggled');
+          if ($('.sidebar').hasClass('toggled')) {
+            $('.sidebar .collapse').collapse('hide');
+          }
+        });
+      });
+    })(jQuery);
+  </script>
+
   <script>
     setTimeout(function(){
       $('.alert').slideUp();
