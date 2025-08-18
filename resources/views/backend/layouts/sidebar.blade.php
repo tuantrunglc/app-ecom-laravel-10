@@ -210,7 +210,22 @@
         </div>
       </div>
     </li>
-    
+
+    <!-- VIP Management -->
+    <li class="nav-item">
+      <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseVip" aria-expanded="true" aria-controls="collapseVip">
+        <i class="fas fa-crown"></i>
+        <span>VIP</span>
+      </a>
+      <div id="collapseVip" class="collapse" aria-labelledby="headingVip" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+          <h6 class="collapse-header">Quản Lý VIP:</h6>
+          <a class="collapse-item" href="{{ route('admin.vip.levels') }}">Cấu Hình Cấp VIP</a>
+          <a class="collapse-item" href="{{ route('admin.vip.user-management') }}">Người Dùng & VIP</a>
+        </div>
+      </div>
+    </li>
+
 
     <!-- Divider -->
     <hr class="sidebar-divider">
