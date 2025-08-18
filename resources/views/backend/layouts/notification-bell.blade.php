@@ -28,15 +28,19 @@
         
         {{-- Existing Laravel Notifications --}}
         @foreach(Auth::user()->unreadNotifications as $notification)
+            @php
+                $data = $notification->data ?? [];
+                $title = $data['title'] ?? ($data['preview'] ?? ($data['message'] ?? 'Notification'));
+            @endphp
             <a class="dropdown-item d-flex align-items-center" target="_blank" href="{{route('admin.notification',$notification->id)}}">
                 <div class="mr-3">
                     <div class="icon-circle bg-primary">
-                        <i class="fas {{$notification->data['fas'] ?? 'fa-bell'}} text-white"></i>
+                        <i class="fas {{$data['fas'] ?? 'fa-bell'}} text-white"></i>
                     </div>
                 </div>
                 <div>
                     <div class="small text-gray-500">{{$notification->created_at->format('F d, Y h:i A')}}</div>
-                    <span class="@if($notification->unread()) font-weight-bold @else small text-gray-500 @endif">{{$notification->data['title']}}</span>
+                    <span class="@if($notification->unread()) font-weight-bold @else small text-gray-500 @endif">{{$title}}</span>
                 </div>
             </a>
             @if($loop->index+1==5)
