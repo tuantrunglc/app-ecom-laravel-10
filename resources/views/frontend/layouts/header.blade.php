@@ -690,6 +690,38 @@
                                 </div>
                             </div>
                         </div>
+
+                        {{-- VIP Badge (English, next to notification bell) --}}
+                        @php
+                            $rawVipName = optional(Auth::user())->vip_level_name
+                                ?? optional(optional(Auth::user())->currentVipPlan)->name
+                                ?? 'FREE';
+                            $name = trim($rawVipName);
+                            $vipNameMap = [
+                                'FREE' => 'FREE',
+                                'VIP BẠC' => 'VIP Silver',
+                                'BẠC' => 'Silver',
+                                'VIP BAC' => 'VIP Silver',
+                                'BAC' => 'Silver',
+                                'VIP BẠCH KIM' => 'VIP Platinum',
+                                'BẠCH KIM' => 'Platinum',
+                                'VIP BACH KIM' => 'VIP Platinum',
+                                'BACH KIM' => 'Platinum',
+                                'VIP KIM CƯƠNG' => 'VIP Diamond',
+                                'KIM CƯƠNG' => 'Diamond',
+                                'VIP LEGEND' => 'VIP Legend',
+                                'LEGEND' => 'Legend',
+                            ];
+                            $displayVip = $vipNameMap[strtoupper($name)] ?? $name;
+                        @endphp
+                        <div class="sinlge-bar vip-badge-bar" style="margin-left:8px;">
+                            <div class="wallet-balance-display" style="height:36px;">
+                                <i class="fas fa-crown" style="color:#f0ad4e;"></i>
+                                <span class="balance-text" style="color:#f0ad4e;">
+                                    VIP: {{ $displayVip ?: 'FREE' }}
+                                </span>
+                            </div>
+                        </div>
                         @endauth
                         
                         <!-- Wishlist -->
