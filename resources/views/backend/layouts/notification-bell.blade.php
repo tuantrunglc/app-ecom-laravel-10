@@ -194,7 +194,7 @@ $(document).ready(function() {
             items.forEach(item => {
                 const ts = item.lastTs ? new Date(item.lastTs).toLocaleString() : '';
                 const preview = item.last && item.last.type === 'image' ? '[Hình ảnh]' : (item.last && item.last.content ? $('<div>').text(item.last.content).html() : 'Tin nhắn mới');
-                const url = '/chat?conversationId=' + item.id;
+                const url = '/chat/conversation/' + item.id;
                 const html = `
                     <a class="dropdown-item d-flex align-items-center" href="${url}">
                         <div class="mr-3">

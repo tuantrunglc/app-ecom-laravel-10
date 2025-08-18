@@ -224,7 +224,7 @@
                 preview: notificationData.preview,
                 type: notificationData.type,
                 timestamp: notificationData.timestamp,
-                link: '/chat?conversationId=' + notificationData.conversationId
+                link: '/chat/conversation/' + notificationData.conversationId
             }
         });
         
@@ -313,7 +313,7 @@
         var item = document.createElement('a');
         item.className = 'dropdown-item d-flex align-items-center message-item' + 
                        (notification.is_unread ? ' bg-light' : '');
-        item.href = notification.data ? notification.data.link : ('/chat?conversationId=' + notification.conversationId);
+        item.href = notification.data ? notification.data.link : ('/chat/conversation/' + notification.conversationId);
         
         if (notification.id && !notification.isRealtime) {
             item.setAttribute('data-notification-id', notification.id);

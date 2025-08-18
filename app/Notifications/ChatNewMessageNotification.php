@@ -33,7 +33,7 @@ class ChatNewMessageNotification extends Notification implements ShouldQueue
             'preview'         => $this->type === 'image' ? '[Hình ảnh]' : $this->preview,
             'timestamp'       => $this->timestamp,
             'type'            => $this->type,
-            'link'            => url('/chat?conversationId=' . $this->conversationId),
+            'link'            => url('/chat/conversation/' . $this->conversationId),
         ];
     }
 }
