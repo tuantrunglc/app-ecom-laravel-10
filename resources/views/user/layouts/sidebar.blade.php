@@ -108,8 +108,7 @@
 
 </aside>
 
-<!-- Sidebar Backdrop for Mobile -->
-<div class="sidebar-backdrop"></div>
+
 
 <style>
 .sidebar-footer {
