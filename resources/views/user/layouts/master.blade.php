@@ -54,6 +54,22 @@
   <!-- Walmart Theme JavaScript -->
   <script src="{{asset('js/walmart-theme.js')}}"></script>
   
+  <script>
+  // Fallback: đảm bảo toggle luôn hoạt động
+  (function($){
+    $(function(){
+      // Hủy bind cũ theo namespace rồi bind lại
+      $(document)
+        .off('click.userSidebar', '#sidebarToggleTop, .sidebar-toggle')
+        .on('click.userSidebar', '#sidebarToggleTop, .sidebar-toggle', function(e){
+          e.preventDefault();
+          $('.walmart-sidebar').toggleClass('show');       // Hiện/ẩn sidebar
+          $('.sidebar-backdrop').toggleClass('show');      // Hiện/ẩn nền tối
+          $('body').toggleClass('sidebar-open');           // Khóa scroll body
+        });
+    });
+  })(jQuery);
+  </script>
 
 
   @stack('scripts')
