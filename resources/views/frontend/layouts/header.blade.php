@@ -287,6 +287,34 @@
     }
 }
 
+/* Top Right Mobile Fix */
+@media (max-width: 991px) {
+    .right-content {
+        text-align: right !important;
+    }
+    
+    .right-content .list-main {
+        justify-content: flex-end !important;
+        flex-direction: row !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .right-content .list-main {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .right-content .list-main li {
+        margin: 0 0.25rem;
+    }
+    
+    .right-content .list-main li a {
+        font-size: 0.875rem;
+        padding: 0.25rem 0.5rem;
+    }
+}
+
 /* Notification Bell CSS */
 .notification-wrapper {
     position: relative;
@@ -1099,100 +1127,40 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Initialize Firebase Real-time instead of polling
-    function initializeFirebaseNotifications() {
-        // Load initial notifications
-        loadNotificationCount();
+    // Real-time updates with polling (every 30 seconds)
+    function startPolling() {
+        loadNotificationCount(); // Initial load
         
-        // Setup Firebase real-time listener if available
-        if (typeof firebase !== 'undefined' && firebase.messaging) {
-            setupFirebaseMessaging();
-        } else {
-            console.log('Firebase not available, using fallback polling');
-            startFallbackPolling();
-        }
-    }
-
-    function setupFirebaseMessaging() {
-        // Initialize Firebase Cloud Messaging
-        const messaging = firebase.messaging();
-        
-        // Handle foreground messages
-        messaging.onMessage((payload) => {
-            console.log('Real-time notification received:', payload);
-            
-            // Update notification count immediately
-            loadNotificationCount();
-            
-            // Show browser notification if permission granted
-            if (Notification.permission === 'granted') {
-                new Notification(payload.notification?.title || 'New Notification', {
-                    body: payload.notification?.body || 'You have a new notification',
-                    icon: '/frontend/images/notification-icon.png',
-                    badge: '/frontend/images/notification-badge.png'
-                });
-            }
-            
-            // Update UI if dropdown is open
-            if (isDropdownOpen) {
-                loadNotifications();
-            }
-        });
-
-        // Request permission for notifications
-        messaging.requestPermission()
-            .then(() => {
-                console.log('Notification permission granted');
-                return messaging.getToken();
-            })
-            .then((token) => {
-                console.log('FCM Token:', token);
-                // Send token to server to store for this user
-                saveFCMTokenToServer(token);
-            })
-            .catch((error) => {
-                console.log('Unable to get permission or token:', error);
-                // Fallback to polling if Firebase fails
-                startFallbackPolling();
-            });
-    }
-
-    function saveFCMTokenToServer(token) {
-        fetch('/user/save-fcm-token', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-            },
-            body: JSON.stringify({ fcm_token: token })
-        })
-        .catch(error => console.error('Failed to save FCM token:', error));
-    }
-
-    // Fallback polling only if Firebase is not available
-    function startFallbackPolling() {
-        console.log('Using fallback polling (30s interval)');
         pollingInterval = setInterval(function() {
             if (!isDropdownOpen) {
                 loadNotificationCount();
             } else {
-                loadNotifications();
+                loadNotifications(); // Full reload if dropdown is open
             }
-        }, 30000); // Only as fallback
+        }, 30000); // Poll every 30 seconds
     }
 
-    function stopFallbackPolling() {
+    function stopPolling() {
         if (pollingInterval) {
             clearInterval(pollingInterval);
             pollingInterval = null;
         }
     }
 
-    // Initialize on page load
-    initializeFirebaseNotifications();
+    // Start polling when page loads
+    startPolling();
 
-    // Cleanup on page unload
-    window.addEventListener('beforeunload', stopFallbackPolling);
+    // Stop polling when page unloads
+    window.addEventListener('beforeunload', stopPolling);
+
+    // Optional: Use Page Visibility API to pause/resume polling
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            stopPolling();
+        } else {
+            startPolling();
+        }
+    });
 });
 </script>
 @endauth
