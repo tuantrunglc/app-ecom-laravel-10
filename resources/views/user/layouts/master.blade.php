@@ -35,9 +35,6 @@
   </div>
   <!-- End of Walmart Wrapper -->
 
-  <!-- Walmart Theme JavaScript -->
-  <script src="{{asset('js/walmart-theme.js')}}"></script>
-  
   <!-- Bootstrap core JavaScript-->
   <script src="{{asset('backend/vendor/jquery/jquery.min.js')}}"></script>
   <script src="{{asset('backend/vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
@@ -47,6 +44,24 @@
 
   <!-- Custom scripts for all pages-->
   <script src="{{asset('backend/js/sb-admin-2.min.js')}}"></script>
+  
+  <!-- Walmart Theme JavaScript -->
+  <script src="{{asset('js/walmart-theme.js')}}"></script>
+  
+  <!-- Mobile Menu Debug Script -->
+  <script>
+  $(document).ready(function() {
+    console.log('Document ready - checking mobile menu setup');
+    console.log('Sidebar toggle button exists:', $('#sidebarToggleTop').length > 0);
+    console.log('Sidebar exists:', $('.walmart-sidebar').length > 0);
+    console.log('Backdrop exists:', $('.sidebar-backdrop').length > 0);
+    
+    // Test click handler
+    $('#sidebarToggleTop, .sidebar-toggle').on('click', function() {
+      console.log('Toggle button clicked - manual handler');
+    });
+  });
+  </script>
 
   @stack('scripts')
 
