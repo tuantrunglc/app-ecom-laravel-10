@@ -25,7 +25,7 @@
         <tr class="@if($notification->unread()) bg-light border-left-light @else border-left-success @endif">
           <td scope="row">{{$loop->index +1}}</td>
           <td>{{$notification->created_at->format('F d, Y h:i A')}}</td>
-          <td>{{$notification->data['title']}}</td>
+          <td>{{ $notification->data['title'] ?? ($notification->data['preview'] ?? ($notification->data['message'] ?? 'Notification')) }}</td>
           <td>
             <a href="{{route('admin.notification', $notification->id) }}" class="btn btn-primary btn-sm float-left mr-1" style="height:30px; width:30px;border-radius:50%" data-toggle="tooltip" title="view" data-placement="bottom"><i class="fas fa-eye"></i></a>
             <form method="POST" action="{{ route('notification.delete', $notification->id) }}">

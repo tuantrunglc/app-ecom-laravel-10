@@ -48,11 +48,6 @@
         @include('backend.layouts.notification-bell')
       </li>
 
-      <!-- Nav Item - Chat Message Center (Firebase) -->
-      <li class="nav-item dropdown no-arrow mx-1" id="chatMessageCenter">
-        @include('backend.chat.message-center')
-      </li>
-
       <div class="topbar-divider d-none d-sm-block"></div>
 
       <!-- Nav Item - User Information -->
