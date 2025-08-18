@@ -48,6 +48,9 @@
   <!-- Custom scripts for all pages-->
   <script src="{{asset('backend/js/sb-admin-2.min.js')}}"></script>
   
+  <!-- Axios for API calls (needed by dashboard charts) -->
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  
   <!-- Walmart Theme JavaScript -->
   <script src="{{asset('js/walmart-theme.js')}}"></script>
   
