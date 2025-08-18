@@ -320,6 +320,8 @@
         push(messagesRef, messageData)
             .then(() => {
                 console.log('Sub Admin message sent successfully');
+                // Notify backend about new message (Method B)
+                notifyNewMessage(messageData);
             })
             .catch((error) => {
                 console.error('Error sending sub admin message:', error);
@@ -439,6 +441,44 @@
         .catch(error => {
             console.error('Error uploading image:', error);
             alert('Failed to upload image');
+        });
+    }
+
+    // Notify backend about new message (Method B)
+    function notifyNewMessage(messageData) {
+        // Get CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        
+        const payload = {
+            conversation_id: conversationId,
+            sender_id: messageData.senderId,
+            sender_name: messageData.senderName,
+            preview: messageData.type === 'image' ? '' : (messageData.content || ''),
+            type: messageData.type,
+            timestamp: Date.now()
+        };
+
+        fetch('/api/chat/notify-new-message', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Notification sent successfully:', data);
+        })
+        .catch(error => {
+            console.error('Error sending notification:', error);
+            // Don't show alert to user, just log the error
         });
     }
 

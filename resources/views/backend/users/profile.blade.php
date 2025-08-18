@@ -32,6 +32,13 @@
                       <h5 class="card-title text-left"><small><i class="fas fa-user"></i> {{$profile->name}}</small></h5>
                       <p class="card-text text-left"><small><i class="fas fa-envelope"></i> {{$profile->email}}</small></p>
                       <p class="card-text text-left"><small class="text-muted"><i class="fas fa-hammer"></i> {{$profile->role}}</small></p>
+                      <p class="card-text text-left">
+                        <small>
+                          <i class="fas fa-crown" style="color: {{$profile->vip_color}}"></i>
+                          <span class="badge" style="background-color: {{$profile->vip_color}}; color: #fff;">VIP: {{$profile->vip_level_name}}</span>
+                          <span class="text-muted ml-1">Remaining today: {{$profile->remaining_purchases_today}} / Limit: {{$profile->daily_purchase_limit}}</span>
+                        </small>
+                      </p>
                     </div>
                   </div>
             </div>

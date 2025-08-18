@@ -43,7 +43,15 @@
             @foreach($users as $user)   
                 <tr>
                     <td>{{$user->id}}</td>
-                    <td>{{$user->name}}</td>
+                    <td>
+                        <div>{{$user->name}}</div>
+                        <div>
+                            <span class="badge" style="background-color: {{$user->vip_color}}; color: #fff;">
+                                VIP: {{$user->vip_level_name}}
+                            </span>
+                            <small class="text-muted ml-1">Remaining today: {{$user->remaining_purchases_today}} / Limit: {{$user->daily_purchase_limit}}</small>
+                        </div>
+                    </td>
                     <td>{{$user->email}}</td>
                     <td>
                         @if($user->photo)
