@@ -24,8 +24,33 @@ class NotificationController extends Controller
         $notification = Auth()->user()->notifications()->where('id',$request->id)->first();
         if($notification){
             $notification->markAsRead();
-            return redirect($notification->data['actionURL']);
+            $data = $notification->data ?? [];
+
+            // Prefer explicit links
+            $targetUrl = $data['actionURL'] ?? ($data['link'] ?? null);
+
+            // Build chat URL if not provided
+            if (!$targetUrl) {
+                $convId = $data['conversation_id'] ?? ($data['conversationId'] ?? null);
+                if ($convId) {
+                    $targetUrl = url('/chat?conversationId=' . $convId);
+                } else {
+                    // Fallback to chat system if it looks like a chat notification
+                    $type = strtolower($data['type'] ?? '');
+                    if (strpos($type, 'chat') !== false || strpos(($data['title'] ?? ''), 'message') !== false) {
+                        $targetUrl = url('/chat');
+                    }
+                }
+            }
+
+            // Final fallback: notifications index
+            if (!$targetUrl) {
+                return redirect()->route('all.notification');
+            }
+
+            return redirect($targetUrl);
         }
+        return redirect()->route('all.notification');
     }
 
     public function delete($id){
@@ -242,48 +267,5 @@ class NotificationController extends Controller
                 'appId' => config('firebase.app_id'),
             ]
         ]);
-    }
-
-    /**
-     * Save FCM token for user
-     */
-    public function saveFCMToken(Request $request)
-    {
-        try {
-            $fcmToken = $request->input('fcm_token');
-            
-            if (!$fcmToken) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'FCM token is required'
-                ], 400);
-            }
-
-            // Update user's FCM token
-            Auth::user()->update([
-                'fcm_token' => $fcmToken
-            ]);
-
-            \Log::info('FCM token saved successfully', [
-                'user_id' => Auth::id(),
-                'token' => substr($fcmToken, 0, 20) . '...' // Log partial token for privacy
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'FCM token saved successfully'
-            ]);
-            
-        } catch (\Exception $e) {
-            \Log::error('Save FCM token error:', [
-                'user_id' => Auth::id(),
-                'error' => $e->getMessage()
-            ]);
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to save FCM token'
-            ]);
-        }
     }
 }
