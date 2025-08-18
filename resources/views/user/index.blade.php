@@ -254,7 +254,7 @@
 @push('scripts')
 <script type="text/javascript">
   // Scoped variable name to avoid collisions with other pages
-  const incomeApiUrl = "{{route('product.order.income')}}";
+  var incomeApiUrl = "{{route('product.order.income')}}";
 
   // Only run if the canvas exists on this page
   var ctx = document.getElementById("myAreaChart");
