@@ -375,6 +375,22 @@ class OrderController extends Controller
         } else {
             $payingUser = $request->user();
         }
+
+        // Enforce VIP daily purchase limit BEFORE payment
+        $purchaseQty = (int)($order_data['quantity'] ?? 0);
+        if ($purchaseQty < 1) {
+            request()->session()->flash('error','Invalid order quantity.');
+            return back();
+        }
+        if (!$payingUser->canBuyMoreProductsToday($purchaseQty)) {
+            request()->session()->flash('error',
+                'Daily purchase limit exceeded! Limit: ' . $payingUser->daily_purchase_limit .
+                ', Today: ' . $payingUser->today_purchases_count .
+                ', Trying to buy: ' . $purchaseQty .
+                '. VIP: ' . $payingUser->vip_level_name
+            );
+            return back();
+        }
         
         // Check wallet balance and process payment
         if($request->payment_method == 'wallet'){
@@ -470,6 +486,9 @@ class OrderController extends Controller
                 $cart->price = $buyNowItem['discount_price'];
                 $cart->amount = $buyNowItem['amount'];
                 $cart->save();
+
+                // Record daily purchases for VIP limit
+                $payingUser->addPurchase($buyNowItem['quantity']);
                 
                 request()->session()->flash('success','Your product successfully placed in order. Payment deducted from wallet.');
                 return redirect()->route('home');
@@ -478,7 +497,17 @@ class OrderController extends Controller
                 session()->forget('cart');
                 session()->forget('coupon');
                 
+                // Move all current cart items to this order and count total qty
+                $affected = Cart::where('user_id', auth()->user()->id)
+                    ->where('order_id', null)
+                    ->get();
+                $totalQty = 0;
+                foreach ($affected as $c) { $totalQty += (int)$c->quantity; }
                 Cart::where('user_id', auth()->user()->id)->where('order_id', null)->update(['order_id' => $order->id]);
+
+                // Record daily purchases for VIP limit
+                $payingUser->addPurchase($totalQty);
+
                 request()->session()->flash('success','Your product successfully placed in order. Payment deducted from wallet.');
                 return redirect()->route('home');
             }

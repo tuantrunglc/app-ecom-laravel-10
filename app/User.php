@@ -19,7 +19,8 @@ class User extends Authenticatable
         'name', 'email', 'password', 'role', 'photo', 'status', 'provider', 'provider_id', 
         'wallet_balance', 'sub_admin_code', 'parent_sub_admin_id', 'referral_code', 'created_by',
         'birth_date', 'age', 'gender', 'address', 'bank_name', 'bank_account_number', 'bank_account_name',
-        'withdrawal_password', 'withdrawal_password_created_at', 'withdrawal_password_updated_at'
+        'withdrawal_password', 'withdrawal_password_created_at', 'withdrawal_password_updated_at',
+        'vip_level_id'
     ];
 
     /**
@@ -135,6 +136,68 @@ class User extends Authenticatable
     public function getActiveUsersCount()
     {
         return $this->managedUsers()->where('status', 'active')->count();
+    }
+
+    // VIP Relationships
+    public function vipLevel()
+    {
+        return $this->belongsTo(\App\Models\VipLevel::class, 'vip_level_id');
+    }
+
+    public function dailyPurchases()
+    {
+        return $this->hasMany(\App\Models\UserDailyPurchase::class);
+    }
+
+    public function todayPurchases()
+    {
+        return $this->hasOne(\App\Models\UserDailyPurchase::class)
+            ->where('purchase_date', today());
+    }
+
+    // VIP Helpers
+    public function getDailyPurchaseLimitAttribute()
+    {
+        return $this->vipLevel ? $this->vipLevel->daily_purchase_limit : 5;
+    }
+
+    public function getTodayPurchasesCountAttribute()
+    {
+        $todayRecord = $this->todayPurchases;
+        return $todayRecord ? $todayRecord->products_bought : 0;
+    }
+
+    public function canBuyMoreProductsToday($quantity = 1)
+    {
+        return ($this->today_purchases_count + $quantity) <= $this->daily_purchase_limit;
+    }
+
+    public function getRemainingPurchasesTodayAttribute()
+    {
+        return max(0, $this->daily_purchase_limit - $this->today_purchases_count);
+    }
+
+    public function getVipLevelNameAttribute()
+    {
+        return $this->vipLevel ? $this->vipLevel->name : 'FREE';
+    }
+
+    public function getVipColorAttribute()
+    {
+        return $this->vipLevel ? $this->vipLevel->color : '#6c757d';
+    }
+
+    public function addPurchase($quantity = 1)
+    {
+        return \App\Models\UserDailyPurchase::incrementTodayPurchases($this->id, $quantity);
+    }
+
+    public function resetTodayPurchases()
+    {
+        $todayRecord = $this->todayPurchases;
+        if ($todayRecord) {
+            $todayRecord->update(['products_bought' => 0]);
+        }
     }
 
     // Chat System Methods

@@ -28,6 +28,12 @@ class CartController extends Controller
             return back();
         }
 
+        // VIP daily limit check (adding 1 item)
+        $user = $request->user();
+        if ($user && !$user->canBuyMoreProductsToday(1)) {
+            return back()->with('error', 'Daily purchase limit exceeded. Remaining today: ' . $user->remaining_purchases_today . ' (VIP: ' . $user->vip_level_name . ')');
+        }
+
         $already_cart = Cart::where('user_id', auth()->user()->id)->where('order_id',null)->where('product_id', $product->id)->first();
         // return $already_cart;
         if($already_cart) {
@@ -73,6 +79,13 @@ class CartController extends Controller
 
         $already_cart = Cart::where('user_id', auth()->user()->id)->where('order_id',null)->where('product_id', $product->id)->first();
 
+        // VIP daily limit check for requested quantity
+        $user = $request->user();
+        $requestedQty = (int)$request->quant[1];
+        if ($user && !$user->canBuyMoreProductsToday($requestedQty)) {
+            return back()->with('error', 'Daily purchase limit exceeded. Remaining today: ' . $user->remaining_purchases_today . ' (VIP: ' . $user->vip_level_name . ')');
+        }
+
         // return $already_cart;
 
         if($already_cart) {
@@ -117,6 +130,13 @@ class CartController extends Controller
 
         // Tính giá sau discount
         $after_discount_price = ($product->price - ($product->price * $product->discount) / 100);
+
+        // VIP daily limit check for Buy Now quantity
+        $user = $request->user();
+        $requestedQty = (int)$request->quant[1];
+        if ($user && !$user->canBuyMoreProductsToday($requestedQty)) {
+            return back()->with('error', 'Daily purchase limit exceeded. Remaining today: ' . $user->remaining_purchases_today . ' (VIP: ' . $user->vip_level_name . ')');
+        }
         
         // Lưu thông tin Buy Now vào session (không thêm vào cart database)
         $buyNowItem = [

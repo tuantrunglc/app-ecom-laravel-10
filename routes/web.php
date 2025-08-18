@@ -197,6 +197,13 @@
         Route::get('settings', [AdminController::class, 'settings'])->name('settings');
         Route::post('setting/update', [AdminController::class, 'settingsUpdate'])->name('settings.update');
 
+        // VIP Management
+        Route::get('vip/levels', [\App\Http\Controllers\Admin\VipManagementController::class, 'vipLevels'])->name('admin.vip.levels');
+        Route::put('vip/levels/{vipLevel}', [\App\Http\Controllers\Admin\VipManagementController::class, 'updateVipLevel'])->name('admin.vip.update-level');
+        Route::get('vip/users', [\App\Http\Controllers\Admin\VipManagementController::class, 'userVipManagement'])->name('admin.vip.user-management');
+        Route::post('vip/users/{user}/change', [\App\Http\Controllers\Admin\VipManagementController::class, 'changeUserVip'])->name('admin.vip.change-user');
+        Route::post('vip/users/{user}/reset-today', [\App\Http\Controllers\Admin\VipManagementController::class, 'resetUserTodayPurchases'])->name('admin.vip.reset-today');
+
         // Notification
         Route::get('/notification/{id}', [NotificationController::class, 'show'])->name('admin.notification');
         Route::get('/notifications', [NotificationController::class, 'index'])->name('all.notification');
