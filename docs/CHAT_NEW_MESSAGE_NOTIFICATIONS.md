@@ -16,36 +16,30 @@
 - Loại message: Text/Image (tuân theo schema hiện có).
 - Đối tượng nhận thông báo: Tất cả Admin/Sub Admin tham gia hoặc được phân công hỗ trợ conversation tương ứng (quy định chi tiết ở phần phân quyền).
 
-## Kiến trúc đề xuất
-Có hai hướng triển khai. Chọn 1 (hoặc kết hợp) tùy yêu cầu lưu vết và hiệu năng.
+## Kiến trúc triển khai
+**✅ ĐÃ TRIỂN KHAI: Phương án Hybrid (Firebase Realtime + Laravel Backup)**
 
-### Phương án A: Frontend Realtime (nhanh nhất)
-- Trình duyệt (Admin/Sub Admin) **đăng ký listener** tới Firebase để nghe `child_added` tại nhánh `messages/{conversationId}` của các conversation liên quan.
-- Khi nhận message mới:
-  1. Cập nhật **badge** số lượng chưa đọc trên icon Message Center.
-  2. Thêm item vào danh sách Message Center (tiêu đề, người gửi, trích nội dung, thời gian).
-  3. Phát **âm thanh thông báo** (nếu bật).
-- Khi người dùng click item:
-  - Điều hướng tới `/chat?conversationId=...` và đánh dấu đã đọc (ở frontend + Firebase `readBy`).
+### Phương án Hybrid: Kết hợp Firebase Realtime + Laravel Notifications
+**Realtime Layer (Firebase):**
+- Message Center **đăng ký listener** tới Firebase để nghe `child_added` tại nhánh `messages/{conversationId}`.
+- Khi nhận message mới từ Firebase:
+  1. Cập nhật **badge** số lượng chưa đọc ngay lập tức.
+  2. Thêm item vào danh sách Message Center realtime.
+  3. Phát **âm thanh thông báo**.
 
-Ưu điểm:
-- Không cần thay đổi backend.
-- Realtime mượt, triển khai nhanh.
+**Backup Layer (Laravel):**
+- Sau khi gửi message lên Firebase, client gọi **API Laravel** để tạo notification backup.
+- Laravel lưu vào bảng `notifications` để có lịch sử và thống kê.
+- Polling API Laravel mỗi 60 giây để đồng bộ (giảm tần suất vì có Firebase realtime).
 
-Nhược điểm:
-- Thông báo chỉ sống trên phiên trình duyệt (không có bản ghi trong DB Laravel nếu cần thống kê/nhật ký).
-- Cần đảm bảo phân quyền listener chính xác theo vai trò và danh sách conversation có liên quan.
+**Ưu điểm:**
+- ✅ **Realtime tức thì** qua Firebase (không delay).
+- ✅ **Có lưu vết** trong database Laravel.
+- ✅ **Không mất thông báo** khi reload trang (Laravel backup).
+- ✅ **Tương thích** với hệ thống chat Firebase hiện có.
 
-### Phương án B: Tích hợp Backend (Laravel Notifications)
-- Khi có message mới, client sẽ gọi **API Laravel** để ghi một bản ghi Notification (database channel), hoặc dùng Cloud Function/webhook (nếu có) để đẩy ngược vào Laravel.
-- Laravel quản lý bảng `notifications` (chuẩn của Laravel) để hiển thị trong Message Center và tính toán **unread count**.
-- Frontend Admin/Sub Admin sẽ **polling** API hoặc dùng **Echo/Pusher** (nếu có) để cập nhật realtime.
-
-Ưu điểm:
-- Có lưu vết, hỗ trợ trang lịch sử thông báo, phân tích, phân quyền server-side rõ ràng.
-
-Nhược điểm:
-- Phát sinh thêm request/đồng bộ giữa Firebase và Laravel.
+**Nhược điểm:**
+- Phức tạp hơn (2 layer), nhưng đáng giá cho trải nghiệm tốt.
 
 ## Quy tắc phân quyền & phạm vi lắng nghe
 - Với Admin: mặc định có thể xem tất cả conversation (hoặc theo workspace cửa hàng nếu đa tenant).
@@ -307,9 +301,35 @@ Có thể dùng luôn `auth()->user()->unreadNotifications` của Laravel và en
 - Quyền truy cập Firebase: đảm bảo rules chỉ cho phép đọc conversation liên quan.
 - Trì hoãn realtime do mạng: hiển thị fallback polling nếu cần.
 
-## TODO tiếp theo
-- Chọn phương án triển khai (A nhanh gọn, B bền vững lưu vết).
-- Xác định chính xác "Message Center" hiện tại đang render ở view nào để tích hợp.
-- Hoàn thiện filter recipients theo assignment conversation.
-- Thêm UI toggle âm thanh + lưu trạng thái.
-- Viết tests (Feature cho API notify, Unit cho Notification class — nếu chọn Phương án B).
+## Trạng thái triển khai
+
+### ✅ Đã hoàn thành:
+1. **Backend Laravel Notifications:**
+   - ✅ `ChatNewMessageNotification` class
+   - ✅ `ChatNotifyController` (API nhận sự kiện)
+   - ✅ `NotificationsController` (API lấy/đánh dấu đọc)
+   - ✅ Routes API: `/api/chat/notify-new-message`, `/api/notifications`, `/api/notifications/read`
+
+2. **Frontend Message Center Hybrid:**
+   - ✅ Firebase realtime listeners cho tin nhắn mới
+   - ✅ Laravel API polling (backup layer)
+   - ✅ Kết hợp hiển thị cả realtime + database notifications
+   - ✅ Âm thanh thông báo
+   - ✅ Đánh dấu đã đọc (cả realtime và database)
+
+3. **Chat Integration:**
+   - ✅ Tích hợp API notify vào tất cả chat conversation files
+   - ✅ Admin, Sub Admin, User conversation đều gọi API sau khi gửi tin
+
+### 🔄 Cần cải thiện:
+1. **Filter recipients theo conversation assignment** (hiện tại notify tất cả admin/sub_admin)
+2. **UI toggle âm thanh** + lưu trạng thái user preference
+3. **Tests** cho API và Notification class
+4. **Error handling** tốt hơn cho Firebase connection failures
+
+### 📋 Hướng dẫn sử dụng:
+- Message Center tự động hoạt động khi có tin nhắn mới
+- Realtime notifications qua Firebase (tức thì)
+- Database backup qua Laravel (lưu vết, reload-safe)
+- Click notification → chuyển đến chat conversation
+- "Đánh dấu tất cả đã đọc" → xóa cả realtime và database notifications
