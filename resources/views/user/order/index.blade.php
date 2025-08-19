@@ -334,8 +334,8 @@ $(document).ready(function(){
     var $btn = $(this);
 
     swal({
-      title: "Advance Order",
-      text: "Move to Processing now and auto-deliver after ~10 minutes?",
+      title: "Payment Order",
+      text: "Are you sure you want to pay for this order?",
       icon: "warning",
       buttons: true,
       dangerMode: false,

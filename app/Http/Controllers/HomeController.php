@@ -192,7 +192,7 @@ class HomeController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Payment completed. Order moved to Processing and will auto-deliver after ~10 minutes.',
+            'message' => 'Payment completed. Order moved to Processing.',
             'order' => [
                 'id' => $order->id,
                 'status' => $order->status,
