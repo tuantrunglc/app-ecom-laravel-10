@@ -95,6 +95,7 @@ services:
       - QUEUE_CONNECTION=database
     volumes:
       - ./storage:/var/www/html/storage
+      - ./public/photos:/var/www/html/public/photos
     depends_on:
       db:
         condition: service_healthy
