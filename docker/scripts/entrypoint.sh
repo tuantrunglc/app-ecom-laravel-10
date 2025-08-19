@@ -80,5 +80,11 @@ fi
 
 echo "Laravel setup completed!"
 
+# If a command is provided (e.g., worker), run it; otherwise start Apache
+if [ "$#" -gt 0 ]; then
+    echo "Starting custom command: $@"
+    exec "$@"
+fi
+
 # Start Apache
 exec apache2-foreground
