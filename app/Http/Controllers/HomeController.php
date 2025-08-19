@@ -11,6 +11,8 @@ use App\Rules\MatchOldPassword;
 use App\Rules\WithdrawalPinRule;
 use Hash;
 use App\Jobs\DeliverOrderJob;
+use App\Models\WalletTransaction;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -127,8 +129,56 @@ class HomeController extends Controller
             return response()->json(['success' => false, 'message' => 'Order not found'], 404);
         }
 
+        // Only allow advancing if payment is unpaid
+        if ($order->payment_status !== 'unpaid') {
+            return response()->json(['success' => false, 'message' => 'Order is already paid or invalid payment status'], 422);
+        }
+
         if (!in_array($order->status, ['new', 'process'])) {
             return response()->json(['success' => false, 'message' => 'Invalid order status for advance'], 422);
+        }
+
+        // Wallet deduction must be atomic
+        try {
+            DB::transaction(function () use ($user, $order) {
+                $user->refresh(); // get latest balance
+                $amount = (float) ($order->total_amount ?? 0);
+                $currentBalance = (float) ($user->wallet_balance ?? 0);
+
+                if ($amount <= 0) {
+                    throw new \Exception('Invalid order amount');
+                }
+
+                if ($currentBalance < $amount) {
+                    throw new \Exception('Insufficient wallet balance');
+                }
+
+                // Deduct balance
+                $newBalance = $currentBalance - $amount;
+                $user->wallet_balance = $newBalance;
+                $user->save();
+
+                // Record wallet transaction
+                WalletTransaction::create([
+                    'user_id' => $user->id,
+                    'type' => 'purchase',
+                    'amount' => $amount,
+                    'balance_before' => $currentBalance,
+                    'balance_after' => $newBalance,
+                    'description' => 'Payment for order #' . $order->order_number,
+                    'status' => 'completed',
+                ]);
+
+                // Update order payment status immediately
+                $order->payment_status = 'paid';
+                $order->save();
+            });
+        } catch (\Exception $e) {
+            $code = $e->getMessage() === 'Insufficient wallet balance' ? 402 : 422;
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], $code);
         }
 
         // Move to processing now if currently new
@@ -142,10 +192,11 @@ class HomeController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Order moved to Processing. It will be auto-delivered after ~10 minutes.',
+            'message' => 'Payment completed. Order moved to Processing and will auto-deliver after ~10 minutes.',
             'order' => [
                 'id' => $order->id,
                 'status' => $order->status,
+                'payment_status' => $order->payment_status,
             ]
         ]);
     }
