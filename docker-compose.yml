@@ -69,7 +69,27 @@ services:
       - db
     networks:
       - app-network
-
+  # Worker
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel_worker_prod
+    restart: unless-stopped
+    working_dir: /var/www/html
+    command: php artisan queue:work database --sleep=3 --tries=3 --timeout=120 --queue=default
+    environment:
+      - APP_ENV=production
+      - QUEUE_CONNECTION=database
+    volumes:
+      - ./storage:/var/www/html/storage
+      - ./public/storage:/var/www/html/public/storage
+      - ./public/photos:/var/www/html/public/photos
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
   # Redis
   redis:
     image: redis:7-alpine

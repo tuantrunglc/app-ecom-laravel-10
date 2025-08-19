@@ -10,6 +10,7 @@ use App\Models\PostComment;
 use App\Rules\MatchOldPassword;
 use App\Rules\WithdrawalPinRule;
 use Hash;
+use App\Jobs\DeliverOrderJob;
 
 class HomeController extends Controller
 {
@@ -112,6 +113,41 @@ class HomeController extends Controller
         $order=Order::with('shipping')->find($id);
         // return $order;
         return view('user.order.show')->with('order',$order);
+    }
+
+    /**
+     * Advance order status: New -> Processing immediately, then auto -> Delivered after ~10 minutes.
+     */
+    public function advanceOrderStatus(Request $request, $id)
+    {
+        $user = auth()->user();
+        $order = Order::where('id', $id)->where('user_id', $user->id)->first();
+        
+        if (!$order) {
+            return response()->json(['success' => false, 'message' => 'Order not found'], 404);
+        }
+
+        if (!in_array($order->status, ['new', 'process'])) {
+            return response()->json(['success' => false, 'message' => 'Invalid order status for advance'], 422);
+        }
+
+        // Move to processing now if currently new
+        if ($order->status === 'new') {
+            $order->status = 'process';
+            $order->save();
+        }
+
+        // Dispatch a delayed job to deliver after 10 minutes
+        DeliverOrderJob::dispatch($order->id)->delay(now()->addMinutes(10));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Order moved to Processing. It will be auto-delivered after ~10 minutes.',
+            'order' => [
+                'id' => $order->id,
+                'status' => $order->status,
+            ]
+        ]);
     }
     // Product Review
     public function productReviewIndex(){

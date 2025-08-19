@@ -9,6 +9,7 @@ services:
     restart: unless-stopped
     environment:
       - APP_ENV=production
+      - QUEUE_CONNECTION=database
     volumes:
       - ./storage:/var/www/html/storage
       - ./public/storage:/var/www/html/public/storage
@@ -79,6 +80,28 @@ services:
       - app-network
     depends_on:
       - db
+
+  # Queue worker using Database driver
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel_worker_prod
+    restart: unless-stopped
+    working_dir: /var/www/html
+    command: php artisan queue:work database --sleep=3 --tries=3 --timeout=120 --queue=default
+    environment:
+      - APP_ENV=production
+      - QUEUE_CONNECTION=database
+    volumes:
+      - ./storage:/var/www/html/storage
+      - ./public/storage:/var/www/html/public/storage
+      - ./public/photos:/var/www/html/public/photos
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
 
 networks:
   app-network:

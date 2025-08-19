@@ -171,6 +171,12 @@
                    data-toggle="tooltip" title="View Details">
                   <i class="fas fa-eye"></i>
                 </a>
+                @if($order->status=='new')
+                <button class="walmart-btn walmart-btn-primary walmart-btn-icon ml-1 js-advance-order" 
+                        data-id="{{$order->id}}" data-toggle="tooltip" title="Advance to Processing">
+                  <i class="fas fa-arrow-right"></i>
+                </button>
+                @endif
               </td>
             </tr>
             @endforeach
@@ -322,8 +328,37 @@ $(document).ready(function(){
     }
   });
   
+  // Advance order button
+  $(document).on('click', '.js-advance-order', function(){
+    var orderId = $(this).data('id');
+    var $btn = $(this);
 
-  
+    swal({
+      title: "Advance Order",
+      text: "Move to Processing now and auto-deliver after ~10 minutes?",
+      icon: "warning",
+      buttons: true,
+      dangerMode: false,
+    }).then(function(willDo){
+      if(!willDo) return;
+
+      $btn.prop('disabled', true);
+      $.post('/user/order/' + orderId + '/advance', {})
+        .done(function(resp){
+          swal("Success", resp.message || "Order updated", "success");
+          // Reload to update status and commission view
+          setTimeout(function(){ location.reload(); }, 800);
+        })
+        .fail(function(xhr){
+          var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Request failed';
+          swal("Error", msg, "error");
+        })
+        .always(function(){
+          $btn.prop('disabled', false);
+        });
+    });
+  });
+
   // Initialize tooltips
   $('[data-toggle="tooltip"]').tooltip();
   
