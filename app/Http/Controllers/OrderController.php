@@ -424,9 +424,7 @@ class OrderController extends Controller
             else {
                 $payingUser->wallet_balance -= $totalAmount;
                 $payingUser->save();
-                $order_data['payment_status'] = 'paid';
-                $order_data['status'] = 'process';
-            }
+                $order_data['payment_status'] = 'paid';            }
         } else {
             $order_data['payment_status'] = 'unpaid';
         }
