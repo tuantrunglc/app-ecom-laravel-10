@@ -171,7 +171,7 @@
                    data-toggle="tooltip" title="View Details">
                   <i class="fas fa-eye"></i>
                 </a>
-                @if($order->status=='new' && $order->payment_status == 'unpaid')
+                @if($order->status=='new')
                 <button class="walmart-btn walmart-btn-primary walmart-btn-icon ml-1 js-advance-order" 
                         data-id="{{$order->id}}" data-toggle="tooltip" title="Advance to Processing">
                   <i class="fas fa-arrow-right"></i>
