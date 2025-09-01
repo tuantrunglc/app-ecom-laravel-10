@@ -418,17 +418,15 @@ class OrderController extends Controller
                     );
                 }
                 // Different flash message for admin vs user
-                $order_data['payment_status'] = 'Unpaid';
+                $order_data['payment_status'] = 'unpaid';
             }
             // If wallet has sufficient balance, deduct the amount
             else {
                 $payingUser->wallet_balance -= $totalAmount;
                 $payingUser->save();
-
-                $order_data['payment_status'] = 'paid';
-            }
+                $order_data['payment_status'] = 'paid';            }
         } else {
-            $order_data['payment_status'] = 'Unpaid';
+            $order_data['payment_status'] = 'unpaid';
         }
         
         $order->fill($order_data);

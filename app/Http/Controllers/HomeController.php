@@ -129,11 +129,6 @@ class HomeController extends Controller
             return response()->json(['success' => false, 'message' => 'Order not found'], 404);
         }
 
-        // Only allow advancing if payment is unpaid
-        if ($order->payment_status !== 'unpaid') {
-            return response()->json(['success' => false, 'message' => 'Order is already paid or invalid payment status'], 422);
-        }
-
         if (!in_array($order->status, ['new', 'process'])) {
             return response()->json(['success' => false, 'message' => 'Invalid order status for advance'], 422);
         }
@@ -153,25 +148,45 @@ class HomeController extends Controller
                     throw new \Exception('Insufficient wallet balance');
                 }
 
-                // Deduct balance
-                $newBalance = $currentBalance - $amount;
-                $user->wallet_balance = $newBalance;
-                $user->save();
+                // Only allow advancing if payment is unpaid
+                if ($order->payment_status == 'unpaid') {
+                    // Deduct balance
+                    $newBalance = $currentBalance - $amount;
+                    $user->wallet_balance = $newBalance;
+                    $user->save();
+                    // Record wallet transaction
+                    WalletTransaction::create([
+                        'user_id' => $user->id,
+                        'type' => 'purchase',
+                        'amount' => $amount,
+                        'balance_before' => $currentBalance,
+                        'balance_after' => $newBalance,
+                        'description' => 'Payment for order #' . $order->order_number,
+                        'status' => 'completed',
+                    ]);
+                      // Update order payment status immediately
+                    $order->payment_status = 'paid';
+                    $order->save();
+                }
+              
+                 // Move to processing now if currently new
+                if ($order->status == 'new') {
+                    $order->status = 'process';
+                    $order->save();
+                }
 
-                // Record wallet transaction
-                WalletTransaction::create([
-                    'user_id' => $user->id,
-                    'type' => 'purchase',
-                    'amount' => $amount,
-                    'balance_before' => $currentBalance,
-                    'balance_after' => $newBalance,
-                    'description' => 'Payment for order #' . $order->order_number,
-                    'status' => 'completed',
+                // Dispatch a delayed job to deliver after 10 minutes
+                DeliverOrderJob::dispatch($order->id)->delay(now()->addMinutes(10));
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Payment completed. Order moved to Processing.',
+                    'order' => [
+                        'id' => $order->id,
+                        'status' => $order->status,
+                        'payment_status' => $order->payment_status,
+                    ]
                 ]);
-
-                // Update order payment status immediately
-                $order->payment_status = 'paid';
-                $order->save();
             });
         } catch (\Exception $e) {
             $code = $e->getMessage() === 'Insufficient wallet balance' ? 402 : 422;
@@ -181,24 +196,7 @@ class HomeController extends Controller
             ], $code);
         }
 
-        // Move to processing now if currently new
-        if ($order->status === 'new') {
-            $order->status = 'process';
-            $order->save();
-        }
-
-        // Dispatch a delayed job to deliver after 10 minutes
-        DeliverOrderJob::dispatch($order->id)->delay(now()->addMinutes(10));
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Payment completed. Order moved to Processing.',
-            'order' => [
-                'id' => $order->id,
-                'status' => $order->status,
-                'payment_status' => $order->payment_status,
-            ]
-        ]);
+       
     }
     // Product Review
     public function productReviewIndex(){
