@@ -124,6 +124,7 @@ class ChatController extends Controller
 
     public function uploadImage(Request $request)
     {
+        // Validate input similar to BannerController's image rules
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'conversation_id' => 'required|exists:conversations,id'
@@ -132,22 +133,40 @@ class ChatController extends Controller
         $user = auth()->user();
         $conversation = Conversation::findOrFail($request->conversation_id);
 
-        // Kiểm tra user có trong conversation không
+        // Ensure the authenticated user is a participant in the conversation
         if (!$conversation->participants->contains($user)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $imagePath = $image->storeAs('chat_images', $imageName, 'public');
-            $imageUrl = asset('storage/' . $imagePath);
+            try {
+                $image = $request->file('image');
+                $extension = $image->getClientOriginalExtension();
+                $imageName = 'chat_' . time() . '.' . $extension;
 
-            return response()->json([
-                'success' => true,
-                'imageUrl' => $imageUrl,
-                'imageName' => $imageName
-            ]);
+                // Store under a separate folder for chat images: public/photos/chat
+                $photosPath = public_path('photos/chat');
+                if (!file_exists($photosPath)) {
+                    // Create directory if it doesn't exist
+                    mkdir($photosPath, 0777, true);
+                }
+
+                // Move uploaded file to public/photos/chat
+                $image->move($photosPath, $imageName);
+
+                // Return paths under /photos/chat to keep separate from banner images
+                $relativePath = '/photos/chat/' . $imageName;
+                $imageUrl = asset(ltrim($relativePath, '/'));
+
+                return response()->json([
+                    'success' => true,
+                    'imageUrl' => $imageUrl,
+                    'imagePath' => $relativePath,
+                    'imageName' => $imageName
+                ]);
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Upload failed: ' . $e->getMessage()], 500);
+            }
         }
 
         return response()->json(['error' => 'No image uploaded'], 400);
