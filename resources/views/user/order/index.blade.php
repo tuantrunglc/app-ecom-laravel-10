@@ -18,6 +18,14 @@
   </div>
 </div>
 
+<!-- Mobile Place Order Button -->
+<div class="d-block d-md-none mb-3 text-center">
+  <a href="{{route('home')}}" target="_blank" class="walmart-btn walmart-btn-primary">
+    <i class="fas fa-plus mr-2"></i>
+    Place New Order
+  </a>
+</div>
+
 @php
     $total_orders = count($orders);
     $new_orders = $orders->where('status', 'new')->count();
@@ -267,16 +275,66 @@
   color: #28a745 !important;
 }
 
-/* Responsive table improvements */
-@media (max-width: 767.98px) {
+/* Mobile touch improvements */
+.walmart-btn {
+  min-height: 44px; /* iOS touch target minimum */
+  touch-action: manipulation;
+}
+
+.stats-card {
+  transition: transform 0.2s ease;
+  touch-action: manipulation;
+}
+
+.stats-card:active {
+  transform: scale(0.98);
+}
+
+/* Filter dropdown mobile */
+.walmart-select {
+  min-height: 44px;
+  font-size: 16px; /* Prevent zoom on iOS */
+}
+
+/* Mobile responsive improvements */
+@media (max-width: 768px) {
+  /* Hide desktop button and show mobile version */
+  .d-none.d-md-block {
+    display: none !important;
+  }
+  
+  /* Mobile header adjustments */
+  .d-flex.align-items-center.justify-content-between.mb-4 {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: center;
+  }
+  
+  .d-flex.align-items-center.justify-content-between.mb-4 > div:first-child {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  /* Stats cards mobile */
+  .stats-card {
+    margin-bottom: 1rem;
+  }
+  
   .stats-card h3 {
     font-size: 1.5rem;
   }
   
+  .stats-card-content {
+    padding: 1rem;
+  }
+  
+  /* Card header mobile */
   .card-header {
     flex-direction: column;
     align-items: flex-start !important;
     gap: 1rem;
+    padding: 1rem;
   }
   
   .card-header .d-flex {
@@ -284,14 +342,209 @@
     justify-content: flex-start;
   }
   
-  /* Mobile responsive for commission column */
-  .walmart-table td[data-label="Commission"] {
-    text-align: right;
+  .card-header h4 {
+    font-size: 1.25rem;
+    margin-bottom: 0;
   }
   
-  .walmart-table td[data-label="Commission"]:before {
+  /* Table responsive */
+  .table-responsive {
+    border: none;
+    box-shadow: none;
+  }
+  
+  .walmart-table {
+    border: 0;
+    width: 100%;
+  }
+  
+  .walmart-table thead {
+    display: none;
+  }
+  
+  .walmart-table tbody tr {
+    display: block;
+    margin-bottom: 1.5rem;
+    background: #fff;
+    border: 1px solid #e3e6f0;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  }
+  
+  .walmart-table tbody tr td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: none;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .walmart-table tbody tr td:last-child {
+    border-bottom: none;
+    padding-top: 1rem;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  .walmart-table tbody tr td[data-label="Order #"]:before {
+    content: "Order: ";
+    font-weight: bold;
+    color: #5a5c69;
+  }
+  
+  .walmart-table tbody tr td[data-label="Date"]:before {
+    content: "Date: ";
+    font-weight: bold;
+    color: #5a5c69;
+  }
+  
+  .walmart-table tbody tr td[data-label="Customer"]:before {
+    content: "Customer: ";
+    font-weight: bold;
+    color: #5a5c69;
+  }
+  
+  .walmart-table tbody tr td[data-label="Items"]:before {
+    content: "Items: ";
+    font-weight: bold;
+    color: #5a5c69;
+  }
+  
+  .walmart-table tbody tr td[data-label="Shipping"]:before {
+    content: "Shipping: ";
+    font-weight: bold;
+    color: #5a5c69;
+  }
+  
+  .walmart-table tbody tr td[data-label="Total"]:before {
+    content: "Total: ";
+    font-weight: bold;
+    color: #5a5c69;
+  }
+  
+  .walmart-table tbody tr td[data-label="Commission"]:before {
     content: "Commission: ";
     font-weight: bold;
+    color: #5a5c69;
+  }
+  
+  .walmart-table tbody tr td[data-label="Order #"] {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .walmart-table tbody tr td[data-label="Date"] {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .walmart-table tbody tr td[data-label="Customer"] {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .walmart-table tbody tr td[data-label="Order #"]:before,
+  .walmart-table tbody tr td[data-label="Date"]:before,
+  .walmart-table tbody tr td[data-label="Customer"]:before {
+    margin-bottom: 0.25rem;
+    min-width: auto;
+  }
+  
+  .walmart-table tbody tr td[data-label="Actions"]:before {
+    content: "";
+  }
+  
+  /* Status badges mobile */
+  .status-badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+  }
+  
+  /* Button adjustments for mobile */
+  .walmart-btn-icon {
+    padding: 0.5rem;
+    min-width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Empty state mobile */
+  .text-center.py-5 {
+    padding: 2rem 1rem !important;
+  }
+  
+  .text-center.py-5 .fa-4x {
+    font-size: 3em;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 576px) {
+  .container-fluid {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  
+  .stats-card-content {
+    padding: 0.75rem;
+  }
+  
+  .stats-card h3 {
+    font-size: 1.25rem;
+  }
+  
+  .stats-card p {
+    font-size: 0.875rem;
+  }
+  
+  .walmart-table tbody tr {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  
+  .walmart-table tbody tr td {
+    padding: 0.375rem 0;
+    font-size: 0.875rem;
+  }
+  
+  .walmart-table tbody tr td:before {
+    min-width: 80px;
+    font-size: 0.875rem;
+  }
+  
+  .card-header {
+    padding: 0.75rem;
+  }
+  
+  .card-header h4 {
+    font-size: 1.125rem;
+  }
+  
+  /* Better mobile buttons */
+  .walmart-btn-icon {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.6rem;
+    font-size: 1rem;
+  }
+  
+  .walmart-btn-icon.ml-1 {
+    margin-left: 0.5rem !important;
+  }
+  
+  /* Order header mobile */
+  .h3 {
+    font-size: 1.5rem;
+  }
+  
+  /* Improve status filter */
+  #statusFilter {
+    width: 100%;
+    max-width: 200px;
   }
 }
 </style>
@@ -359,11 +612,14 @@ $(document).ready(function(){
     });
   });
 
-  // Initialize tooltips
-  $('[data-toggle="tooltip"]').tooltip();
+  // Initialize tooltips (disable on touch devices)
+  if (!('ontouchstart' in window)) {
+    $('[data-toggle="tooltip"]').tooltip();
+  }
   
-  // Stats cards click functionality
-  $('.stats-card').click(function(){
+  // Stats cards click functionality with better mobile support
+  $('.stats-card').on('click touchend', function(e){
+    e.preventDefault();
     var cardType = '';
     if($(this).hasClass('warning')) {
       cardType = 'new';
@@ -375,11 +631,33 @@ $(document).ready(function(){
     
     if(cardType) {
       $('#statusFilter').val(cardType).trigger('change');
+      // Scroll to table on mobile
+      if(window.innerWidth <= 768) {
+        $('html, body').animate({
+          scrollTop: $('.walmart-card').offset().top - 100
+        }, 500);
+      }
     }
   });
   
   // Add cursor pointer to clickable stats cards
   $('.stats-card.warning, .stats-card.info, .stats-card.success').css('cursor', 'pointer');
+  
+  // Improve mobile table scrolling
+  if(window.innerWidth <= 768) {
+    $('.table-responsive').css('overflow-x', 'visible');
+  }
+  
+  // Handle orientation change
+  $(window).on('orientationchange resize', function() {
+    setTimeout(function() {
+      if(window.innerWidth <= 768) {
+        $('.table-responsive').css('overflow-x', 'visible');
+      } else {
+        $('.table-responsive').css('overflow-x', 'auto');
+      }
+    }, 100);
+  });
 });
 </script>
 @endpush
