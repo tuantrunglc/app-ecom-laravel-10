@@ -414,13 +414,13 @@
     letter-spacing: 0.5px;
     flex-shrink: 0;
     min-width: 100px;
-    text-align: right;
+    text-align: left;
     margin-right: 1rem;
   }
   
   .walmart-table tbody tr td .mobile-content {
     flex-grow: 1;
-    text-align: left;
+    text-align: right;
   }
   
   .walmart-table tbody tr td[data-label="Order #"]:before {
