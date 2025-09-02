@@ -129,49 +129,65 @@
             @foreach($orders as $order)
             <tr>
               <td data-label="Order #">
-                <div class="font-weight-bold text-walmart-blue">{{$order->order_number}}</div>
-                <small class="text-muted">#{{$order->id}}</small>
+                <div class="mobile-content">
+                  <div class="font-weight-bold text-walmart-blue">{{$order->order_number}}</div>
+                  <small class="text-muted">#{{$order->id}}</small>
+                </div>
               </td>
               <td data-label="Date">
-                <div>{{date('M d, Y', strtotime($order->created_at))}}</div>
-                <small class="text-muted">{{date('h:i A', strtotime($order->created_at))}}</small>
+                <div class="mobile-content">
+                  <div>{{date('M d, Y', strtotime($order->created_at))}}</div>
+                  <small class="text-muted">{{date('h:i A', strtotime($order->created_at))}}</small>
+                </div>
               </td>
               <td data-label="Customer">
-                <div class="font-weight-medium">{{$order->first_name}} {{$order->last_name}}</div>
-                <small class="text-muted">{{$order->email}}</small>
+                <div class="mobile-content">
+                  <div class="font-weight-medium">{{$order->first_name}} {{$order->last_name}}</div>
+                  <small class="text-muted">{{$order->email}}</small>
+                </div>
               </td>
               <td data-label="Items">
-                <span class="font-weight-bold">{{$order->quantity}}</span> item(s)
+                <div class="mobile-content">
+                  <span class="font-weight-bold">{{$order->quantity}}</span> item(s)
+                </div>
               </td>
               <td data-label="Shipping">
-                ${{number_format($order->shipping->price ?? 0, 2)}}
+                <div class="mobile-content">
+                  ${{number_format($order->shipping->price ?? 0, 2)}}
+                </div>
               </td>
               <td data-label="Total">
-                <div class="font-weight-bold text-lg">${{number_format($order->total_amount,2)}}</div>
+                <div class="mobile-content">
+                  <div class="font-weight-bold text-lg">${{number_format($order->total_amount,2)}}</div>
+                </div>
               </td>
               @if($has_delivered_orders)
               <td data-label="Commission">
-                @if($order->status == 'delivered')
-                  @if(isset($commissions[$order->order_number]))
-                    <div class="font-weight-bold text-success">${{number_format($commissions[$order->order_number], 2)}}</div>
+                <div class="mobile-content">
+                  @if($order->status == 'delivered')
+                    @if(isset($commissions[$order->order_number]))
+                      <div class="font-weight-bold text-success">${{number_format($commissions[$order->order_number], 2)}}</div>
+                    @else
+                      <span class="text-muted">-</span>
+                    @endif
                   @else
                     <span class="text-muted">-</span>
                   @endif
-                @else
-                  <span class="text-muted">-</span>
-                @endif
+                </div>
               </td>
               @endif
               <td data-label="Status">
-                @if($order->status=='new')
-                  <span class="status-badge new">New</span>
-                @elseif($order->status=='process')
-                  <span class="status-badge process">Processing</span>
-                @elseif($order->status=='delivered')
-                  <span class="status-badge delivered">Delivered</span>
-                @else
-                  <span class="status-badge cancelled">{{ucfirst($order->status)}}</span>
-                @endif
+                <div class="mobile-content">
+                  @if($order->status=='new')
+                    <span class="status-badge new">New</span>
+                  @elseif($order->status=='process')
+                    <span class="status-badge process">Processing</span>
+                  @elseif($order->status=='delivered')
+                    <span class="status-badge delivered">Delivered</span>
+                  @else
+                    <span class="status-badge cancelled">{{ucfirst($order->status)}}</span>
+                  @endif
+                </div>
               </td>
               <td data-label="Actions">
                 <a href="{{route('user.order.show',$order->id)}}" 
@@ -373,30 +389,38 @@
   }
   
   .walmart-table tbody tr td {
-    display: block;
-    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
     border: none;
     padding: 0.5rem 0;
     border-bottom: 1px solid #eee;
     position: relative;
-    padding-left: 0;
   }
   
   .walmart-table tbody tr td:last-child {
     border-bottom: none;
     padding-top: 1rem;
-    text-align: center;
+    justify-content: center;
+    gap: 0.5rem;
   }
   
   .walmart-table tbody tr td:before {
     content: attr(data-label);
     font-weight: bold;
     color: #5a5c69;
-    display: block;
-    margin-bottom: 0.25rem;
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    flex-shrink: 0;
+    min-width: 100px;
+    text-align: right;
+    margin-right: 1rem;
+  }
+  
+  .walmart-table tbody tr td .mobile-content {
+    flex-grow: 1;
+    text-align: left;
   }
   
   .walmart-table tbody tr td[data-label="Order #"]:before {
