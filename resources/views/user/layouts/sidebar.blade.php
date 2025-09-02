@@ -87,15 +87,6 @@
           <span>My Profile</span>
         </a>
       </li>
-
-      <!-- Settings -->
-      <li class="nav-item {{ request()->routeIs('user.change.password.form') ? 'active' : '' }}">
-        <a class="nav-link" href="{{route('user.change.password.form')}}">
-          <i class="fas fa-cog"></i>
-          <span>Settings</span>
-        </a>
-      </li>
-
     </ul>
   </nav>
 
