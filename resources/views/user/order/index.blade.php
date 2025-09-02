@@ -373,87 +373,84 @@
   }
   
   .walmart-table tbody tr td {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: block;
+    text-align: left;
     border: none;
     padding: 0.5rem 0;
     border-bottom: 1px solid #eee;
+    position: relative;
+    padding-left: 0;
   }
   
   .walmart-table tbody tr td:last-child {
     border-bottom: none;
     padding-top: 1rem;
-    justify-content: center;
-    gap: 0.5rem;
+    text-align: center;
+  }
+  
+  .walmart-table tbody tr td:before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #5a5c69;
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
   
   .walmart-table tbody tr td[data-label="Order #"]:before {
-    content: "Order: ";
-    font-weight: bold;
-    color: #5a5c69;
+    content: "Order Number";
   }
   
   .walmart-table tbody tr td[data-label="Date"]:before {
-    content: "Date: ";
-    font-weight: bold;
-    color: #5a5c69;
+    content: "Order Date";
   }
   
   .walmart-table tbody tr td[data-label="Customer"]:before {
-    content: "Customer: ";
-    font-weight: bold;
-    color: #5a5c69;
+    content: "Customer Info";
   }
   
   .walmart-table tbody tr td[data-label="Items"]:before {
-    content: "Items: ";
-    font-weight: bold;
-    color: #5a5c69;
+    content: "Items";
   }
   
   .walmart-table tbody tr td[data-label="Shipping"]:before {
-    content: "Shipping: ";
-    font-weight: bold;
-    color: #5a5c69;
+    content: "Shipping Cost";
   }
   
   .walmart-table tbody tr td[data-label="Total"]:before {
-    content: "Total: ";
-    font-weight: bold;
-    color: #5a5c69;
+    content: "Total Amount";
   }
   
   .walmart-table tbody tr td[data-label="Commission"]:before {
-    content: "Commission: ";
-    font-weight: bold;
-    color: #5a5c69;
+    content: "Commission";
   }
   
-  .walmart-table tbody tr td[data-label="Order #"] {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .walmart-table tbody tr td[data-label="Date"] {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .walmart-table tbody tr td[data-label="Customer"] {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .walmart-table tbody tr td[data-label="Order #"]:before,
-  .walmart-table tbody tr td[data-label="Date"]:before,
-  .walmart-table tbody tr td[data-label="Customer"]:before {
-    margin-bottom: 0.25rem;
-    min-width: auto;
+  .walmart-table tbody tr td[data-label="Status"]:before {
+    content: "Order Status";
   }
   
   .walmart-table tbody tr td[data-label="Actions"]:before {
-    content: "";
+    content: "Actions";
+  }
+  
+  /* Special handling for complex content */
+  .walmart-table tbody tr td[data-label="Order #"],
+  .walmart-table tbody tr td[data-label="Date"],
+  .walmart-table tbody tr td[data-label="Customer"] {
+    padding-bottom: 0.75rem;
+  }
+  
+  .walmart-table tbody tr td[data-label="Actions"] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .walmart-table tbody tr td[data-label="Actions"] > * {
+    margin: 0.25rem;
   }
   
   /* Status badges mobile */
