@@ -120,6 +120,15 @@
                       
                       @php
                           $hasBankInfo = !empty($profile->bank_name) && !empty($profile->bank_account_number) && !empty($profile->bank_account_name);
+                          
+                          // Function to mask sensitive data based on length
+                          function maskBankData($data, $showLast = 2) {
+                              if (empty($data)) return $data;
+                              $length = strlen($data);
+                              if ($length <= $showLast) return $data;
+                              $maskLength = max(3, $length - $showLast);
+                              return str_repeat('X', $maskLength) . substr($data, -$showLast);
+                          }
                       @endphp
                       
                       @if($hasBankInfo)
@@ -132,7 +141,7 @@
                       <div class="form-group">
                           <label for="bank_name" class="col-form-label">Bank Name</label>
                           <input id="bank_name" type="text" name="bank_name" placeholder="Enter bank name" 
-                                 value="@if($hasBankInfo){{ 'xxxx' . substr($profile->bank_name, -2) }}@else{{ $profile->bank_name }}@endif" 
+                                 value="@if($hasBankInfo){{ maskBankData($profile->bank_name, 2) }}@else{{ $profile->bank_name }}@endif" 
                                  class="form-control" {{ $hasBankInfo ? 'readonly' : '' }}>
                           @error('bank_name')
                           <span class="text-danger">{{$message}}</span>
@@ -142,7 +151,7 @@
                       <div class="form-group">
                           <label for="bank_account_number" class="col-form-label">Account Number</label>
                           <input id="bank_account_number" type="text" name="bank_account_number" placeholder="Enter account number" 
-                                 value="@if($hasBankInfo){{ 'xxxx' . substr($profile->bank_account_number, -2) }}@else{{ $profile->bank_account_number }}@endif" 
+                                 value="@if($hasBankInfo){{ maskBankData($profile->bank_account_number, 2) }}@else{{ $profile->bank_account_number }}@endif" 
                                  class="form-control" {{ $hasBankInfo ? 'readonly' : '' }}>
                           @error('bank_account_number')
                           <span class="text-danger">{{$message}}</span>
@@ -152,7 +161,7 @@
                       <div class="form-group">
                           <label for="bank_account_name" class="col-form-label">Account Holder Name</label>
                           <input id="bank_account_name" type="text" name="bank_account_name" placeholder="Enter account holder name" 
-                                 value="@if($hasBankInfo){{ 'xxxx' . substr($profile->bank_account_name, -2) }}@else{{ $profile->bank_account_name }}@endif" 
+                                 value="@if($hasBankInfo){{ maskBankData($profile->bank_account_name, 2) }}@else{{ $profile->bank_account_name }}@endif" 
                                  class="form-control" {{ $hasBankInfo ? 'readonly' : '' }}>
                           @error('bank_account_name')
                           <span class="text-danger">{{$message}}</span>
