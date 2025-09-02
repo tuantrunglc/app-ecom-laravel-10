@@ -118,9 +118,22 @@
                       <hr>
                       <h5 class="mb-3"><i class="fas fa-university"></i> Bank Information</h5>
                       
+                      @php
+                          $hasBankInfo = !empty($profile->bank_name) && !empty($profile->bank_account_number) && !empty($profile->bank_account_name);
+                      @endphp
+                      
+                      @if($hasBankInfo)
+                          <div class="alert alert-info">
+                              <i class="fas fa-shield-alt"></i> 
+                              <strong>Security Notice:</strong> Bank information has been set and is protected for security reasons. Contact admin if you need to make changes.
+                          </div>
+                      @endif
+                      
                       <div class="form-group">
                           <label for="bank_name" class="col-form-label">Bank Name</label>
-                          <input id="bank_name" type="text" name="bank_name" placeholder="Enter bank name" value="{{$profile->bank_name}}" class="form-control">
+                          <input id="bank_name" type="text" name="bank_name" placeholder="Enter bank name" 
+                                 value="@if($hasBankInfo){{ 'xxxx' . substr($profile->bank_name, -2) }}@else{{ $profile->bank_name }}@endif" 
+                                 class="form-control" {{ $hasBankInfo ? 'readonly' : '' }}>
                           @error('bank_name')
                           <span class="text-danger">{{$message}}</span>
                           @enderror
@@ -128,7 +141,9 @@
 
                       <div class="form-group">
                           <label for="bank_account_number" class="col-form-label">Account Number</label>
-                          <input id="bank_account_number" type="text" name="bank_account_number" placeholder="Enter account number" value="{{$profile->bank_account_number}}" class="form-control">
+                          <input id="bank_account_number" type="text" name="bank_account_number" placeholder="Enter account number" 
+                                 value="@if($hasBankInfo){{ 'xxxx' . substr($profile->bank_account_number, -2) }}@else{{ $profile->bank_account_number }}@endif" 
+                                 class="form-control" {{ $hasBankInfo ? 'readonly' : '' }}>
                           @error('bank_account_number')
                           <span class="text-danger">{{$message}}</span>
                           @enderror
@@ -136,7 +151,9 @@
 
                       <div class="form-group">
                           <label for="bank_account_name" class="col-form-label">Account Holder Name</label>
-                          <input id="bank_account_name" type="text" name="bank_account_name" placeholder="Enter account holder name" value="{{$profile->bank_account_name}}" class="form-control">
+                          <input id="bank_account_name" type="text" name="bank_account_name" placeholder="Enter account holder name" 
+                                 value="@if($hasBankInfo){{ 'xxxx' . substr($profile->bank_account_name, -2) }}@else{{ $profile->bank_account_name }}@endif" 
+                                 class="form-control" {{ $hasBankInfo ? 'readonly' : '' }}>
                           @error('bank_account_name')
                           <span class="text-danger">{{$message}}</span>
                           @enderror
@@ -285,6 +302,19 @@
     i{
         font-size: 14px;
         padding-right:8px;
+    }
+    
+    /* Bank information readonly styling */
+    input[readonly] {
+        background-color: #f8f9fa !important;
+        color: #6c757d;
+        cursor: not-allowed;
+        border-color: #dee2e6;
+    }
+    
+    input[readonly]:focus {
+        box-shadow: none;
+        border-color: #dee2e6;
     }
   </style> 
 
