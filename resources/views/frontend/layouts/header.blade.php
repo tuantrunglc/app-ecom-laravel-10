@@ -378,32 +378,37 @@
         font-size: 20px !important;
         padding: 14px 18px !important;
         border-radius: 8px;
-        background: rgba(255, 255, 255, 0.15);
-        color: white !important;
+        background: rgba(255, 255, 255, 0.25);
+        color: #ffffff !important;
         text-decoration: none;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.3s ease;
-        font-weight: 700;
+        font-weight: 800;
         white-space: nowrap;
         min-height: 52px;
         box-sizing: border-box;
-        border: 2px solid rgba(255, 255, 255, 0.2);
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+        filter: brightness(1.1);
     }
     
     .right-content .list-main li a:hover {
-        background: rgba(255, 255, 255, 0.25);
+        background: rgba(255, 255, 255, 0.4);
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        border-color: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        border-color: rgba(255, 255, 255, 0.7);
+        color: #ffffff !important;
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+        filter: brightness(1.2);
     }
     
     .right-content .list-main li i {
         font-size: 20px !important;
         margin-right: 12px;
-        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8)) brightness(1.1);
+        color: #ffffff !important;
     }
 }
 
@@ -423,22 +428,29 @@
         padding: 16px 18px !important;
         min-height: 56px;
         border-radius: 25px;
-        font-weight: 800;
-        background: rgba(255, 255, 255, 0.2);
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        font-weight: 900;
+        background: rgba(255, 255, 255, 0.3);
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+        color: #ffffff !important;
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+        filter: brightness(1.15);
     }
     
     .right-content .list-main li a:hover {
-        background: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.45);
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+        color: #ffffff !important;
+        text-shadow: 0 3px 8px rgba(0, 0, 0, 1);
+        filter: brightness(1.3);
     }
     
     .right-content .list-main li i {
         font-size: 22px !important;
         margin-right: 10px;
-        filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
+        filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9)) brightness(1.15);
+        color: #ffffff !important;
     }
 }
 
@@ -465,25 +477,31 @@
         justify-content: center;
         min-height: 60px;
         border-radius: 12px;
-        background: rgba(255, 255, 255, 0.25);
-        border: 3px solid rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.35);
+        border: 3px solid rgba(255, 255, 255, 0.6);
         font-weight: 900;
         letter-spacing: 0.5px;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        text-shadow: 0 3px 8px rgba(0, 0, 0, 1);
+        color: #ffffff !important;
+        filter: brightness(1.2) contrast(1.1);
     }
     
     .right-content .list-main li a:hover {
-        background: rgba(255, 255, 255, 0.35);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        background: rgba(255, 255, 255, 0.5);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
         transform: translateY(-3px);
-        border-color: rgba(255, 255, 255, 0.6);
+        border-color: rgba(255, 255, 255, 0.8);
+        color: #ffffff !important;
+        text-shadow: 0 4px 12px rgba(0, 0, 0, 1);
+        filter: brightness(1.35) contrast(1.2);
     }
     
     .right-content .list-main li i {
         font-size: 24px !important;
         margin-right: 12px;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+        filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 1)) brightness(1.2);
+        color: #ffffff !important;
     }
     
     /* Special styling for very small screens */
@@ -496,11 +514,16 @@
             font-size: 22px !important;
             padding: 16px 18px !important;
             min-height: 56px;
+            color: #ffffff !important;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.9);
+            filter: brightness(1.15) contrast(1.05);
         }
         
         .right-content .list-main li i {
             font-size: 22px !important;
             margin-right: 10px;
+            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9)) brightness(1.15);
+            color: #ffffff !important;
         }
     }
 }
