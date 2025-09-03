@@ -336,14 +336,14 @@
     
     /* Improve mobile font sizes */
     .right-content .list-main li a {
-        font-size: 14px !important;
-        padding: 8px 12px !important;
+        font-size: 16px !important;
+        padding: 10px 14px !important;
         font-weight: 500;
     }
     
     .right-content .list-main li i {
-        font-size: 14px !important;
-        margin-right: 6px;
+        font-size: 16px !important;
+        margin-right: 8px;
     }
 }
 
@@ -365,8 +365,8 @@
     }
     
     .right-content .list-main li a {
-        font-size: 16px !important;
-        padding: 10px 14px !important;
+        font-size: 18px !important;
+        padding: 12px 16px !important;
         border-radius: 6px;
         background: rgba(255, 255, 255, 0.1);
         color: white !important;
@@ -377,7 +377,7 @@
         transition: all 0.3s ease;
         font-weight: 600;
         white-space: nowrap;
-        min-height: 44px;
+        min-height: 48px;
         box-sizing: border-box;
     }
     
@@ -387,8 +387,8 @@
     }
     
     .right-content .list-main li i {
-        font-size: 16px !important;
-        margin-right: 8px;
+        font-size: 18px !important;
+        margin-right: 10px;
     }
 }
 
@@ -404,15 +404,15 @@
     }
     
     .right-content .list-main li a {
-        font-size: 15px !important;
-        padding: 8px 12px !important;
-        min-height: 40px;
+        font-size: 18px !important;
+        padding: 10px 14px !important;
+        min-height: 46px;
         border-radius: 20px;
     }
     
     .right-content .list-main li i {
-        font-size: 15px !important;
-        margin-right: 6px;
+        font-size: 18px !important;
+        margin-right: 8px;
     }
 }
 
