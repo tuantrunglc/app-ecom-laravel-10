@@ -334,55 +334,20 @@
         flex-direction: row !important;
     }
     
-    /* Improve mobile font sizes */
-    .right-content .list-main li a {
-        font-size: 16px !important;
-        padding: 10px 14px !important;
-        font-weight: 500;
-    }
-    
-    .right-content .list-main li i {
-        font-size: 16px !important;
-        margin-right: 8px;
-    }
-}
-
-@media (max-width: 767px) {
-    .topbar {
-        padding: 8px 0 !important;
-    }
-    
-    .right-content .list-main {
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        justify-content: center !important;
-    }
-    
-    .right-content .list-main li {
-        margin: 0 0.25rem;
-        flex: 1;
-        min-width: fit-content;
-    }
-    
+    /* Improve tablet font sizes */
     .right-content .list-main li a {
         font-size: 18px !important;
         padding: 12px 16px !important;
+        font-weight: 600;
         border-radius: 6px;
         background: rgba(255, 255, 255, 0.1);
-        color: white !important;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.15);
         transition: all 0.3s ease;
-        font-weight: 600;
-        white-space: nowrap;
-        min-height: 48px;
-        box-sizing: border-box;
     }
     
     .right-content .list-main li a:hover {
         background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.25);
         transform: translateY(-1px);
     }
     
@@ -392,61 +357,151 @@
     }
 }
 
+@media (max-width: 767px) {
+    .topbar {
+        padding: 12px 0 !important;
+    }
+    
+    .right-content .list-main {
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        justify-content: center !important;
+    }
+    
+    .right-content .list-main li {
+        margin: 0 0.2rem;
+        flex: 1;
+        min-width: fit-content;
+    }
+    
+    .right-content .list-main li a {
+        font-size: 20px !important;
+        padding: 14px 18px !important;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.15);
+        color: white !important;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        font-weight: 700;
+        white-space: nowrap;
+        min-height: 52px;
+        box-sizing: border-box;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+    
+    .right-content .list-main li a:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .right-content .list-main li i {
+        font-size: 20px !important;
+        margin-right: 12px;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+    }
+}
+
 @media (max-width: 576px) {
     .right-content .list-main {
         justify-content: center !important;
-        gap: 0.3rem;
+        gap: 0.6rem;
     }
     
     .right-content .list-main li {
         flex: 0 0 auto;
-        margin: 0 0.15rem;
+        margin: 0 0.1rem;
     }
     
     .right-content .list-main li a {
-        font-size: 18px !important;
-        padding: 10px 14px !important;
-        min-height: 46px;
-        border-radius: 20px;
+        font-size: 22px !important;
+        padding: 16px 18px !important;
+        min-height: 56px;
+        border-radius: 25px;
+        font-weight: 800;
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+    
+    .right-content .list-main li a:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
     }
     
     .right-content .list-main li i {
-        font-size: 18px !important;
-        margin-right: 8px;
+        font-size: 22px !important;
+        margin-right: 10px;
+        filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
     }
 }
 
 @media (max-width: 480px) {
     .right-content .list-main {
-        flex-direction: column;
-        gap: 0.5rem;
-        align-items: stretch;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        align-items: center;
+        justify-content: center !important;
+        padding: 8px 0;
     }
     
     .right-content .list-main li {
         margin: 0;
-        flex: none;
+        flex: 0 0 auto;
+        min-width: 120px;
     }
     
     .right-content .list-main li a {
-        font-size: 18px !important;
-        padding: 12px 20px !important;
+        font-size: 24px !important;
+        padding: 18px 22px !important;
         text-align: center;
         justify-content: center;
-        min-height: 48px;
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        min-height: 60px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.25);
+        border: 3px solid rgba(255, 255, 255, 0.4);
+        font-weight: 900;
+        letter-spacing: 0.5px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     }
     
     .right-content .list-main li a:hover {
-        background: rgba(255, 255, 255, 0.25);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.35);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        transform: translateY(-3px);
+        border-color: rgba(255, 255, 255, 0.6);
     }
     
     .right-content .list-main li i {
-        font-size: 18px !important;
-        margin-right: 10px;
+        font-size: 24px !important;
+        margin-right: 12px;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+    }
+    
+    /* Special styling for very small screens */
+    @media (max-width: 380px) {
+        .right-content .list-main li {
+            min-width: 100px;
+        }
+        
+        .right-content .list-main li a {
+            font-size: 22px !important;
+            padding: 16px 18px !important;
+            min-height: 56px;
+        }
+        
+        .right-content .list-main li i {
+            font-size: 22px !important;
+            margin-right: 10px;
+        }
     }
 }
 
