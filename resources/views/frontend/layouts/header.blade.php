@@ -336,7 +336,7 @@
     
     /* Improve tablet font sizes */
     .right-content .list-main li a {
-        font-size: 18px !important;
+        font-size: 24px !important;
         padding: 12px 16px !important;
         font-weight: 600;
         border-radius: 6px;
