@@ -5,6 +5,42 @@
     width: 100%;
 }
 
+/* Topbar Mobile Enhancements */
+.walmart-topbar {
+    background: linear-gradient(135deg, #0071ce 0%, #004c91 100%);
+    position: relative;
+}
+
+.walmart-topbar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.1);
+    z-index: 0;
+}
+
+.walmart-topbar > .container {
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 767px) {
+    .walmart-topbar {
+        padding: 12px 0;
+    }
+    
+    .top-left {
+        display: none; /* Hide top left on mobile to give more space */
+    }
+    
+    .right-content {
+        width: 100%;
+    }
+}
+
 .walmart-search-form {
     width: 100%;
 }
@@ -297,21 +333,120 @@
         justify-content: flex-end !important;
         flex-direction: row !important;
     }
+    
+    /* Improve mobile font sizes */
+    .right-content .list-main li a {
+        font-size: 14px !important;
+        padding: 8px 12px !important;
+        font-weight: 500;
+    }
+    
+    .right-content .list-main li i {
+        font-size: 14px !important;
+        margin-right: 6px;
+    }
 }
 
 @media (max-width: 767px) {
+    .topbar {
+        padding: 8px 0 !important;
+    }
+    
     .right-content .list-main {
         flex-wrap: wrap;
         gap: 0.5rem;
+        justify-content: center !important;
     }
     
     .right-content .list-main li {
         margin: 0 0.25rem;
+        flex: 1;
+        min-width: fit-content;
     }
     
     .right-content .list-main li a {
-        font-size: 0.875rem;
-        padding: 0.25rem 0.5rem;
+        font-size: 16px !important;
+        padding: 10px 14px !important;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        color: white !important;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        white-space: nowrap;
+        min-height: 44px;
+        box-sizing: border-box;
+    }
+    
+    .right-content .list-main li a:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-1px);
+    }
+    
+    .right-content .list-main li i {
+        font-size: 16px !important;
+        margin-right: 8px;
+    }
+}
+
+@media (max-width: 576px) {
+    .right-content .list-main {
+        justify-content: center !important;
+        gap: 0.3rem;
+    }
+    
+    .right-content .list-main li {
+        flex: 0 0 auto;
+        margin: 0 0.15rem;
+    }
+    
+    .right-content .list-main li a {
+        font-size: 15px !important;
+        padding: 8px 12px !important;
+        min-height: 40px;
+        border-radius: 20px;
+    }
+    
+    .right-content .list-main li i {
+        font-size: 15px !important;
+        margin-right: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .right-content .list-main {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+    
+    .right-content .list-main li {
+        margin: 0;
+        flex: none;
+    }
+    
+    .right-content .list-main li a {
+        font-size: 18px !important;
+        padding: 12px 20px !important;
+        text-align: center;
+        justify-content: center;
+        min-height: 48px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .right-content .list-main li a:hover {
+        background: rgba(255, 255, 255, 0.25);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .right-content .list-main li i {
+        font-size: 18px !important;
+        margin-right: 10px;
     }
 }
 
