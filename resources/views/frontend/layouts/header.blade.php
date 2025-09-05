@@ -336,7 +336,7 @@
     
     /* Improve tablet font sizes */
     .right-content .list-main li a {
-        font-size: 24px !important;
+        font-size: 26px !important;
         padding: 12px 16px !important;
         font-weight: 600;
         border-radius: 6px;
@@ -352,7 +352,7 @@
     }
     
     .right-content .list-main li i {
-        font-size: 18px !important;
+        font-size: 20px !important;
         margin-right: 10px;
     }
 }
@@ -375,7 +375,7 @@
     }
     
     .right-content .list-main li a {
-        font-size: 20px !important;
+        font-size: 22px !important;
         padding: 14px 18px !important;
         border-radius: 8px;
         background: rgba(255, 255, 255, 0.25);
@@ -405,7 +405,7 @@
     }
     
     .right-content .list-main li i {
-        font-size: 20px !important;
+        font-size: 22px !important;
         margin-right: 12px;
         filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8)) brightness(1.1);
         color: #ffffff !important;
@@ -424,7 +424,7 @@
     }
     
     .right-content .list-main li a {
-        font-size: 22px !important;
+        font-size: 24px !important;
         padding: 16px 18px !important;
         min-height: 56px;
         border-radius: 25px;
@@ -447,7 +447,7 @@
     }
     
     .right-content .list-main li i {
-        font-size: 22px !important;
+        font-size: 24px !important;
         margin-right: 10px;
         filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9)) brightness(1.15);
         color: #ffffff !important;
@@ -471,7 +471,7 @@
     }
     
     .right-content .list-main li a {
-        font-size: 24px !important;
+        font-size: 26px !important;
         padding: 18px 22px !important;
         text-align: center;
         justify-content: center;
@@ -498,7 +498,7 @@
     }
     
     .right-content .list-main li i {
-        font-size: 24px !important;
+        font-size: 26px !important;
         margin-right: 12px;
         filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 1)) brightness(1.2);
         color: #ffffff !important;
@@ -511,7 +511,7 @@
         }
         
         .right-content .list-main li a {
-            font-size: 22px !important;
+            font-size: 24px !important;
             padding: 16px 18px !important;
             min-height: 56px;
             color: #ffffff !important;
@@ -520,7 +520,7 @@
         }
         
         .right-content .list-main li i {
-            font-size: 22px !important;
+            font-size: 24px !important;
             margin-right: 10px;
             filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9)) brightness(1.15);
             color: #ffffff !important;
