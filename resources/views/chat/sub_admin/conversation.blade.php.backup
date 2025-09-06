@@ -1,60 +1,60 @@
-@extends('user.layouts.master')
+@extends('backend.layouts.master')
 
-@section('title','Chat - ' . $otherParticipant->name)
+@section('title','Sub Admin Chat - ' . $otherParticipant->name)
 
 @section('main-content')
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center bg-info text-white">
+    <div class="card-header d-flex justify-content-between align-items-center bg-warning text-dark">
         <div class="d-flex align-items-center">
-            <a href="{{ route('chat.index') }}" class="btn btn-sm btn-light me-3">
+            <a href="{{ route('chat.index') }}" class="btn btn-sm btn-dark me-3">
                 <i class="fas fa-arrow-left"></i> Back to Chat
             </a>
             <img src="{{ $otherParticipant->photo ? asset($otherParticipant->photo) : asset('backend/img/avatar.png') }}" 
                  class="rounded-circle me-2" width="40" height="40" alt="Avatar">
             <div>
-                <h6 class="mb-0 text-white">{{ $otherParticipant->name }}</h6>
-                <small class="text-light">
-                    <span class="badge badge-{{ $otherParticipant->role == 'admin' ? 'danger' : 'warning' }}">
+                <h6 class="mb-0 text-dark">{{ $otherParticipant->name }}</h6>
+                <small>
+                    <span class="badge badge-{{ $otherParticipant->role == 'admin' ? 'danger' : 'info' }}">
                         {{ ucfirst(str_replace('_', ' ', $otherParticipant->role)) }}
                     </span>
                     <span id="user-status" class="ms-2"></span>
                 </small>
             </div>
         </div>
-        <div class="badge badge-light text-dark">
-            <i class="fas fa-user"></i> User Chat
+        <div class="badge badge-dark">
+            <i class="fas fa-user-tie"></i> Sub Admin View
         </div>
     </div>
     
     <div class="card-body p-0">
-        <!-- User Chat Header Info -->
+        <!-- Sub Admin Chat Header Info -->
         <div class="bg-light p-2 border-bottom">
             <div class="row text-center">
-                <div class="col-md-4">
-                    <small class="text-muted">You are chatting with</small><br>
+                <div class="col-md-3">
+                    <small class="text-muted">Chatting as</small><br>
+                    <strong class="text-warning">Sub Administrator</strong>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">Participant</small><br>
                     <strong>{{ $otherParticipant->name }}</strong>
                 </div>
-                <div class="col-md-4">
-                    <small class="text-muted">Support Role</small><br>
+                <div class="col-md-3">
+                    <small class="text-muted">Relationship</small><br>
                     @if($otherParticipant->role == 'admin')
-                        <span class="badge badge-danger">System Administrator</span>
+                        <span class="badge badge-danger">Your Supervisor</span>
                     @else
-                        <span class="badge badge-warning">Your Manager</span>
+                        <span class="badge badge-info">Your User</span>
                     @endif
                 </div>
-                <div class="col-md-4">
-                    <small class="text-muted">Support Type</small><br>
-                    @if($otherParticipant->role == 'admin')
-                        <span class="text-danger">General Support</span>
-                    @else
-                        <span class="text-warning">Personal Support</span>
-                    @endif
+                <div class="col-md-3">
+                    <small class="text-muted">Conversation ID</small><br>
+                    <code class="small">{{ $conversation->id }}</code>
                 </div>
             </div>
         </div>
 
         <!-- Messages Container -->
-        <div id="messages-container" class="p-3" style="height: 500px; overflow-y: auto; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);">
+        <div id="messages-container" class="p-3" style="height: 500px; overflow-y: auto; background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);">
             <div id="messages-list">
                 <!-- Messages will be loaded here -->
             </div>
@@ -63,33 +63,33 @@
             </div>
         </div>
         
-        <!-- User Message Input -->
+        <!-- Sub Admin Message Input -->
         <div class="border-top p-3 bg-light">
             <form id="message-form" class="d-flex align-items-end">
                 <div class="flex-grow-1 me-2">
                     <textarea id="message-input" 
-                              class="form-control border-info" 
+                              class="form-control border-warning" 
                               rows="2" 
-                              placeholder="Type your message to support team..."
+                              placeholder="Type your message as Sub Administrator..."
                               style="resize: none;"></textarea>
                 </div>
                 <div class="d-flex flex-column">
-                    <label for="image-input" class="btn btn-outline-info btn-sm mb-1" title="Upload Image">
+                    <label for="image-input" class="btn btn-outline-warning btn-sm mb-1" title="Upload Image">
                         <i class="fas fa-image"></i>
                     </label>
                     <input type="file" id="image-input" accept="image/*" style="display: none;">
-                    <button type="submit" class="btn btn-info btn-sm" title="Send Message">
+                    <button type="submit" class="btn btn-warning btn-sm" title="Send Message">
                         <i class="fas fa-paper-plane"></i>
                     </button>
                 </div>
             </form>
             <div class="mt-2">
                 <small class="text-muted">
-                    <i class="fas fa-headset text-info"></i> 
+                    <i class="fas fa-user-tie text-warning"></i> 
                     @if($otherParticipant->role == 'admin')
-                        You are getting support from System Administrator
+                        You are chatting with your supervisor
                     @else
-                        You are getting support from your assigned manager
+                        You are chatting with a user under your management
                     @endif
                 </small>
             </div>
@@ -101,40 +101,22 @@
 <div class="modal fade" id="imagePreviewModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-info text-white">
+            <div class="modal-header bg-warning text-dark">
                 <h5 class="modal-title">Image Preview</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-center">
                 <img id="preview-image" src="" class="img-fluid" alt="Preview">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-info" id="send-image-btn">Send Image</button>
+                <button type="button" class="btn btn-warning" id="send-image-btn">Send Image</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Firebase Configuration and Chat Logic -->
-<style>
-/* Chat Message Line Break Support */
-.chat-message-text {
-    white-space: pre-line !important;
-    word-wrap: break-word !important;
-    overflow-wrap: break-word !important;
-    word-break: break-word !important;
-    line-height: 1.4;
-    margin: 0;
-}
-
-/* Đảm bảo textarea giữ nguyên line breaks */
-#message-input {
-    white-space: pre-wrap;
-    resize: vertical;
-}
-</style>
-
 <script type="module">
     // Firebase configuration
     const firebaseConfig = {
@@ -147,7 +129,7 @@
         appId: "{{ config('firebase.app_id') }}"
     };
 
-    console.log('User Chat - Firebase Config:', firebaseConfig);
+    console.log('Sub Admin Chat - Firebase Config:', firebaseConfig);
 
     // Initialize Firebase
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
@@ -181,7 +163,7 @@
 
     // Initialize chat without authentication (for testing)
     try {
-        console.log('Initializing User Firebase Chat...');
+        console.log('Initializing Sub Admin Firebase Chat...');
         initializeChat();
     } catch (error) {
         console.error('Firebase initialization failed:', error);
@@ -189,14 +171,14 @@
     }
 
     function initializeChat() {
-        console.log('Initializing user chat for conversation:', conversationId);
+        console.log('Initializing sub admin chat for conversation:', conversationId);
         
         // Listen for messages
         const messagesRef = ref(database, `messages/${conversationId}`);
         const messagesQuery = query(messagesRef, orderByChild('timestamp'));
         
         onValue(messagesQuery, (snapshot) => {
-            console.log('User - Messages snapshot received');
+            console.log('Sub Admin - Messages snapshot received');
             const messages = [];
             snapshot.forEach((childSnapshot) => {
                 messages.push({
@@ -204,7 +186,7 @@
                     ...childSnapshot.val()
                 });
             });
-            console.log('User - Messages loaded:', messages.length);
+            console.log('Sub Admin - Messages loaded:', messages.length);
             displayMessages(messages);
             markMessagesAsRead();
         }, (error) => {
@@ -230,18 +212,18 @@
         set(currentUserPresenceRef, {
             status: 'online',
             lastSeen: serverTimestamp(),
-            role: 'user'
+            role: 'sub_admin'
         }).then(() => {
-            console.log('User presence set successfully');
+            console.log('Sub Admin presence set successfully');
         }).catch((error) => {
-            console.error('Error setting user presence:', error);
+            console.error('Error setting sub admin presence:', error);
         });
 
         // Set offline when user disconnects
         onDisconnect(currentUserPresenceRef).set({
             status: 'offline',
             lastSeen: serverTimestamp(),
-            role: 'user'
+            role: 'sub_admin'
         });
     }
 
@@ -261,7 +243,7 @@
         messageDiv.className = `mb-3 d-flex ${isCurrentUser ? 'justify-content-end' : 'justify-content-start'}`;
         
         const messageContent = document.createElement('div');
-        messageContent.className = `p-3 rounded ${isCurrentUser ? 'bg-info text-white' : 'bg-white border'}`;
+        messageContent.className = `p-3 rounded ${isCurrentUser ? 'bg-warning text-dark' : 'bg-white border'}`;
         messageContent.style.maxWidth = '70%';
         messageContent.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
         
@@ -271,19 +253,19 @@
             content = `
                 <img src="${message.imageUrl}" class="img-fluid rounded mb-2" style="max-width: 200px; cursor: pointer;" 
                      onclick="showImageModal('${message.imageUrl}')" alt="Image">
-                ${message.content ? `<div class="chat-message-text">${escapeHtml(message.content)}</div>` : ''}
+                ${message.content ? `<div>${escapeHtml(message.content)}</div>` : ''}
             `;
         } else {
-            content = `<div class="chat-message-text">${escapeHtml(message.content)}</div>`;
+            content = `<div>${escapeHtml(message.content)}</div>`;
         }
         
         const timestamp = message.timestamp ? new Date(message.timestamp).toLocaleString() : 'Sending...';
         const roleColor = message.senderRole === 'admin' ? 'text-danger' : (message.senderRole === 'sub_admin' ? 'text-warning' : 'text-info');
         
         content += `
-            <div class="small ${isCurrentUser ? 'text-light' : 'text-muted'} mt-2">
-                <strong class="${isCurrentUser ? 'text-light' : roleColor}">
-                    ${message.senderRole === 'admin' ? '👑 ' : (message.senderRole === 'sub_admin' ? '🛡️ ' : '👤 ')}${escapeHtml(message.senderName)}
+            <div class="small ${isCurrentUser ? 'text-dark' : 'text-muted'} mt-2">
+                <strong class="${isCurrentUser ? 'text-dark' : roleColor}">
+                    ${message.senderRole === 'admin' ? '👑 ' : (message.senderRole === 'sub_admin' ? '🛡️ ' : '')}${escapeHtml(message.senderName)}
                 </strong> • ${timestamp}
                 ${message.readBy && message.readBy[`user_${otherUserId}`] ? '<i class="fas fa-check-double ms-1"></i>' : '<i class="fas fa-check ms-1"></i>'}
             </div>
@@ -311,7 +293,7 @@
     }
 
     function sendMessage(content, type = 'text', imageUrl = null, imageName = null) {
-        console.log('User sending message:', { content, type, imageUrl });
+        console.log('Sub Admin sending message:', { content, type, imageUrl });
         
         const messageData = {
             id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -337,12 +319,12 @@
         const messagesRef = ref(database, `messages/${conversationId}`);
         push(messagesRef, messageData)
             .then(() => {
-                console.log('User message sent successfully');
+                console.log('Sub Admin message sent successfully');
                 // Notify backend about new message (Method B)
                 notifyNewMessage(messageData);
             })
             .catch((error) => {
-                console.error('Error sending user message:', error);
+                console.error('Error sending sub admin message:', error);
                 alert('Failed to send message. Please try again.');
             });
 
@@ -383,7 +365,7 @@
 
         set(conversationRef, conversationData)
             .then(() => {
-                console.log('User conversation updated successfully');
+                console.log('Sub Admin conversation updated successfully');
             })
             .catch((error) => {
                 console.error('Error updating conversation:', error);
@@ -512,20 +494,20 @@
 @push('styles')
 <style>
     #messages-container {
-        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
     }
     
-    .bg-info {
-        background-color: #17a2b8 !important;
+    .bg-warning {
+        background-color: #ffc107 !important;
     }
     
-    .border-info {
-        border-color: #17a2b8 !important;
+    .border-warning {
+        border-color: #ffc107 !important;
     }
     
-    .border-info:focus {
-        border-color: #17a2b8;
-        box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+    .border-warning:focus {
+        border-color: #ffc107;
+        box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
     }
     
     .badge {
@@ -539,6 +521,11 @@
     .btn-sm {
         padding: 0.25rem 0.5rem;
         font-size: 0.875rem;
+    }
+    
+    code {
+        font-size: 0.8em;
+        color: #e83e8c;
     }
 </style>
 @endpush

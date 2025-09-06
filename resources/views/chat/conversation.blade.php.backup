@@ -1,60 +1,31 @@
-@extends('user.layouts.master')
+@extends('backend.layouts.master')
 
-@section('title','Chat - ' . $otherParticipant->name)
+@section('title','Chat with ' . $otherParticipant->name)
 
 @section('main-content')
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center bg-info text-white">
+    <div class="card-header d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center">
-            <a href="{{ route('chat.index') }}" class="btn btn-sm btn-light me-3">
-                <i class="fas fa-arrow-left"></i> Back to Chat
+            <a href="{{ route('chat.index') }}" class="btn btn-sm btn-secondary me-3">
+                <i class="fas fa-arrow-left"></i> Back
             </a>
             <img src="{{ $otherParticipant->photo ? asset($otherParticipant->photo) : asset('backend/img/avatar.png') }}" 
                  class="rounded-circle me-2" width="40" height="40" alt="Avatar">
             <div>
-                <h6 class="mb-0 text-white">{{ $otherParticipant->name }}</h6>
-                <small class="text-light">
-                    <span class="badge badge-{{ $otherParticipant->role == 'admin' ? 'danger' : 'warning' }}">
+                <h6 class="mb-0">{{ $otherParticipant->name }}</h6>
+                <small class="text-muted">
+                    <span class="badge badge-{{ $otherParticipant->role == 'admin' ? 'danger' : ($otherParticipant->role == 'sub_admin' ? 'warning' : 'info') }}">
                         {{ ucfirst(str_replace('_', ' ', $otherParticipant->role)) }}
                     </span>
                     <span id="user-status" class="ms-2"></span>
                 </small>
             </div>
         </div>
-        <div class="badge badge-light text-dark">
-            <i class="fas fa-user"></i> User Chat
-        </div>
     </div>
     
     <div class="card-body p-0">
-        <!-- User Chat Header Info -->
-        <div class="bg-light p-2 border-bottom">
-            <div class="row text-center">
-                <div class="col-md-4">
-                    <small class="text-muted">You are chatting with</small><br>
-                    <strong>{{ $otherParticipant->name }}</strong>
-                </div>
-                <div class="col-md-4">
-                    <small class="text-muted">Support Role</small><br>
-                    @if($otherParticipant->role == 'admin')
-                        <span class="badge badge-danger">System Administrator</span>
-                    @else
-                        <span class="badge badge-warning">Your Manager</span>
-                    @endif
-                </div>
-                <div class="col-md-4">
-                    <small class="text-muted">Support Type</small><br>
-                    @if($otherParticipant->role == 'admin')
-                        <span class="text-danger">General Support</span>
-                    @else
-                        <span class="text-warning">Personal Support</span>
-                    @endif
-                </div>
-            </div>
-        </div>
-
         <!-- Messages Container -->
-        <div id="messages-container" class="p-3" style="height: 500px; overflow-y: auto; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);">
+        <div id="messages-container" class="p-3" style="height: 500px; overflow-y: auto;">
             <div id="messages-list">
                 <!-- Messages will be loaded here -->
             </div>
@@ -63,36 +34,26 @@
             </div>
         </div>
         
-        <!-- User Message Input -->
-        <div class="border-top p-3 bg-light">
+        <!-- Message Input -->
+        <div class="border-top p-3">
             <form id="message-form" class="d-flex align-items-end">
                 <div class="flex-grow-1 me-2">
                     <textarea id="message-input" 
-                              class="form-control border-info" 
+                              class="form-control" 
                               rows="2" 
-                              placeholder="Type your message to support team..."
+                              placeholder="Type your message..."
                               style="resize: none;"></textarea>
                 </div>
                 <div class="d-flex flex-column">
-                    <label for="image-input" class="btn btn-outline-info btn-sm mb-1" title="Upload Image">
+                    <label for="image-input" class="btn btn-outline-secondary btn-sm mb-1" title="Upload Image">
                         <i class="fas fa-image"></i>
                     </label>
                     <input type="file" id="image-input" accept="image/*" style="display: none;">
-                    <button type="submit" class="btn btn-info btn-sm" title="Send Message">
+                    <button type="submit" class="btn btn-primary btn-sm" title="Send Message">
                         <i class="fas fa-paper-plane"></i>
                     </button>
                 </div>
             </form>
-            <div class="mt-2">
-                <small class="text-muted">
-                    <i class="fas fa-headset text-info"></i> 
-                    @if($otherParticipant->role == 'admin')
-                        You are getting support from System Administrator
-                    @else
-                        You are getting support from your assigned manager
-                    @endif
-                </small>
-            </div>
         </div>
     </div>
 </div>
@@ -101,40 +62,22 @@
 <div class="modal fade" id="imagePreviewModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-info text-white">
+            <div class="modal-header">
                 <h5 class="modal-title">Image Preview</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-center">
                 <img id="preview-image" src="" class="img-fluid" alt="Preview">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-info" id="send-image-btn">Send Image</button>
+                <button type="button" class="btn btn-primary" id="send-image-btn">Send Image</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Firebase Configuration and Chat Logic -->
-<style>
-/* Chat Message Line Break Support */
-.chat-message-text {
-    white-space: pre-line !important;
-    word-wrap: break-word !important;
-    overflow-wrap: break-word !important;
-    word-break: break-word !important;
-    line-height: 1.4;
-    margin: 0;
-}
-
-/* Đảm bảo textarea giữ nguyên line breaks */
-#message-input {
-    white-space: pre-wrap;
-    resize: vertical;
-}
-</style>
-
 <script type="module">
     // Firebase configuration
     const firebaseConfig = {
@@ -147,7 +90,7 @@
         appId: "{{ config('firebase.app_id') }}"
     };
 
-    console.log('User Chat - Firebase Config:', firebaseConfig);
+    console.log('Firebase Config:', firebaseConfig);
 
     // Initialize Firebase
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
@@ -181,7 +124,7 @@
 
     // Initialize chat without authentication (for testing)
     try {
-        console.log('Initializing User Firebase Chat...');
+        console.log('Initializing Firebase without authentication...');
         initializeChat();
     } catch (error) {
         console.error('Firebase initialization failed:', error);
@@ -189,14 +132,14 @@
     }
 
     function initializeChat() {
-        console.log('Initializing user chat for conversation:', conversationId);
+        console.log('Initializing chat for conversation:', conversationId);
         
         // Listen for messages
         const messagesRef = ref(database, `messages/${conversationId}`);
         const messagesQuery = query(messagesRef, orderByChild('timestamp'));
         
         onValue(messagesQuery, (snapshot) => {
-            console.log('User - Messages snapshot received');
+            console.log('Messages snapshot received');
             const messages = [];
             snapshot.forEach((childSnapshot) => {
                 messages.push({
@@ -204,7 +147,7 @@
                     ...childSnapshot.val()
                 });
             });
-            console.log('User - Messages loaded:', messages.length);
+            console.log('Messages loaded:', messages.length);
             displayMessages(messages);
             markMessagesAsRead();
         }, (error) => {
@@ -229,8 +172,7 @@
         const currentUserPresenceRef = ref(database, `userPresence/${currentUserId}`);
         set(currentUserPresenceRef, {
             status: 'online',
-            lastSeen: serverTimestamp(),
-            role: 'user'
+            lastSeen: serverTimestamp()
         }).then(() => {
             console.log('User presence set successfully');
         }).catch((error) => {
@@ -240,8 +182,7 @@
         // Set offline when user disconnects
         onDisconnect(currentUserPresenceRef).set({
             status: 'offline',
-            lastSeen: serverTimestamp(),
-            role: 'user'
+            lastSeen: serverTimestamp()
         });
     }
 
@@ -261,9 +202,8 @@
         messageDiv.className = `mb-3 d-flex ${isCurrentUser ? 'justify-content-end' : 'justify-content-start'}`;
         
         const messageContent = document.createElement('div');
-        messageContent.className = `p-3 rounded ${isCurrentUser ? 'bg-info text-white' : 'bg-white border'}`;
+        messageContent.className = `p-2 rounded ${isCurrentUser ? 'bg-primary text-white' : 'bg-light'}`;
         messageContent.style.maxWidth = '70%';
-        messageContent.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
         
         let content = '';
         
@@ -271,20 +211,17 @@
             content = `
                 <img src="${message.imageUrl}" class="img-fluid rounded mb-2" style="max-width: 200px; cursor: pointer;" 
                      onclick="showImageModal('${message.imageUrl}')" alt="Image">
-                ${message.content ? `<div class="chat-message-text">${escapeHtml(message.content)}</div>` : ''}
+                ${message.content ? `<div>${escapeHtml(message.content)}</div>` : ''}
             `;
         } else {
-            content = `<div class="chat-message-text">${escapeHtml(message.content)}</div>`;
+            content = `<div>${escapeHtml(message.content)}</div>`;
         }
         
         const timestamp = message.timestamp ? new Date(message.timestamp).toLocaleString() : 'Sending...';
-        const roleColor = message.senderRole === 'admin' ? 'text-danger' : (message.senderRole === 'sub_admin' ? 'text-warning' : 'text-info');
         
         content += `
-            <div class="small ${isCurrentUser ? 'text-light' : 'text-muted'} mt-2">
-                <strong class="${isCurrentUser ? 'text-light' : roleColor}">
-                    ${message.senderRole === 'admin' ? '👑 ' : (message.senderRole === 'sub_admin' ? '🛡️ ' : '👤 ')}${escapeHtml(message.senderName)}
-                </strong> • ${timestamp}
+            <div class="small ${isCurrentUser ? 'text-light' : 'text-muted'} mt-1">
+                <strong>${escapeHtml(message.senderName)}</strong> • ${timestamp}
                 ${message.readBy && message.readBy[`user_${otherUserId}`] ? '<i class="fas fa-check-double ms-1"></i>' : '<i class="fas fa-check ms-1"></i>'}
             </div>
         `;
@@ -311,7 +248,7 @@
     }
 
     function sendMessage(content, type = 'text', imageUrl = null, imageName = null) {
-        console.log('User sending message:', { content, type, imageUrl });
+        console.log('Sending message:', { content, type, imageUrl });
         
         const messageData = {
             id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -337,12 +274,10 @@
         const messagesRef = ref(database, `messages/${conversationId}`);
         push(messagesRef, messageData)
             .then(() => {
-                console.log('User message sent successfully');
-                // Notify backend about new message (Method B)
-                notifyNewMessage(messageData);
+                console.log('Message sent successfully');
             })
             .catch((error) => {
-                console.error('Error sending user message:', error);
+                console.error('Error sending message:', error);
                 alert('Failed to send message. Please try again.');
             });
 
@@ -383,7 +318,7 @@
 
         set(conversationRef, conversationData)
             .then(() => {
-                console.log('User conversation updated successfully');
+                console.log('Conversation updated successfully');
             })
             .catch((error) => {
                 console.error('Error updating conversation:', error);
@@ -462,49 +397,30 @@
         });
     }
 
-    // Notify backend about new message (Method B)
-    function notifyNewMessage(messageData) {
-        // Get CSRF token
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-        
-        const payload = {
-            conversation_id: conversationId,
-            sender_id: messageData.senderId,
-            sender_name: messageData.senderName,
-            preview: messageData.type === 'image' ? '' : (messageData.content || ''),
-            type: messageData.type,
-            timestamp: Date.now()
-        };
-
-        fetch('/chat/notify-new-message', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-            credentials: 'same-origin',
-            body: JSON.stringify(payload)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Notification sent successfully:', data);
-        })
-        .catch(error => {
-            console.error('Error sending notification:', error);
-            // Don't show alert to user, just log the error
-        });
-    }
-
     // Global function for image modal
     window.showImageModal = function(imageUrl) {
         document.getElementById('preview-image').src = imageUrl;
         const modal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
         modal.show();
+    };
+
+    // Test Firebase connection
+    window.testFirebaseConnection = function() {
+        console.log('Testing Firebase connection...');
+        const testRef = ref(database, 'test');
+        set(testRef, {
+            message: 'Test connection',
+            timestamp: serverTimestamp(),
+            userId: currentUserId
+        })
+        .then(() => {
+            console.log('Firebase connection test successful!');
+            alert('Firebase connection is working!');
+        })
+        .catch((error) => {
+            console.error('Firebase connection test failed:', error);
+            alert('Firebase connection failed: ' + error.message);
+        });
     };
 </script>
 @endsection
@@ -512,20 +428,15 @@
 @push('styles')
 <style>
     #messages-container {
-        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        background-color: #f8f9fa;
     }
     
-    .bg-info {
-        background-color: #17a2b8 !important;
+    .bg-primary {
+        background-color: #007bff !important;
     }
     
-    .border-info {
-        border-color: #17a2b8 !important;
-    }
-    
-    .border-info:focus {
-        border-color: #17a2b8;
-        box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+    .bg-light {
+        background-color: #f8f9fa !important;
     }
     
     .badge {
@@ -534,6 +445,11 @@
     
     .rounded {
         border-radius: 0.5rem !important;
+    }
+    
+    #message-input:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
     }
     
     .btn-sm {

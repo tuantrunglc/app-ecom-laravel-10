@@ -78,6 +78,23 @@
 </div>
 
 <!-- Firebase Configuration and Chat Logic -->
+<style>
+/* Chat Message Line Break Support */
+.chat-message-text {
+    white-space: pre-line !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Đảm bảo textarea giữ nguyên line breaks */
+#message-input {
+    white-space: pre-wrap;
+    resize: vertical;
+}
+</style>
 <script type="module">
     // Firebase configuration
     const firebaseConfig = {
@@ -211,10 +228,10 @@
             content = `
                 <img src="${message.imageUrl}" class="img-fluid rounded mb-2" style="max-width: 200px; cursor: pointer;" 
                      onclick="showImageModal('${message.imageUrl}')" alt="Image">
-                ${message.content ? `<div>${escapeHtml(message.content)}</div>` : ''}
+                ${message.content ? `<div class="chat-message-text">${escapeHtml(message.content)}</div>` : ''}
             `;
         } else {
-            content = `<div>${escapeHtml(message.content)}</div>`;
+            content = `<div class="chat-message-text">${escapeHtml(message.content)}</div>`;
         }
         
         const timestamp = message.timestamp ? new Date(message.timestamp).toLocaleString() : 'Sending...';
