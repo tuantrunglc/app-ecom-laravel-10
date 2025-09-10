@@ -54,7 +54,7 @@
         <div id="subAdminUsersCollapse" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Users thuộc quyền:</h6>
-            <a class="collapse-item" href="{{route('sub-admin.users')}}">Danh sách Users</a>
+            <a class="collapse-item" href="{{route('sub-admin.users.index')}}">Danh sách Users</a>
             @if(auth()->user()->subAdminSettings->can_create_users)
             <a class="collapse-item" href="{{route('sub-admin.users.create')}}">Tạo User mới</a>
             @endif

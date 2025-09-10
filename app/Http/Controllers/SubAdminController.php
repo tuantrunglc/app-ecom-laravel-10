@@ -168,7 +168,7 @@ class SubAdminController extends Controller
 
         $this->updateSubAdminStats($subAdmin->id);
 
-        return redirect()->route('sub-admin.users')->with('success', 'Tạo user thành công');
+        return redirect()->route('sub-admin.users.index')->with('success', 'Tạo user thành công');
     }
 
     // Xem chi tiết user
@@ -203,7 +203,7 @@ class SubAdminController extends Controller
 
         $user->update($request->only(['name', 'email', 'status']));
 
-        return redirect()->route('sub-admin.users')->with('success', 'Cập nhật user thành công');
+        return redirect()->route('sub-admin.users.index')->with('success', 'Cập nhật user thành công');
     }
 
     // Quản lý đơn hàng

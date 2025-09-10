@@ -149,7 +149,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3 mb-2">
-                            <a href="{{ route('sub-admin.users') }}" class="btn btn-primary btn-block">
+                            <a href="{{ route('sub-admin.users.index') }}" class="btn btn-primary btn-block">
                                 <i class="iconly-boldProfile"></i> Quản lý Users
                             </a>
                         </div>
