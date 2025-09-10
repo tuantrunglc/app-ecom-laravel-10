@@ -26,20 +26,6 @@
               <th>Trạng Thái</th>
               <th>Hành Động</th>
             </tr>
-            <tr id="filter-row" style="background-color: #f8f9fa;">
-              <th></th>
-              <th><input type="text" class="form-control form-control-sm column-filter" placeholder="Lọc theo tên..." data-column="1"></th>
-              <th><input type="text" class="form-control form-control-sm column-filter" placeholder="Lọc theo email..." data-column="2"></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th>
-                <button type="button" class="btn btn-sm btn-outline-secondary" id="clear-filters" title="Xóa bộ lọc">
-                  <i class="fas fa-eraser"></i>
-                </button>
-              </th>
-            </tr>
           </thead>
           <tfoot>
             <tr>
@@ -54,116 +40,11 @@
               </tr>
           </tfoot>
           <tbody>
-            @foreach($users as $user)   
-                <tr>
-                    <td>{{$user->id}}</td>
-                    <td>
-                        <div>{{$user->name}}</div>
-                        <div>
-                            <span class="badge" style="background-color: {{$user->vip_color}}; color: #fff;">
-                                VIP: {{$user->vip_level_name}}
-                            </span>
-                            <small class="text-muted ml-1">Remaining today: {{$user->remaining_purchases_today}} / Limit: {{$user->daily_purchase_limit}}</small>
-                        </div>
-                    </td>
-                    <td>{{$user->email}}</td>
-                    <td>
-                        @if($user->photo)
-                            <img src="{{$user->photo}}" class="img-fluid rounded-circle" style="max-width:50px" alt="{{$user->photo}}">
-                        @else
-                            <img src="{{asset('backend/img/avatar.png')}}" class="img-fluid rounded-circle" style="max-width:50px" alt="avatar.png">
-                        @endif
-                    </td>
-                    <td>{{(($user->created_at)? $user->created_at->diffForHumans() : '')}}</td>
-                    <td>{{$user->role}}</td>
-                    <td>
-                        @if($user->status=='active')
-                            <span class="badge badge-success">{{$user->status}}</span>
-                        @else
-                            <span class="badge badge-warning">{{$user->status}}</span>
-                        @endif
-                    </td>
-                    <td>
-                        <div class="d-flex flex-wrap">
-                            <!-- Edit User Info -->
-                            <button class="btn btn-info btn-sm mr-1 mb-1 edit-user-btn" data-id="{{$user->id}}" data-toggle="tooltip" title="Chỉnh sửa thông tin" data-placement="bottom">
-                                <i class="fas fa-user-edit"></i>
-                            </button>
-                            
-                            <!-- Change Password -->
-                            <button class="btn btn-warning btn-sm mr-1 mb-1 change-password-btn" data-id="{{$user->id}}" data-toggle="tooltip" title="Đổi mật khẩu" data-placement="bottom">
-                                <i class="fas fa-key"></i>
-                            </button>
-                            
-                            <!-- Toggle Status -->
-                            <button class="btn btn-sm mr-1 mb-1 toggle-status-btn {{$user->status == 'active' ? 'btn-secondary' : 'btn-success'}}" 
-                                    data-id="{{$user->id}}" 
-                                    data-status="{{$user->status}}"
-                                    data-toggle="tooltip" 
-                                    title="{{$user->status == 'active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}}" 
-                                    data-placement="bottom">
-                                <i class="fas {{$user->status == 'active' ? 'fa-lock' : 'fa-unlock'}}"></i>
-                            </button>
-                            
-                            <!-- Withdrawal Password Management -->
-                            @if($user->withdrawal_password)
-                                <button class="btn btn-success btn-sm mr-1 mb-1 change-withdrawal-password-btn" 
-                                        data-id="{{$user->id}}" 
-                                        data-toggle="tooltip" 
-                                        title="Thay đổi mật khẩu rút tiền" 
-                                        data-placement="bottom">
-                                    <i class="fas fa-shield-alt"></i>
-                                </button>
-                            @else
-                                <button class="btn btn-warning btn-sm mr-1 mb-1 create-withdrawal-password-btn" 
-                                        data-id="{{$user->id}}" 
-                                        data-toggle="tooltip" 
-                                        title="Tạo mật khẩu rút tiền" 
-                                        data-placement="bottom">
-                                    <i class="fas fa-plus-circle"></i>
-                                </button>
-                            @endif
-                            
-                            <!-- Original Edit -->
-                            <a href="{{route('users.edit',$user->id)}}" class="btn btn-primary btn-sm mr-1 mb-1" data-toggle="tooltip" title="Chỉnh sửa" data-placement="bottom">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            
-                            <!-- Delete -->
-                            <form method="POST" action="{{route('users.destroy',[$user->id])}}" style="display: inline;">
-                                @csrf 
-                                @method('delete')
-                                <button class="btn btn-danger btn-sm mb-1 dltBtn" data-id={{$user->id}} data-toggle="tooltip" data-placement="bottom" title="Xóa">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                    {{-- Delete Modal --}}
-                    {{-- <div class="modal fade" id="delModal{{$user->id}}" tabindex="-1" role="dialog" aria-labelledby="#delModal{{$user->id}}Label" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h5 class="modal-title" id="#delModal{{$user->id}}Label">Delete user</h5>
-                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                              </button>
-                            </div>
-                            <div class="modal-body">
-                              <form method="post" action="{{ route('users.destroy',$user->id) }}">
-                                @csrf 
-                                @method('delete')
-                                <button type="submit" class="btn btn-danger" style="margin:auto; text-align:center">Parmanent delete user</button>
-                              </form>
-                            </div>
-                          </div>
-                        </div>
-                    </div> --}}
-                </tr>  
-            @endforeach
+            {{-- Dữ liệu sẽ được load qua AJAX DataTable --}}
           </tbody>
         </table>
-        <span style="float:right">{{$users->links()}}</span>
+        {{-- Ẩn pagination Laravel vì DataTable tự xử lý --}}
+        {{-- <span style="float:right">{{$users->links()}}</span> --}}
       </div>
     </div>
 </div>
@@ -427,30 +308,6 @@
       .d-flex .btn {
           white-space: nowrap;
       }
-      .column-filter {
-          border: 1px solid #d1d3e2;
-          padding: 0.375rem 0.75rem;
-          font-size: 0.875rem;
-          border-radius: 0.35rem;
-          transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-      }
-      .column-filter:focus {
-          border-color: #80bdff;
-          outline: 0;
-          box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-      }
-      #filter-row th {
-          padding: 0.5rem;
-          vertical-align: middle;
-      }
-      #clear-filters {
-          padding: 0.25rem 0.5rem;
-          font-size: 0.75rem;
-      }
-      #clear-filters:hover {
-          background-color: #e2e6ea;
-          border-color: #adb5bd;
-      }
   </style>
 @endpush
 
@@ -466,15 +323,37 @@
   <script>
       
       $('#user-dataTable').DataTable( {
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                "url": "{{ route('users.index') }}",
+                "type": "GET",
+                "data": function(d) {
+                    d.ajax = 1; // Để backend biết đây là AJAX request
+                }
+            },
+            "columns": [
+                { "data": "id", "name": "id" },
+                { "data": "name", "name": "name", "orderable": false },
+                { "data": "email", "name": "email" },
+                { "data": "photo", "name": "photo", "orderable": false, "searchable": false },
+                { "data": "created_at", "name": "created_at" },
+                { "data": "role", "name": "role" },
+                { "data": "status", "name": "status" },
+                { "data": "action", "name": "action", "orderable": false, "searchable": false }
+            ],
             "columnDefs":[
                 {
                     "orderable":false,
-                    "targets":[7] // Chỉ cột Action không sort được
+                    "targets":[1, 3, 7] // Name, Photo, Action không sort được
                 }
             ],
+            "order": [[ 0, "desc" ]], // Sắp xếp theo ID giảm dần
+            "pageLength": 10,
+            "lengthMenu": [10, 25, 50, 100],
             "language": {
                 "processing": "Đang xử lý...",
-                "search": "Tìm kiếm:",
+                "search": "Tìm kiếm trong tất cả bản ghi:",
                 "lengthMenu": "Hiển thị _MENU_ mục",
                 "info": "Hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
                 "infoEmpty": "Hiển thị 0 đến 0 trong tổng số 0 mục",
@@ -496,36 +375,15 @@
             }
         } );
 
-        // Column filtering functionality
-        $('.column-filter').on('keyup change', function() {
-            var table = $('#user-dataTable').DataTable();
-            var columnIndex = $(this).data('column');
-            var searchValue = $(this).val();
-            
-            table.column(columnIndex).search(searchValue).draw();
-        });
-
-        // Clear filters functionality
-        $('#clear-filters').on('click', function() {
-            var table = $('#user-dataTable').DataTable();
-            
-            // Clear all column filters
-            $('.column-filter').val('');
-            
-            // Reset all column searches
-            table.columns().search('').draw();
-            
-            // Visual feedback
-            $(this).find('i').removeClass('fa-eraser').addClass('fa-check');
-            setTimeout(function() {
-                $('#clear-filters i').removeClass('fa-check').addClass('fa-eraser');
-            }, 500);
-        });
-
         // Sweet alert
 
         function deleteData(id){
             
+        }
+        
+        // Function to reload DataTable
+        function reloadDataTable() {
+            $('#user-dataTable').DataTable().ajax.reload(null, false);
         }
   </script>
   <script>
@@ -550,7 +408,19 @@
             })
             .then((willDelete) => {
                 if (willDelete) {
-                   form.submit();
+                   // Submit form via AJAX to avoid page reload
+                   $.ajax({
+                       url: form.attr('action'),
+                       type: 'POST',
+                       data: form.serialize(),
+                       success: function(response) {
+                           swal("Success!", "User deleted successfully!", "success");
+                           reloadDataTable();
+                       },
+                       error: function() {
+                           swal("Error!", "Something went wrong!", "error");
+                       }
+                   });
                 } else {
                     swal("Your data is safe!");
                 }
@@ -626,8 +496,8 @@
                                 btn.attr('title', 'Mở khóa tài khoản');
                             }
                             
-                            // Update status badge
-                            statusCell.html(response.status_badge);
+                            // Reload table to update status badge
+                            reloadDataTable();
                         },
                         error: function(xhr){
                             var errors = xhr.responseJSON;
@@ -683,10 +553,8 @@
                     $('#editUserModal').modal('hide');
                     swal("Success!", response.success, "success");
                     
-                    // Update table row
-                    var row = $('.edit-user-btn[data-id="' + userId + '"]').closest('tr');
-                    row.find('td:nth-child(2)').text($('#edit_name').val()); // Name column
-                    row.find('td:nth-child(3)').text($('#edit_email').val()); // Email column
+                    // Reload table to update user info
+                    reloadDataTable();
                 },
                 error: function(xhr){
                     var errors = xhr.responseJSON;
@@ -745,7 +613,7 @@
                     if (response.success) {
                         $('#createWithdrawalPasswordModal').modal('hide');
                         swal("Thành công!", response.message, "success");
-                        location.reload();
+                        reloadDataTable();
                     } else {
                         swal("Lỗi!", response.message, "error");
                     }
@@ -782,7 +650,7 @@
                     if (response.success) {
                         $('#changeWithdrawalPasswordModal').modal('hide');
                         swal("Thành công!", response.message, "success");
-                        location.reload();
+                        reloadDataTable();
                     } else {
                         swal("Lỗi!", response.message, "error");
                     }

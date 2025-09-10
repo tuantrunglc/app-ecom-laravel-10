@@ -11,12 +11,7 @@
          </div>
      </div>
     <div class="card-header py-3">
-      <div class="d-flex justify-content-between align-items-center">
-          <h6 class="m-0 font-weight-bold text-primary">Danh Sách Users Thuộc Quyền</h6>
-          <button id="clear-filters" class="btn btn-sm btn-outline-secondary">
-              <i class="fas fa-times"></i> Xóa bộ lọc
-          </button>
-      </div>
+      <h6 class="m-0 font-weight-bold text-primary">Danh Sách Users Thuộc Quyền</h6>
     </div>
     <div class="card-body">
       <div class="table-responsive">
@@ -32,71 +27,13 @@
               <th>Ngày đăng ký</th>
               <th>Thao tác</th>
             </tr>
-            <tr id="filter-row">
-              <th></th>
-              <th><input type="text" class="form-control form-control-sm column-filter" placeholder="Lọc theo tên..." data-column="1"></th>
-              <th><input type="text" class="form-control form-control-sm column-filter" placeholder="Lọc theo email..." data-column="2"></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-            </tr>
           </thead>
           <tbody>
-            @foreach($users as $user)   
-                <tr>
-                    <td>{{$user->id}}</td>
-                    <td>{{$user->name}}</td>
-                    <td>{{$user->email}}</td>
-                    <td>${{number_format($user->wallet_balance, 2)}}</td>
-                    <td>
-                        @if($user->status=='active')
-                            <span class="badge badge-success">{{$user->status}}</span>
-                        @else
-                            <span class="badge badge-warning">{{$user->status}}</span>
-                        @endif
-                    </td>
-                    <td>{{$user->created_at->format('d M, Y')}}</td>
-                    <td>
-                        <div class="d-flex flex-wrap">
-                            <!-- View Details -->
-                            <a href="{{route('sub-admin.users.show', $user->id)}}" class="btn btn-primary btn-sm mr-1 mb-1" data-toggle="tooltip" title="Xem chi tiết" data-placement="bottom">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            
-                            @if($subAdmin->subAdminSettings->can_manage_users)
-                            <!-- Edit User Info -->
-                            <button class="btn btn-info btn-sm mr-1 mb-1 edit-user-btn" data-id="{{$user->id}}" data-toggle="tooltip" title="Chỉnh sửa thông tin" data-placement="bottom">
-                                <i class="fas fa-user-edit"></i>
-                            </button>
-                            
-                            <!-- Change Password -->
-                            <button class="btn btn-warning btn-sm mr-1 mb-1 change-password-btn" data-id="{{$user->id}}" data-toggle="tooltip" title="Đổi mật khẩu" data-placement="bottom">
-                                <i class="fas fa-key"></i>
-                            </button>
-                            
-                            <!-- Toggle Status -->
-                            <button class="btn btn-sm mr-1 mb-1 toggle-status-btn {{$user->status == 'active' ? 'btn-secondary' : 'btn-success'}}" 
-                                    data-id="{{$user->id}}" 
-                                    data-status="{{$user->status}}"
-                                    data-toggle="tooltip" 
-                                    title="{{$user->status == 'active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}}" 
-                                    data-placement="bottom">
-                                <i class="fas {{$user->status == 'active' ? 'fa-lock' : 'fa-unlock'}}"></i>
-                            </button>
-                            
-                            <!-- Original Edit -->
-                            <a href="{{route('sub-admin.users.edit', $user->id)}}" class="btn btn-success btn-sm mr-1 mb-1" data-toggle="tooltip" title="Chỉnh sửa" data-placement="bottom">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            @endif
-                        </div>
-                    </td>
-                </tr>  
-            @endforeach
+            {{-- Dữ liệu sẽ được load qua AJAX DataTable --}}
           </tbody>
         </table>
-        <span style="float:right">{{$users->links()}}</span>
+        {{-- Ẩn pagination Laravel vì DataTable tự xử lý --}}
+        {{-- <span style="float:right">{{$users->links()}}</span> --}}
         @else
           <h6 class="text-center">Chưa có user nào thuộc quyền! 
             @if($subAdmin->subAdminSettings->can_create_users)
@@ -251,27 +188,6 @@
       .d-flex .btn {
           white-space: nowrap;
       }
-      
-      /* Column Filter Styles */
-      #filter-row th {
-          padding: 8px 5px;
-          background-color: #f8f9fa;
-          border-top: 2px solid #dee2e6;
-      }
-      
-      .column-filter {
-          width: 100%;
-          padding: 4px 8px;
-          font-size: 12px;
-          border: 1px solid #ced4da;
-          border-radius: 4px;
-      }
-      
-      .column-filter:focus {
-          border-color: #80bdff;
-          outline: 0;
-          box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-      }
   </style>
 @endpush
 
@@ -293,64 +209,59 @@
         });
 
         $('#user-dataTable').DataTable( {
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                "url": "{{ route('sub-admin.users.index') }}",
+                "type": "GET",
+                "data": function(d) {
+                    d.ajax = 1; // Để backend biết đây là AJAX request
+                }
+            },
+            "columns": [
+                { "data": "id", "name": "id" },
+                { "data": "name", "name": "name" },
+                { "data": "email", "name": "email" },
+                { "data": "wallet_balance", "name": "wallet_balance", "orderable": false, "searchable": false },
+                { "data": "status", "name": "status" },
+                { "data": "created_at", "name": "created_at" },
+                { "data": "action", "name": "action", "orderable": false, "searchable": false }
+            ],
             "columnDefs":[
                 {
                     "orderable":false,
-                    "targets":[6]
+                    "targets":[3, 6] // Wallet Balance và Action không sort được
                 }
             ],
+            "order": [[ 0, "desc" ]], // Sắp xếp theo ID giảm dần
+            "pageLength": 10,
+            "lengthMenu": [10, 25, 50, 100],
             "language": {
-                "search": "Tìm kiếm tổng:",
+                "processing": "Đang xử lý...",
+                "search": "Tìm kiếm trong tất cả bản ghi:",
                 "lengthMenu": "Hiển thị _MENU_ dòng",
                 "info": "Hiển thị _START_ đến _END_ trong _TOTAL_ dòng",
                 "infoEmpty": "Hiển thị 0 đến 0 trong 0 dòng",
                 "infoFiltered": "(lọc từ _MAX_ tổng số dòng)",
                 "zeroRecords": "Không tìm thấy dữ liệu",
-                "emptyTable": "Không có dữ liệu trong bảng"
+                "emptyTable": "Không có dữ liệu trong bảng",
+                "paginate": {
+                    "first": "Đầu tiên",
+                    "previous": "Trước",
+                    "next": "Tiếp theo",
+                    "last": "Cuối cùng"
+                },
+                "aria": {
+                    "sortAscending": ": Sắp xếp tăng dần",
+                    "sortDescending": ": Sắp xếp giảm dần"
+                }
             }
         } );
 
-        // Initialize DataTable variable for column filtering
-        var table = $('#user-dataTable').DataTable();
-
-        // Column filtering functionality
-        $('.column-filter').on('keyup change', function () {
-            var columnIndex = $(this).data('column');
-            var searchValue = this.value;
-            
-            table
-                .column(columnIndex)
-                .search(searchValue)
-                .draw();
-        });
-
-        // Clear individual filters when global search is used
-        $('.dataTables_filter input').on('keyup', function() {
-            if ($(this).val() === '') {
-                $('.column-filter').val('');
-                table.columns().search('').draw();
-            }
-        });
-
-        // Clear all filters button
-        $('#clear-filters').on('click', function() {
-            $('.column-filter').val('');
-            $('.dataTables_filter input').val('');
-            table.search('').columns().search('').draw();
-        });
-
-        // Add some helpful indicators
-        $('.column-filter').on('input', function() {
-            var hasFilters = $('.column-filter').filter(function() {
-                return $(this).val() !== '';
-            }).length > 0;
-            
-            if (hasFilters) {
-                $('#clear-filters').removeClass('btn-outline-secondary').addClass('btn-outline-primary');
-            } else {
-                $('#clear-filters').removeClass('btn-outline-primary').addClass('btn-outline-secondary');
-            }
-        });
+        // Function to reload DataTable
+        function reloadDataTable() {
+            $('#user-dataTable').DataTable().ajax.reload(null, false);
+        }
 
         // Change Password functionality
         $(document).on('click', '.change-password-btn', function(){
@@ -421,8 +332,8 @@
                                 btn.attr('title', 'Mở khóa tài khoản');
                             }
                             
-                            // Update status badge
-                            statusCell.html(response.status_badge);
+                            // Reload table to update status badge
+                            reloadDataTable();
                         },
                         error: function(xhr){
                             var errors = xhr.responseJSON;
@@ -479,10 +390,8 @@
                     $('#editUserModal').modal('hide');
                     swal("Success!", response.success, "success");
                     
-                    // Update table row
-                    var row = $('.edit-user-btn[data-id="' + userId + '"]').closest('tr');
-                    row.find('td:nth-child(2)').text($('#edit_name').val()); // Name column
-                    row.find('td:nth-child(3)').text($('#edit_email').val()); // Email column
+                    // Reload table to update user info
+                    reloadDataTable();
                 },
                 error: function(xhr){
                     var errors = xhr.responseJSON;

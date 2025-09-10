@@ -13,9 +13,107 @@ class UsersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users=User::orderBy('id','ASC')->paginate(10);
+        // Nếu là AJAX request từ DataTable
+        if ($request->ajax()) {
+            $query = User::query();
+            
+            // Xử lý tìm kiếm
+            if ($request->has('search') && $request->search['value'] != '') {
+                $search = $request->search['value'];
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'LIKE', "%{$search}%")
+                      ->orWhere('email', 'LIKE', "%{$search}%")
+                      ->orWhere('role', 'LIKE', "%{$search}%")
+                      ->orWhere('status', 'LIKE', "%{$search}%");
+                });
+            }
+            
+            // Xử lý sắp xếp
+            if ($request->has('order')) {
+                $orderColumn = $request->order[0]['column'];
+                $orderDir = $request->order[0]['dir'];
+                
+                $columns = ['id', 'name', 'email', 'photo', 'created_at', 'role', 'status', 'action'];
+                if (isset($columns[$orderColumn])) {
+                    $query->orderBy($columns[$orderColumn], $orderDir);
+                }
+            } else {
+                $query->orderBy('id', 'DESC');
+            }
+            
+            // Tổng số bản ghi
+            $totalRecords = User::count();
+            $filteredRecords = $query->count();
+            
+            // Phân trang
+            $start = $request->start ?? 0;
+            $length = $request->length ?? 10;
+            $users = $query->skip($start)->take($length)->get();
+            
+            // Format dữ liệu cho DataTable
+            $data = [];
+            foreach ($users as $user) {
+                $statusBadge = $user->status == 'active' 
+                    ? '<span class="badge badge-success">'.$user->status.'</span>'
+                    : '<span class="badge badge-warning">'.$user->status.'</span>';
+                
+                $photo = $user->photo 
+                    ? '<img src="'.$user->photo.'" class="img-fluid rounded-circle" style="max-width:50px" alt="'.$user->photo.'">'
+                    : '<img src="'.asset('backend/img/avatar.png').'" class="img-fluid rounded-circle" style="max-width:50px" alt="avatar.png">';
+                
+                $nameWithVip = '<div>'.$user->name.'</div>';
+                if ($user->vip_level_name) {
+                    $nameWithVip .= '<div><span class="badge" style="background-color: '.($user->vip_color ?? '#007bff').'; color: #fff;">VIP: '.$user->vip_level_name.'</span>';
+                    $nameWithVip .= '<small class="text-muted ml-1">Remaining today: '.($user->remaining_purchases_today ?? 0).' / Limit: '.($user->daily_purchase_limit ?? 0).'</small></div>';
+                }
+                
+                // Action buttons
+                $actionButtons = '<div class="d-flex flex-wrap">';
+                $actionButtons .= '<button class="btn btn-info btn-sm mr-1 mb-1 edit-user-btn" data-id="'.$user->id.'" data-toggle="tooltip" title="Chỉnh sửa thông tin"><i class="fas fa-user-edit"></i></button>';
+                $actionButtons .= '<button class="btn btn-warning btn-sm mr-1 mb-1 change-password-btn" data-id="'.$user->id.'" data-toggle="tooltip" title="Đổi mật khẩu"><i class="fas fa-key"></i></button>';
+                
+                $statusBtnClass = $user->status == 'active' ? 'btn-secondary' : 'btn-success';
+                $statusIcon = $user->status == 'active' ? 'fa-lock' : 'fa-unlock';
+                $statusTitle = $user->status == 'active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản';
+                $actionButtons .= '<button class="btn btn-sm mr-1 mb-1 toggle-status-btn '.$statusBtnClass.'" data-id="'.$user->id.'" data-status="'.$user->status.'" data-toggle="tooltip" title="'.$statusTitle.'"><i class="fas '.$statusIcon.'"></i></button>';
+                
+                if ($user->withdrawal_password) {
+                    $actionButtons .= '<button class="btn btn-success btn-sm mr-1 mb-1 change-withdrawal-password-btn" data-id="'.$user->id.'" data-toggle="tooltip" title="Thay đổi mật khẩu rút tiền"><i class="fas fa-shield-alt"></i></button>';
+                } else {
+                    $actionButtons .= '<button class="btn btn-warning btn-sm mr-1 mb-1 create-withdrawal-password-btn" data-id="'.$user->id.'" data-toggle="tooltip" title="Tạo mật khẩu rút tiền"><i class="fas fa-plus-circle"></i></button>';
+                }
+                
+                $actionButtons .= '<a href="'.route('users.edit', $user->id).'" class="btn btn-primary btn-sm mr-1 mb-1" data-toggle="tooltip" title="Chỉnh sửa"><i class="fas fa-edit"></i></a>';
+                $actionButtons .= '<form method="POST" action="'.route('users.destroy', $user->id).'" style="display: inline;">';
+                $actionButtons .= csrf_field();
+                $actionButtons .= method_field('delete');
+                $actionButtons .= '<button class="btn btn-danger btn-sm mb-1 dltBtn" data-id="'.$user->id.'" data-toggle="tooltip" title="Xóa"><i class="fas fa-trash-alt"></i></button>';
+                $actionButtons .= '</form></div>';
+                
+                $data[] = [
+                    'id' => $user->id,
+                    'name' => $nameWithVip,
+                    'email' => $user->email,
+                    'photo' => $photo,
+                    'created_at' => $user->created_at ? $user->created_at->diffForHumans() : '',
+                    'role' => $user->role,
+                    'status' => $statusBadge,
+                    'action' => $actionButtons
+                ];
+            }
+            
+            return response()->json([
+                'draw' => intval($request->draw),
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $filteredRecords,
+                'data' => $data
+            ]);
+        }
+        
+        // Nếu không phải AJAX, trả về view thường
+        $users = User::orderBy('id','ASC')->paginate(10);
         return view('backend.users.index')->with('users',$users);
     }
 

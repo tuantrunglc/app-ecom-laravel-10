@@ -41,11 +41,91 @@ class SubAdminController extends Controller
     }
 
     // Quản lý users thuộc quyền
-    public function users()
+    public function users(Request $request)
     {
         $subAdmin = auth()->user();
-        $users = $subAdmin->managedUsers()->paginate(10);
         
+        // Nếu là AJAX request từ DataTable
+        if ($request->ajax()) {
+            $query = $subAdmin->managedUsers();
+            
+            // Xử lý tìm kiếm
+            if ($request->has('search') && $request->search['value'] != '') {
+                $search = $request->search['value'];
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'LIKE', "%{$search}%")
+                      ->orWhere('email', 'LIKE', "%{$search}%")
+                      ->orWhere('status', 'LIKE', "%{$search}%");
+                });
+            }
+            
+            // Xử lý sắp xếp
+            if ($request->has('order')) {
+                $orderColumn = $request->order[0]['column'];
+                $orderDir = $request->order[0]['dir'];
+                
+                $columns = ['id', 'name', 'email', 'wallet_balance', 'status', 'created_at', 'action'];
+                if (isset($columns[$orderColumn])) {
+                    $query->orderBy($columns[$orderColumn], $orderDir);
+                }
+            } else {
+                $query->orderBy('id', 'DESC');
+            }
+            
+            // Tổng số bản ghi
+            $totalRecords = $subAdmin->managedUsers()->count();
+            $filteredRecords = $query->count();
+            
+            // Phân trang
+            $start = $request->start ?? 0;
+            $length = $request->length ?? 10;
+            $users = $query->skip($start)->take($length)->get();
+            
+            // Format dữ liệu cho DataTable
+            $data = [];
+            foreach ($users as $user) {
+                $statusBadge = $user->status == 'active' 
+                    ? '<span class="badge badge-success">'.$user->status.'</span>'
+                    : '<span class="badge badge-warning">'.$user->status.'</span>';
+                
+                // Action buttons
+                $actionButtons = '<div class="d-flex flex-wrap">';
+                $actionButtons .= '<a href="'.route('sub-admin.users.show', $user->id).'" class="btn btn-primary btn-sm mr-1 mb-1" data-toggle="tooltip" title="Xem chi tiết"><i class="fas fa-eye"></i></a>';
+                
+                if ($subAdmin->subAdminSettings->can_manage_users) {
+                    $actionButtons .= '<button class="btn btn-info btn-sm mr-1 mb-1 edit-user-btn" data-id="'.$user->id.'" data-toggle="tooltip" title="Chỉnh sửa thông tin"><i class="fas fa-user-edit"></i></button>';
+                    $actionButtons .= '<button class="btn btn-warning btn-sm mr-1 mb-1 change-password-btn" data-id="'.$user->id.'" data-toggle="tooltip" title="Đổi mật khẩu"><i class="fas fa-key"></i></button>';
+                    
+                    $statusBtnClass = $user->status == 'active' ? 'btn-secondary' : 'btn-success';
+                    $statusIcon = $user->status == 'active' ? 'fa-lock' : 'fa-unlock';
+                    $statusTitle = $user->status == 'active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản';
+                    $actionButtons .= '<button class="btn btn-sm mr-1 mb-1 toggle-status-btn '.$statusBtnClass.'" data-id="'.$user->id.'" data-status="'.$user->status.'" data-toggle="tooltip" title="'.$statusTitle.'"><i class="fas '.$statusIcon.'"></i></button>';
+                    
+                    $actionButtons .= '<a href="'.route('sub-admin.users.edit', $user->id).'" class="btn btn-success btn-sm mr-1 mb-1" data-toggle="tooltip" title="Chỉnh sửa"><i class="fas fa-edit"></i></a>';
+                }
+                $actionButtons .= '</div>';
+                
+                $data[] = [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'wallet_balance' => '$'.number_format($user->wallet_balance, 2),
+                    'status' => $statusBadge,
+                    'created_at' => $user->created_at->format('d M, Y'),
+                    'action' => $actionButtons
+                ];
+            }
+            
+            return response()->json([
+                'draw' => intval($request->draw),
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $filteredRecords,
+                'data' => $data
+            ]);
+        }
+        
+        // Nếu không phải AJAX, trả về view thường
+        $users = $subAdmin->managedUsers()->paginate(10);
         return view('backend.sub-admin.users.index', compact('users', 'subAdmin'));
     }
 

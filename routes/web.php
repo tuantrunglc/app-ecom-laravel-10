@@ -360,7 +360,7 @@ Route::middleware(['auth', 'sub_admin'])->prefix('sub-admin')->name('sub-admin.'
     Route::get('/', [App\Http\Controllers\SubAdminController::class, 'index'])->name('dashboard');
     
     // Users Management
-    Route::get('/users', 'SubAdminController@users')->name('users');
+    Route::get('/users', 'SubAdminController@users')->name('users.index');
     Route::get('/users/create', 'SubAdminController@createUser')->name('users.create');
     Route::post('/users', 'SubAdminController@storeUser')->name('users.store');
     Route::get('/users/{id}', 'SubAdminController@showUser')->name('users.show');
