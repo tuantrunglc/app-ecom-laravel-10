@@ -136,7 +136,8 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="edit_wallet_balance">Số dư ví</label>
-                                <input type="number" class="form-control" id="edit_wallet_balance" name="wallet_balance" step="0.01" min="0">
+                                <input type="text" class="form-control" id="edit_wallet_balance" name="wallet_balance" readonly style="background-color: #f8f9fa; cursor: not-allowed;">
+                                <small class="form-text text-muted">Số dư ví chỉ có thể thay đổi thông qua hệ thống giao dịch</small>
                             </div>
                         </div>
                     </div>
