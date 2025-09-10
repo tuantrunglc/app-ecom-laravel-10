@@ -35,15 +35,6 @@
           <span>My Orders</span>
         </a>
       </li>
-
-      <!-- Reviews -->
-      <li class="nav-item {{ request()->routeIs('user.productreview.*') ? 'active' : '' }}">
-        <a class="nav-link" href="{{route('user.productreview.index')}}">
-          <i class="fas fa-star"></i>
-          <span>Reviews</span>
-        </a>
-      </li>
-
       <!-- Wallet -->
       <li class="nav-item {{ request()->routeIs('wallet.*') ? 'active' : '' }}">
         <a class="nav-link" href="{{route('wallet.index')}}">
