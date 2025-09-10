@@ -11,7 +11,12 @@
          </div>
      </div>
     <div class="card-header py-3">
-      <h6 class="m-0 font-weight-bold text-primary float-left">Danh Sách Users Thuộc Quyền</h6>
+      <div class="d-flex justify-content-between align-items-center">
+          <h6 class="m-0 font-weight-bold text-primary">Danh Sách Users Thuộc Quyền</h6>
+          <button id="clear-filters" class="btn btn-sm btn-outline-secondary">
+              <i class="fas fa-times"></i> Xóa bộ lọc
+          </button>
+      </div>
     </div>
     <div class="card-body">
       <div class="table-responsive">
@@ -26,6 +31,15 @@
               <th>Trạng thái</th>
               <th>Ngày đăng ký</th>
               <th>Thao tác</th>
+            </tr>
+            <tr id="filter-row">
+              <th></th>
+              <th><input type="text" class="form-control form-control-sm column-filter" placeholder="Lọc theo tên..." data-column="1"></th>
+              <th><input type="text" class="form-control form-control-sm column-filter" placeholder="Lọc theo email..." data-column="2"></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -237,6 +251,27 @@
       .d-flex .btn {
           white-space: nowrap;
       }
+      
+      /* Column Filter Styles */
+      #filter-row th {
+          padding: 8px 5px;
+          background-color: #f8f9fa;
+          border-top: 2px solid #dee2e6;
+      }
+      
+      .column-filter {
+          width: 100%;
+          padding: 4px 8px;
+          font-size: 12px;
+          border: 1px solid #ced4da;
+          border-radius: 4px;
+      }
+      
+      .column-filter:focus {
+          border-color: #80bdff;
+          outline: 0;
+          box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+      }
   </style>
 @endpush
 
@@ -263,8 +298,59 @@
                     "orderable":false,
                     "targets":[6]
                 }
-            ]
+            ],
+            "language": {
+                "search": "Tìm kiếm tổng:",
+                "lengthMenu": "Hiển thị _MENU_ dòng",
+                "info": "Hiển thị _START_ đến _END_ trong _TOTAL_ dòng",
+                "infoEmpty": "Hiển thị 0 đến 0 trong 0 dòng",
+                "infoFiltered": "(lọc từ _MAX_ tổng số dòng)",
+                "zeroRecords": "Không tìm thấy dữ liệu",
+                "emptyTable": "Không có dữ liệu trong bảng"
+            }
         } );
+
+        // Initialize DataTable variable for column filtering
+        var table = $('#user-dataTable').DataTable();
+
+        // Column filtering functionality
+        $('.column-filter').on('keyup change', function () {
+            var columnIndex = $(this).data('column');
+            var searchValue = this.value;
+            
+            table
+                .column(columnIndex)
+                .search(searchValue)
+                .draw();
+        });
+
+        // Clear individual filters when global search is used
+        $('.dataTables_filter input').on('keyup', function() {
+            if ($(this).val() === '') {
+                $('.column-filter').val('');
+                table.columns().search('').draw();
+            }
+        });
+
+        // Clear all filters button
+        $('#clear-filters').on('click', function() {
+            $('.column-filter').val('');
+            $('.dataTables_filter input').val('');
+            table.search('').columns().search('').draw();
+        });
+
+        // Add some helpful indicators
+        $('.column-filter').on('input', function() {
+            var hasFilters = $('.column-filter').filter(function() {
+                return $(this).val() !== '';
+            }).length > 0;
+            
+            if (hasFilters) {
+                $('#clear-filters').removeClass('btn-outline-secondary').addClass('btn-outline-primary');
+            } else {
+                $('#clear-filters').removeClass('btn-outline-primary').addClass('btn-outline-secondary');
+            }
+        });
 
         // Change Password functionality
         $(document).on('click', '.change-password-btn', function(){
@@ -367,8 +453,10 @@
                     $('#edit_bank_name').val(user.bank_name);
                     $('#edit_bank_account_number').val(user.bank_account_number);
                     $('#edit_bank_account_name').val(user.bank_account_name);
-                    $('#edit_wallet_balance').val('$' + parseFloat(user.wallet_balance || 0).toFixed(2));
-                    
+                    let balanceNum = Number(user.wallet_balance);
+                    if (isNaN(balanceNum)) balanceNum = 0;
+                    $('#edit_wallet_balance').val(balanceNum.toFixed(2));   
+
                     $('#editUserModal').modal('show');
                 },
                 error: function(xhr){

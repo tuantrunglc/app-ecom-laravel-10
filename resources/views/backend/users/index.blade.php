@@ -26,6 +26,20 @@
               <th>Trạng Thái</th>
               <th>Hành Động</th>
             </tr>
+            <tr id="filter-row" style="background-color: #f8f9fa;">
+              <th></th>
+              <th><input type="text" class="form-control form-control-sm column-filter" placeholder="Lọc theo tên..." data-column="1"></th>
+              <th><input type="text" class="form-control form-control-sm column-filter" placeholder="Lọc theo email..." data-column="2"></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="clear-filters" title="Xóa bộ lọc">
+                  <i class="fas fa-eraser"></i>
+                </button>
+              </th>
+            </tr>
           </thead>
           <tfoot>
             <tr>
@@ -413,6 +427,30 @@
       .d-flex .btn {
           white-space: nowrap;
       }
+      .column-filter {
+          border: 1px solid #d1d3e2;
+          padding: 0.375rem 0.75rem;
+          font-size: 0.875rem;
+          border-radius: 0.35rem;
+          transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+      }
+      .column-filter:focus {
+          border-color: #80bdff;
+          outline: 0;
+          box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      }
+      #filter-row th {
+          padding: 0.5rem;
+          vertical-align: middle;
+      }
+      #clear-filters {
+          padding: 0.25rem 0.5rem;
+          font-size: 0.75rem;
+      }
+      #clear-filters:hover {
+          background-color: #e2e6ea;
+          border-color: #adb5bd;
+      }
   </style>
 @endpush
 
@@ -433,8 +471,56 @@
                     "orderable":false,
                     "targets":[7] // Chỉ cột Action không sort được
                 }
-            ]
+            ],
+            "language": {
+                "processing": "Đang xử lý...",
+                "search": "Tìm kiếm:",
+                "lengthMenu": "Hiển thị _MENU_ mục",
+                "info": "Hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
+                "infoEmpty": "Hiển thị 0 đến 0 trong tổng số 0 mục",
+                "infoFiltered": "(được lọc từ _MAX_ mục)",
+                "infoPostFix": "",
+                "loadingRecords": "Đang tải...",
+                "zeroRecords": "Không tìm thấy dữ liệu phù hợp",
+                "emptyTable": "Không có dữ liệu trong bảng",
+                "paginate": {
+                    "first": "Đầu tiên",
+                    "previous": "Trước",
+                    "next": "Tiếp theo",
+                    "last": "Cuối cùng"
+                },
+                "aria": {
+                    "sortAscending": ": Sắp xếp tăng dần",
+                    "sortDescending": ": Sắp xếp giảm dần"
+                }
+            }
         } );
+
+        // Column filtering functionality
+        $('.column-filter').on('keyup change', function() {
+            var table = $('#user-dataTable').DataTable();
+            var columnIndex = $(this).data('column');
+            var searchValue = $(this).val();
+            
+            table.column(columnIndex).search(searchValue).draw();
+        });
+
+        // Clear filters functionality
+        $('#clear-filters').on('click', function() {
+            var table = $('#user-dataTable').DataTable();
+            
+            // Clear all column filters
+            $('.column-filter').val('');
+            
+            // Reset all column searches
+            table.columns().search('').draw();
+            
+            // Visual feedback
+            $(this).find('i').removeClass('fa-eraser').addClass('fa-check');
+            setTimeout(function() {
+                $('#clear-filters i').removeClass('fa-check').addClass('fa-eraser');
+            }, 500);
+        });
 
         // Sweet alert
 
@@ -572,8 +658,9 @@
                     $('#edit_bank_name').val(user.bank_name);
                     $('#edit_bank_account_number').val(user.bank_account_number);
                     $('#edit_bank_account_name').val(user.bank_account_name);
-                    $('#edit_wallet_balance').val('$' + parseFloat(user.wallet_balance || 0).toFixed(2));
-                    
+                    let balanceNum = Number(user.wallet_balance);
+                    if (isNaN(balanceNum)) balanceNum = 0;
+                    $('#edit_wallet_balance').val(balanceNum.toFixed(2));                       
                     $('#editUserModal').modal('show');
                 },
                 error: function(xhr){
