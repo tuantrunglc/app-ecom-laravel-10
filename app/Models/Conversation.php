@@ -25,7 +25,14 @@ class Conversation extends Model
 
     public function getOtherParticipant($currentUserId)
     {
-        return $this->participants()->where('user_id', '!=', $currentUserId)->first();
+        $participant = $this->participants()->where('user_id', '!=', $currentUserId)->first();
+        
+        // Nếu user bị xóa khỏi database, trả về null
+        if (!$participant) {
+            return null;
+        }
+        
+        return $participant;
     }
 
     /**

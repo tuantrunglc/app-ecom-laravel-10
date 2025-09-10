@@ -23,7 +23,14 @@ class ChatController extends Controller
         // Load parentSubAdmin relationship for display
         $availableUsers->load('parentSubAdmin');
         
-        $conversations = $user->conversations()->with('participants')->get();
+        // Load conversations with participants, but only those where participants still exist
+        $allConversations = $user->conversations()->with('participants')->get();
+        
+        // Filter out conversations where the other participant no longer exists
+        $conversations = $allConversations->filter(function($conversation) use ($user) {
+            $otherParticipant = $conversation->getOtherParticipant($user->id);
+            return $otherParticipant !== null;
+        });
         
         // Generate a simple token for frontend (you can make this more secure)
         $customToken = base64_encode(json_encode([

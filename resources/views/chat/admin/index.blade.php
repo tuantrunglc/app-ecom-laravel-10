@@ -71,6 +71,7 @@
                                             @php
                                                 $otherParticipant = $conversation->getOtherParticipant($user->id);
                                             @endphp
+                                            @if($otherParticipant)
                                             <div class="list-group-item list-group-item-action d-flex align-items-center p-3 border-bottom">
                                                 <img src="{{ $otherParticipant->photo ? asset($otherParticipant->photo) : asset('backend/img/avatar.png') }}" 
                                                      class="rounded-circle me-3" width="50" height="50" alt="Avatar">
@@ -95,6 +96,29 @@
                                                     </a>
                                                 </div>
                                             </div>
+                                            @else
+                                            <div class="list-group-item list-group-item-action d-flex align-items-center p-3 border-bottom bg-light">
+                                                <img src="{{ asset('backend/img/avatar.png') }}" 
+                                                     class="rounded-circle me-3" width="50" height="50" alt="Deleted User">
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex justify-content-between align-items-start">
+                                                        <div>
+                                                            <h6 class="mb-1 text-muted">Deleted User</h6>
+                                                            <small class="text-muted">
+                                                                <span class="badge badge-secondary">User Removed</span>
+                                                            </small>
+                                                        </div>
+                                                        <small class="text-muted">{{ $conversation->updated_at->diffForHumans() }}</small>
+                                                    </div>
+                                                    <p class="mb-1 text-muted small">User account no longer exists</p>
+                                                </div>
+                                                <div>
+                                                    <button class="btn btn-sm btn-secondary" disabled>
+                                                        <i class="fas fa-ban"></i> Unavailable
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            @endif
                                         @endforeach
                                     @else
                                         <div class="p-4 text-center text-muted">
