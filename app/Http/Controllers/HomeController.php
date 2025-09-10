@@ -144,7 +144,7 @@ class HomeController extends Controller
                     throw new \Exception('Invalid order amount');
                 }
 
-                if ($currentBalance < $amount) {
+                if ($currentBalance < $amount && $order->payment_status == 'unpaid') {
                     throw new \Exception('Insufficient wallet balance');
                 }
 
