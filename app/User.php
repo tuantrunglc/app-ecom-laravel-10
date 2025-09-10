@@ -65,6 +65,27 @@ class User extends Authenticatable
         return $this->hasOne('App\Models\SubAdminSettings', 'user_id');
     }
 
+    public function getOrCreateSubAdminSettings()
+    {
+        if (!$this->subAdminSettings) {
+            $this->subAdminSettings()->create([
+                'can_manage_users' => false,
+                'can_create_users' => false,
+                'can_manage_orders' => false,
+                'can_view_reports' => false,
+                'max_users_allowed' => 0,
+                'commission_rate' => 0.00,
+                'auto_approve_users' => false,
+                'notification_new_user' => true,
+                'notification_new_order' => true,
+                'notification_new_deposit' => true,
+                'notification_new_withdrawal' => true,
+            ]);
+            $this->load('subAdminSettings');
+        }
+        return $this->subAdminSettings;
+    }
+
     public function managedUsers()
     {
         return $this->hasMany('App\User', 'parent_sub_admin_id');

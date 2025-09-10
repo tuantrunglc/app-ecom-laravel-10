@@ -48,9 +48,9 @@
                     <td>
                         @if($subAdmin->subAdminStats)
                             <span class="badge badge-info">{{$subAdmin->subAdminStats->total_users}}</span> / 
-                            <span class="badge badge-secondary">{{$subAdmin->subAdminSettings->max_users_allowed}}</span>
+                            <span class="badge badge-secondary">{{$subAdmin->subAdminSettings ? $subAdmin->subAdminSettings->max_users_allowed : 0}}</span>
                         @else
-                            <span class="badge badge-secondary">0</span>
+                            <span class="badge badge-secondary">0 / {{$subAdmin->subAdminSettings ? $subAdmin->subAdminSettings->max_users_allowed : 0}}</span>
                         @endif
                     </td>
                     <td>

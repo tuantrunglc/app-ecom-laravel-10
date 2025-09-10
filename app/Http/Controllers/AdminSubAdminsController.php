@@ -23,6 +23,13 @@ class AdminSubAdminsController extends Controller
             ->with(['subAdminSettings', 'subAdminStats'])
             ->paginate(10);
         
+        // Đảm bảo tất cả sub-admin đều có settings
+        foreach ($subAdmins as $subAdmin) {
+            if (!$subAdmin->subAdminSettings) {
+                $subAdmin->getOrCreateSubAdminSettings();
+            }
+        }
+        
         return view('backend.admin.sub-admins.index', compact('subAdmins'));
     }
 

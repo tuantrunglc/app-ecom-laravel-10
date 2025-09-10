@@ -89,9 +89,7 @@ class SubAdminController extends Controller
                     : '<span class="badge badge-warning">'.$user->status.'</span>';
                 
                 // Action buttons
-                $actionButtons = '<div class="d-flex flex-wrap">';
-                $actionButtons .= '<a href="'.route('sub-admin.users.show', $user->id).'" class="btn btn-primary btn-sm mr-1 mb-1" data-toggle="tooltip" title="Xem chi tiết"><i class="fas fa-eye"></i></a>';
-                
+                $actionButtons = '<div class="d-flex flex-wrap">';                
                 if ($subAdmin->subAdminSettings->can_manage_users) {
                     $actionButtons .= '<button class="btn btn-info btn-sm mr-1 mb-1 edit-user-btn" data-id="'.$user->id.'" data-toggle="tooltip" title="Chỉnh sửa thông tin"><i class="fas fa-user-edit"></i></button>';
                     $actionButtons .= '<button class="btn btn-warning btn-sm mr-1 mb-1 change-password-btn" data-id="'.$user->id.'" data-toggle="tooltip" title="Đổi mật khẩu"><i class="fas fa-key"></i></button>';
