@@ -245,6 +245,7 @@ $(document).ready(function() {
         // Confirmation dialog
         e.preventDefault();
         const actionText = action === 'add' ? 'thêm' : 'trừ';
+        const form = this;
         
         swal({
             title: 'Xác nhận thay đổi?',
@@ -256,9 +257,9 @@ $(document).ready(function() {
             confirmButtonText: 'Xác nhận',
             cancelButtonText: 'Hủy',
             closeOnConfirm: false
-        }, (isConfirm) => {
+        }, function(isConfirm) {
             if (isConfirm) {
-                $(this).off('submit').submit();
+                $(form).off('submit').submit();
             }
         });
     });
