@@ -126,6 +126,7 @@
 @endsection
 
 @push('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css" />
 <style>
     #preview-section {
         border-left: 4px solid #ffc107;
@@ -141,6 +142,7 @@
 @endpush
 
 @push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
 <script>
 $(document).ready(function() {
     // Character counter for reason field
@@ -236,12 +238,7 @@ $(document).ready(function() {
 
         if (action === 'subtract' && amount > currentBalance) {
             e.preventDefault();
-            Swal.fire({
-                icon: 'error',
-                title: 'Lỗi!',
-                text: 'Số dư không đủ để thực hiện giao dịch!',
-                confirmButtonText: 'OK'
-            });
+            swal("Lỗi!", "Số dư không đủ để thực hiện giao dịch!", "error");
             return false;
         }
 
@@ -249,17 +246,18 @@ $(document).ready(function() {
         e.preventDefault();
         const actionText = action === 'add' ? 'thêm' : 'trừ';
         
-        Swal.fire({
+        swal({
             title: 'Xác nhận thay đổi?',
-            html: `Bạn có chắc chắn muốn <strong>${actionText} $${amount.toFixed(2)}</strong> vào ví của <strong>{{ $user->name }}</strong>?`,
-            icon: 'question',
+            text: `Bạn có chắc chắn muốn ${actionText} $${amount.toFixed(2)} vào ví của {{ $user->name }}?`,
+            type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#28a745',
             cancelButtonColor: '#6c757d',
             confirmButtonText: 'Xác nhận',
-            cancelButtonText: 'Hủy'
-        }).then((result) => {
-            if (result.isConfirmed) {
+            cancelButtonText: 'Hủy',
+            closeOnConfirm: false
+        }, (isConfirm) => {
+            if (isConfirm) {
                 $(this).off('submit').submit();
             }
         });
