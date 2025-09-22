@@ -247,21 +247,11 @@ $(document).ready(function() {
         const actionText = action === 'add' ? 'thêm' : 'trừ';
         const form = this;
         
-        swal({
-            title: 'Xác nhận thay đổi?',
-            text: `Bạn có chắc chắn muốn ${actionText} $${amount.toFixed(2)} vào ví của {{ $user->name }}?`,
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#28a745',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Xác nhận',
-            cancelButtonText: 'Hủy',
-            closeOnConfirm: false
-        }, function(isConfirm) {
-            if (isConfirm) {
-                $(form).off('submit').submit();
-            }
-        });
+        const confirmMessage = `Bạn có chắc chắn muốn ${actionText} $${amount.toFixed(2)} vào ví của {{ $user->name }}?`;
+        
+        if (confirm(confirmMessage)) {
+            $(form).off('submit').submit();
+        }
     });
 });
 </script>
