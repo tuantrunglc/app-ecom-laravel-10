@@ -339,6 +339,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin/wallet')->name('admin.wallet
     Route::get('/withdrawals', 'Admin\WalletController@withdrawals')->name('withdrawals');
     Route::post('/withdrawals/{id}/approve', 'Admin\WalletController@approveWithdrawal')->name('withdrawals.approve');
     Route::post('/{type}/{id}/reject', 'Admin\WalletController@reject')->name('reject');
+    
+    // Admin edit user balance routes
+    Route::get('/edit-balance/{user}', [WalletController::class, 'adminEditBalance'])->name('edit-balance');
+    Route::put('/update-balance/{user}', [WalletController::class, 'adminUpdateBalance'])->name('update-balance');
 });
 
 // Admin Sub Admins Management Routes

@@ -250,4 +250,118 @@ class WalletController extends Controller
             Notification::send($recipients, new StatusNotification($details));
         }
     }
+
+    /**
+     * Admin: Form chỉnh sửa số dư ví user
+     */
+    public function adminEditBalance($userId)
+    {
+        // Chỉ admin mới có quyền
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Unauthorized access');
+        }
+
+        $user = User::findOrFail($userId);
+        return view('backend.users.edit-balance', compact('user'));
+    }
+
+    /**
+     * Admin: Xử lý chỉnh sửa số dư ví
+     */
+    public function adminUpdateBalance(Request $request, $userId)
+    {
+        // Chỉ admin mới có quyền
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Unauthorized access');
+        }
+
+        $request->validate([
+            'action' => 'required|in:add,subtract',
+            'amount' => 'required|numeric|min:0.01|max:999999',
+            'reason' => 'required|string|max:500'
+        ], [
+            'action.required' => 'Vui lòng chọn hành động',
+            'action.in' => 'Hành động không hợp lệ',
+            'amount.required' => 'Vui lòng nhập số tiền',
+            'amount.numeric' => 'Số tiền phải là số',
+            'amount.min' => 'Số tiền tối thiểu là 0.01',
+            'amount.max' => 'Số tiền tối đa là 999,999',
+            'reason.required' => 'Vui lòng nhập lý do',
+            'reason.max' => 'Lý do không được vượt quá 500 ký tự'
+        ]);
+
+        $user = User::findOrFail($userId);
+        $admin = auth()->user();
+        $amount = $request->amount;
+        $action = $request->action;
+        $reason = $request->reason;
+
+        try {
+            DB::transaction(function () use ($user, $admin, $amount, $action, $reason) {
+                $balanceBefore = $user->wallet_balance;
+                
+                if ($action === 'add') {
+                    // Thêm tiền vào ví
+                    $balanceAfter = $balanceBefore + $amount;
+                    $transactionType = 'deposit';
+                    $description = "Admin deposit by {$admin->name}: {$reason}";
+                } else {
+                    // Trừ tiền khỏi ví
+                    if ($balanceBefore < $amount) {
+                        throw new \Exception('Số dư không đủ để thực hiện giao dịch');
+                    }
+                    $balanceAfter = $balanceBefore - $amount;
+                    $transactionType = 'withdraw';
+                    $description = "Admin withdrawal by {$admin->name}: {$reason}";
+                }
+
+                // Cập nhật số dư ví user
+                $user->update(['wallet_balance' => $balanceAfter]);
+
+                // Tạo bản ghi giao dịch
+                WalletTransaction::create([
+                    'user_id' => $user->id,
+                    'type' => $transactionType,
+                    'amount' => $amount,
+                    'balance_before' => $balanceBefore,
+                    'balance_after' => $balanceAfter,
+                    'description' => $description,
+                    'status' => 'completed'
+                ]);
+            });
+
+            // Gửi thông báo cho user
+            $this->sendBalanceUpdateNotification($user, $action, $amount, $reason);
+
+            return redirect()->route('users.index')
+                ->with('success', "Đã {$this->getActionText($action)} ${$amount} vào ví của {$user->name}");
+
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Gửi thông báo cho user khi admin thay đổi số dư
+     */
+    private function sendBalanceUpdateNotification($user, $action, $amount, $reason)
+    {
+        $actionText = $action === 'add' ? 'added' : 'deducted';
+        $details = [
+            'title' => "Wallet Update: ${$amount} {$actionText} by Admin",
+            'actionText' => $reason,
+            'actionURL' => route('wallet.index'),
+            'fas' => $action === 'add' ? 'fas fa-plus-circle' : 'fas fa-minus-circle'
+        ];
+
+        $user->notify(new StatusNotification($details));
+    }
+
+    /**
+     * Helper: Lấy text action
+     */
+    private function getActionText($action)
+    {
+        return $action === 'add' ? 'thêm' : 'trừ';
+    }
 }

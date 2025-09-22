@@ -85,6 +85,9 @@ class UsersController extends Controller
                     $actionButtons .= '<button class="btn btn-warning btn-sm mr-1 mb-1 create-withdrawal-password-btn" data-id="'.$user->id.'" data-toggle="tooltip" title="Tạo mật khẩu rút tiền"><i class="fas fa-plus-circle"></i></button>';
                 }
                 
+                // Add wallet edit button for admin only
+                $actionButtons .= '<a href="'.route('admin.wallet.edit-balance', $user->id).'" class="btn btn-success btn-sm mr-1 mb-1" data-toggle="tooltip" title="Chỉnh sửa số dư ví"><i class="fas fa-wallet"></i></a>';
+                
                 $actionButtons .= '<a href="'.route('users.edit', $user->id).'" class="btn btn-primary btn-sm mr-1 mb-1" data-toggle="tooltip" title="Chỉnh sửa"><i class="fas fa-edit"></i></a>';
                 $actionButtons .= '<form method="POST" action="'.route('users.destroy', $user->id).'" style="display: inline;">';
                 $actionButtons .= csrf_field();
