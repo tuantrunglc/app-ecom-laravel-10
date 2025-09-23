@@ -20,7 +20,7 @@ class User extends Authenticatable
         'wallet_balance', 'sub_admin_code', 'parent_sub_admin_id', 'referral_code', 'created_by',
         'birth_date', 'age', 'gender', 'address', 'bank_name', 'bank_account_number', 'bank_account_name',
         'withdrawal_password', 'withdrawal_password_created_at', 'withdrawal_password_updated_at',
-        'vip_level_id'
+        'vip_level_id', 'phone_number'
     ];
 
     /**
@@ -329,5 +329,34 @@ class User extends Authenticatable
     public static function validateWithdrawalPin($pin)
     {
         return preg_match('/^\d{4,6}$/', $pin);
+    }
+
+    /**
+     * Check if user can update their phone number
+     * User can only update once, admin/sub_admin can always update
+     */
+    public function canUpdatePhoneNumber($currentUser = null)
+    {
+        // If admin or sub_admin is updating, always allow
+        if ($currentUser && in_array($currentUser->role, ['admin', 'sub_admin'])) {
+            return true;
+        }
+
+        // If user doesn't have phone number yet, allow update
+        return empty($this->phone_number);
+    }
+
+    /**
+     * Check if phone number exists for another user
+     */
+    public static function phoneNumberExists($phoneNumber, $excludeUserId = null)
+    {
+        $query = self::where('phone_number', $phoneNumber);
+        
+        if ($excludeUserId) {
+            $query->where('id', '!=', $excludeUserId);
+        }
+        
+        return $query->exists();
     }
 }
