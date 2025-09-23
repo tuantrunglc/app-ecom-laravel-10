@@ -45,8 +45,12 @@ class HomeController extends Controller
 
     public function profileUpdate(Request $request,$id){
         // return $request->all();
-        $request->validate([
+        $user = User::findOrFail($id);
+        
+        // Custom validation rules for phone_number
+        $rules = [
             'name' => 'required|string|max:255',
+            'phone_number' => 'nullable|string|max:15|regex:/^[0-9+\-\s()]{10,15}$/|unique:users,phone_number,' . $id,
             'birth_date' => 'nullable|date|before:today',
             'age' => 'nullable|integer|min:1|max:120',
             'gender' => 'nullable|in:male,female,other',
@@ -55,9 +59,13 @@ class HomeController extends Controller
             'bank_account_number' => 'nullable|string|max:50',
             'bank_account_name' => 'nullable|string|max:255',
             'photo' => 'nullable|string'
-        ], [
+        ];
+
+        $messages = [
             'name.required' => 'Name is required',
             'name.max' => 'Name cannot exceed 255 characters',
+            'phone_number.unique' => 'This phone number is already taken by another user',
+            'phone_number.regex' => 'Phone number format is invalid',
             'birth_date.date' => 'Please enter a valid date',
             'birth_date.before' => 'Birth date must be before today',
             'age.integer' => 'Age must be a number',
@@ -68,9 +76,16 @@ class HomeController extends Controller
             'bank_name.max' => 'Bank name cannot exceed 255 characters',
             'bank_account_number.max' => 'Account number cannot exceed 50 characters',
             'bank_account_name.max' => 'Account holder name cannot exceed 255 characters'
-        ]);
+        ];
 
-        $user=User::findOrFail($id);
+        // Additional validation for phone_number - check if user can update it
+        if ($request->filled('phone_number')) {
+            if (!$user->canUpdatePhoneNumber()) {
+                return redirect()->back()->with('error', 'You can only set phone number once. Contact admin if you need to change it.');
+            }
+        }
+
+        $request->validate($rules, $messages);
         $data=$request->all();
         $status=$user->fill($data)->save();
         if($status){

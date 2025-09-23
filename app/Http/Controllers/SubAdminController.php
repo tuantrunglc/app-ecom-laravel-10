@@ -864,6 +864,7 @@ class SubAdminController extends Controller
                 'status' => $user->status,
                 'photo' => $user->photo,
                 'wallet_balance' => $user->wallet_balance,
+                'phone_number' => $user->phone_number,
                 'birth_date' => $user->birth_date,
                 'age' => $user->age,
                 'gender' => $user->gender,
@@ -891,6 +892,7 @@ class SubAdminController extends Controller
         $this->validate($request, [
             'name' => 'string|required|max:30',
             'email' => 'string|required|email|unique:users,email,' . $id,
+            'phone_number' => 'nullable|string|max:15|regex:/^[0-9+\-\s()]{10,15}$/|unique:users,phone_number,' . $id,
             'birth_date' => 'nullable|date',
             'age' => 'nullable|integer|min:1|max:120',
             'gender' => 'nullable|in:male,female,other',
@@ -899,10 +901,13 @@ class SubAdminController extends Controller
             'bank_name' => 'nullable|string|max:100',
             'bank_account_number' => 'nullable|string|max:50',
             'bank_account_name' => 'nullable|string|max:100',
+        ], [
+            'phone_number.unique' => 'Số điện thoại này đã được sử dụng bởi user khác',
+            'phone_number.regex' => 'Số điện thoại không đúng định dạng',
         ]);
 
         $data = $request->only([
-            'name', 'email', 'birth_date', 'age', 'gender', 'wallet_balance',
+            'name', 'email', 'phone_number', 'birth_date', 'age', 'gender', 'wallet_balance',
             'address', 'bank_name', 'bank_account_number', 'bank_account_name'
         ]);
 

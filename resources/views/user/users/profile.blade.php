@@ -65,6 +65,26 @@
                       </div>
               
                       <div class="form-group">
+                          <label for="phone_number" class="col-form-label">Phone Number</label>
+                          <input id="phone_number" type="text" name="phone_number" placeholder="Enter phone number" 
+                                 value="{{$profile->phone_number}}" class="form-control" maxlength="15"
+                                 pattern="[0-9+\-\s()]{10,15}" 
+                                 {{ !empty($profile->phone_number) ? 'readonly' : '' }}>
+                          @error('phone_number')
+                          <span class="text-danger">{{$message}}</span>
+                          @enderror
+                          @if(!empty($profile->phone_number))
+                              <small class="form-text text-success">
+                                  <i class="fas fa-check-circle"></i> Phone number has been set and cannot be changed by user
+                              </small>
+                          @else
+                              <small class="form-text text-warning">
+                                  <i class="fas fa-exclamation-triangle"></i> You can only set phone number once
+                              </small>
+                          @endif
+                      </div>
+
+                      <div class="form-group">
                       <label for="inputPhoto" class="col-form-label">Photo</label>
                       <div class="input-group">
                           <span class="input-group-btn">

@@ -20,6 +20,7 @@
               <th>STT</th>
               <th>Tên</th>
               <th>Email</th>
+              <th>Số ĐT</th>
               <th>Hình Ảnh</th>
               <th>Ngày Tham Gia</th>
               <th>Vai Trò</th>
@@ -32,6 +33,7 @@
                 <th>S.N.</th>
                 <th>Name</th>
                 <th>Email</th>
+                <th>Phone</th>
                 <th>Photo</th>
                 <th>Join Date</th>
                 <th>Role</th>
@@ -108,6 +110,13 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit_phone_number">Số điện thoại</label>
+                                <input type="text" class="form-control" id="edit_phone_number" name="phone_number" maxlength="15" pattern="[0-9+\-\s()]{10,15}">
+                                <small class="form-text text-muted">User chỉ có thể cập nhật 1 lần duy nhất</small>
+                            </div>
+                        </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="edit_birth_date">Ngày sinh</label>
@@ -337,6 +346,7 @@
                 { "data": "id", "name": "id" },
                 { "data": "name", "name": "name", "orderable": false },
                 { "data": "email", "name": "email" },
+                { "data": "phone_number", "name": "phone_number", "orderable": false },
                 { "data": "photo", "name": "photo", "orderable": false, "searchable": false },
                 { "data": "created_at", "name": "created_at" },
                 { "data": "role", "name": "role" },
@@ -522,6 +532,7 @@
                     $('#edit_user_id').val(user.id);
                     $('#edit_name').val(user.name);
                     $('#edit_email').val(user.email);
+                    $('#edit_phone_number').val(user.phone_number);
                     $('#edit_birth_date').val(user.birth_date);
                     $('#edit_age').val(user.age);
                     $('#edit_gender').val(user.gender);

@@ -95,10 +95,13 @@ class UsersController extends Controller
                 $actionButtons .= '<button class="btn btn-danger btn-sm mb-1 dltBtn" data-id="'.$user->id.'" data-toggle="tooltip" title="Xóa"><i class="fas fa-trash-alt"></i></button>';
                 $actionButtons .= '</form></div>';
                 
+                $phoneDisplay = $user->phone_number ? $user->phone_number : '<span class="text-muted"><i>Chưa cập nhật</i></span>';
+                
                 $data[] = [
                     'id' => $user->id,
                     'name' => $nameWithVip,
                     'email' => $user->email,
+                    'phone_number' => $phoneDisplay,
                     'photo' => $photo,
                     'created_at' => $user->created_at ? $user->created_at->diffForHumans() : '',
                     'role' => $user->role,
@@ -316,6 +319,7 @@ class UsersController extends Controller
                 'status' => $user->status,
                 'photo' => $user->photo,
                 'wallet_balance' => $user->wallet_balance,
+                'phone_number' => $user->phone_number,
                 'birth_date' => $user->birth_date,
                 'age' => $user->age,
                 'gender' => $user->gender,
@@ -340,9 +344,11 @@ class UsersController extends Controller
             return response()->json(['error' => 'Bạn không có quyền chỉnh sửa user này'], 403);
         }
 
-        $this->validate($request, [
+        // Custom validation for phone_number
+        $rules = [
             'name' => 'string|required|max:30',
             'email' => 'string|required|email|unique:users,email,' . $id,
+            'phone_number' => 'nullable|string|max:15|regex:/^[0-9+\-\s()]{10,15}$/|unique:users,phone_number,' . $id,
             'birth_date' => 'nullable|date',
             'age' => 'nullable|integer|min:1|max:120',
             'gender' => 'nullable|in:male,female,other',
@@ -351,10 +357,18 @@ class UsersController extends Controller
             'bank_name' => 'nullable|string|max:100',
             'bank_account_number' => 'nullable|string|max:50',
             'bank_account_name' => 'nullable|string|max:100',
-        ]);
+        ];
+
+        // Custom validation messages
+        $messages = [
+            'phone_number.unique' => 'Số điện thoại này đã được sử dụng bởi user khác',
+            'phone_number.regex' => 'Số điện thoại không đúng định dạng',
+        ];
+
+        $this->validate($request, $rules, $messages);
 
         $data = $request->only([
-            'name', 'email', 'birth_date', 'age', 'gender', 'wallet_balance',
+            'name', 'email', 'phone_number', 'birth_date', 'age', 'gender', 'wallet_balance',
             'address', 'bank_name', 'bank_account_number', 'bank_account_name'
         ]);
 

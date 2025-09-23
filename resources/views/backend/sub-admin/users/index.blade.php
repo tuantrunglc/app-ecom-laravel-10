@@ -106,6 +106,13 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
+                                <label for="edit_phone_number">Số điện thoại</label>
+                                <input type="text" class="form-control" id="edit_phone_number" name="phone_number" maxlength="15" pattern="[0-9+\-\s()]{10,15}">
+                                <small class="form-text text-muted">Sub admin có thể chỉnh sửa phone number</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
                                 <label for="edit_birth_date">Ngày sinh</label>
                                 <input type="date" class="form-control" id="edit_birth_date" name="birth_date">
                             </div>
@@ -358,6 +365,7 @@
                     $('#edit_user_id').val(user.id);
                     $('#edit_name').val(user.name);
                     $('#edit_email').val(user.email);
+                    $('#edit_phone_number').val(user.phone_number);
                     $('#edit_birth_date').val(user.birth_date);
                     $('#edit_age').val(user.age);
                     $('#edit_gender').val(user.gender);
