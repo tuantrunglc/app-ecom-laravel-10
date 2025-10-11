@@ -1,6 +1,6 @@
 @extends('frontend.layouts.master')
 
-@section('title','Walmart || Register Page')
+@section('title','Wallmart88 ||Register Page')
 
 @section('main-content')
 	<!-- Breadcrumbs -->

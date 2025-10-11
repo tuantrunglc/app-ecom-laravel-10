@@ -831,7 +831,7 @@
                         @endphp                    
                         <a href="{{route('home')}}" class="walmart-brand">
                             <img src="@foreach($settings as $data) {{$data->logo}} @endforeach" alt="logo" class="logo-img">
-                            <span class="brand-text">Walmart</span>
+                            <span class="brand-text">Wallmart 88</span>
                         </a>
                     </div>
                     <!--/ End Logo -->

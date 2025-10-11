@@ -1,5 +1,5 @@
 @extends('frontend.layouts.master')
-@section('title','Walmart || HOME PAGE')
+@section('title','Wallmart88 ||HOME PAGE')
 @section('main-content')
 
 <!-- Hero Slider Area - Walmart Style -->

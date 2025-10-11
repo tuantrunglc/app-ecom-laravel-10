@@ -1,6 +1,6 @@
 @extends('frontend.layouts.master')
 
-@section('title','Walmart || PRODUCT PAGE')
+@section('title','Wallmart88 ||PRODUCT PAGE')
 
 @section('main-content')
 	
