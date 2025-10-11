@@ -16,8 +16,9 @@
     <meta name="firebase-messaging-sender-id" content="{{ config('firebase.messaging_sender_id') }}">
     <meta name="firebase-app-id" content="{{ config('firebase.app_id') }}">
     
-    <title>Walmart || USER DASHBOARD</title>
-  
+    <title>Wallmart88 || USER DASHBOARD</title>
+    <link rel="icon" type="image/png" href="{{asset('photos/logo_01.jpg')}}">
+
     <!-- Custom fonts for this template-->
     <link href="{{asset('backend/vendor/fontawesome-free/css/all.min.css')}}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">

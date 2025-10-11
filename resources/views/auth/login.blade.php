@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>Walmart || Login Page</title>
+  <title>Wallmart88 || Login Page</title>
   @include('backend.layouts.head')
 
 </head>

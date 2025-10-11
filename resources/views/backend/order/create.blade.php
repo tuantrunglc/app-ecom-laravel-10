@@ -153,7 +153,8 @@
            <label for="status" class="col-form-label">Trạng Thái <span class="text-danger">*</span></label>
            <select name="status" class="form-control" required>
                <option value="">--Chọn trạng thái--</option>
-               <option value="new" {{(old('status')=='new') ? 'selected' : ''}}>Mới</option>
+               <option value="new" {{(old('
+                12000')=='new') ? 'selected' : ''}}>Mới</option>
                <option value="process" {{(old('status')=='process') ? 'selected' : ''}}>Đang xử lý</option>
                <option value="delivered" {{(old('status')=='delivered') ? 'selected' : ''}}>Đã giao</option>
                <option value="cancel" {{(old('status')=='cancel') ? 'selected' : ''}}>Đã hủy</option>

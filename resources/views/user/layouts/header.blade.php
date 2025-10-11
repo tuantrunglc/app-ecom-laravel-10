@@ -11,7 +11,7 @@
       <!-- Logo/Brand (Mobile) -->
       <div class="d-lg-none">
         <a href="{{route('user')}}" class="text-walmart-blue font-weight-bold">
-          <i class="fas fa-store mr-2"></i>Walmart
+          <i class="fas fa-store mr-2"></i>Wallmart88
         </a>
       </div>
     </div>

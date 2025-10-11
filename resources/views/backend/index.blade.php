@@ -1,5 +1,5 @@
 @extends('backend.layouts.master')
-@section('title','Walmart || BẢNG ĐIỀU KHIỂN')
+@section('title','Wallmart88 || BẢNG ĐIỀU KHIỂN')
 @section('main-content')
 <div class="container-fluid">
     @include('backend.layouts.notification')
